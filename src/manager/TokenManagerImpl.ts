@@ -1,0 +1,357 @@
+import { injectable } from 'inversify';
+import 'reflect-metadata';
+import { TokenManager } from './TokenManager';
+import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
+import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { Arbitration } from '../repository/models/Arbitration';
+import { BigNumber } from 'bignumber.js';
+import { ArbiterProfit } from '../repository/models/ArbiterProfit';
+import Config from '../Config';
+
+@injectable()
+export default class TokenManagerImpl implements TokenManager {
+
+    private cryptocurrencyRepository: CryptocurrencyRepository;
+    private readonly selectedTokensHistory: Map<string, Array<TokenPriceHistory>> = new Map();
+    private readonly tokensAmount: Map<string, number> = new Map();
+    private readonly tokensAmountFixed: Map<string, number> = new Map();
+    private readonly tokensWeight: Map<string, number> = new Map();
+    private startCalculationIndex: number;
+    private endCalculationIndex: number;
+    private maxCalculationIndex: number;
+
+    constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
+        this.cryptocurrencyRepository = cryptocurrencyRepository;
+    }
+
+    async setupTokens(tokenSymbols: Array<string>): Promise<Map<string, Array<TokenPriceHistory>>> {
+        this.selectedTokensHistory.clear();
+        this.tokensAmount.clear();
+        this.tokensAmountFixed.clear();
+        this.tokensWeight.clear();
+        this.startCalculationIndex = 0;
+        this.endCalculationIndex = 0;
+        this.maxCalculationIndex = 0;
+
+        for (let item of tokenSymbols) {
+            try {
+                const result: Array<TokenPriceHistory> = await this.cryptocurrencyRepository
+                    .getPriceHistoryByHour(item, 'USD', 2000);
+
+                this.selectedTokensHistory.set(item, result);
+
+                if (this.maxCalculationIndex <= 0 || this.maxCalculationIndex > result.length) {
+                    this.maxCalculationIndex = result.length;
+                    this.endCalculationIndex = this.maxCalculationIndex - 1;
+                }
+            } catch (e) {
+                console.log(`error sync ${item}: ${e}`);
+            }
+        }
+
+        return this.selectedTokensHistory;
+    }
+
+    changeProportions(proportions: Map<string, number>) {
+        proportions.forEach((value, key) => {
+            console.log('set weight', key, value);
+            this.tokensWeight.set(key, value);
+        });
+    }
+
+    changeCalculationDate(indexStart: number, indexEnd: number) {
+        if (indexEnd < this.maxCalculationIndex &&
+            indexEnd > 0 &&
+            indexStart >= 0 &&
+            indexStart < indexEnd) {
+
+            this.startCalculationIndex = indexStart;
+            this.endCalculationIndex = indexEnd;
+            console.log(`change start index ${indexStart}; end index ${indexEnd}`);
+        } else {
+            throw 'incorrect range';
+        }
+    }
+
+    getMaxCalculationIndex(): number {
+        return this.maxCalculationIndex;
+    }
+
+    getPriceHistory(): Map<string, Array<TokenPriceHistory>> {
+        return this.selectedTokensHistory;
+    }
+
+    async getAvailableTokens(): Promise<Map<string, string>> {
+        return this.cryptocurrencyRepository.getAvailableTokens();
+    }
+
+    async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
+        const result: Map<string, number> = new Map();
+        let maxProportions: number = 0;
+
+        this.tokensWeight.forEach((value) => {
+            maxProportions += value;
+        });
+
+        const btcAmount: BigNumber = new BigNumber(amount).div(Config.getBtcUsdPrice());
+        console.log('Amount$ -> BTC', amount, btcAmount.toNumber());
+
+        this.selectedTokensHistory
+            .forEach((value, key) => {
+                if (!this.tokensWeight.has(key)) {
+                    console.log('token weight not found!!!!', key);
+                    this.tokensWeight.set(key, 1);
+                }
+                const weight: number = this.tokensWeight.get(key) || 0;
+
+                const btc: BigNumber = new BigNumber(weight)
+                    .div(maxProportions)
+                    .multipliedBy(btcAmount);
+
+                const count: number = btc.div(value[this.startCalculationIndex].close).toNumber();
+
+                console.log(
+                    'name/weight/btc/count/price(per one)/', key, weight, btc.toNumber(), count,
+                    value[this.startCalculationIndex].close,
+                    new BigNumber(count)
+                        .multipliedBy(value[this.startCalculationIndex].close)
+                        .multipliedBy(Config.getBtcUsdPrice())
+                        .toNumber()
+                );
+
+                result.set(key, count);
+                this.tokensAmount.set(key, count);
+                this.tokensAmountFixed.set(key, count);
+            });
+
+        return result;
+    }
+
+    async calculateArbitration(): Promise<Array<Arbitration>> {
+        const result: Array<Arbitration> = [];
+        let historyPerHour: Map<string, number> = new Map();
+        let timestamp: number = 0;
+
+        for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
+            historyPerHour.clear();
+
+            this.selectedTokensHistory.forEach((value, key) => {
+                historyPerHour.set(key, value[i].close);
+                timestamp = value[i].time;
+            });
+
+            const txPrice: number = (Math.random() * 0.5 + 0.2) / Config.getBtcUsdPrice(); // max $0.5 min $0.2
+            let profit: ArbiterProfit = ArbiterProfit.empty();
+
+            for (const [cheap, cheapPrice] of historyPerHour) {
+                for (const [expensive, expensivePrice] of historyPerHour) {
+                    if (cheap === expensive) {
+                        continue;
+                    }
+
+                    const cheapBalance: number = this.tokensAmount.get(cheap) || 0; // cheap
+                    const cheapWeight: number = this.tokensWeight.get(cheap) || 0; // cheap
+
+                    const expensiveBalance: number = this.tokensAmount.get(expensive) || 0; // expensive
+                    const expensiveWeight: number = this.tokensWeight.get(expensive) || 0; // expensive
+
+                    // Pair<contractSellTokens/percent>
+                    const arbiterProfit: ArbiterProfit = await this.calculateArbiterProfit(
+                        cheap,
+                        cheapWeight,
+                        cheapBalance,
+                        cheapPrice,
+
+                        expensive,
+                        expensiveWeight,
+                        expensiveBalance,
+                        expensivePrice,
+                        txPrice
+                    );
+
+                    if (profit.profit < arbiterProfit.profit) {
+                        console.log('old profit', profit.profit, arbiterProfit.profit);
+                        profit = arbiterProfit;
+                    }
+                }
+            }
+
+            if (profit.profit > 0) {
+                console.log('best', profit);
+
+                let cheapPrice: number = historyPerHour.get(profit.cheapTokenName) || 0;
+                let expensivePrice: number = historyPerHour.get(profit.expensiveTokenName) || 0;
+
+                let cheapValue: number =
+                    cheapPrice * (this.tokensAmount.get(profit.cheapTokenName) || 0) * Config.getBtcUsdPrice();
+
+                let expValue: number =
+                    expensivePrice * (this.tokensAmount.get(profit.expensiveTokenName) || 0) * Config.getBtcUsdPrice();
+
+                console.log(profit.cheapTokenName, cheapPrice * profit.cheapTokensCount, cheapValue);
+                console.log(profit.expensiveTokenName, expensivePrice * profit.expensiveTokensCount, expValue);
+
+                const arb: Arbitration = new Arbitration(
+                    txPrice,
+                    profit.cheapTokenName,
+                    profit.cheapTokensCount,
+                    profit.expensiveTokenName,
+                    profit.expensiveTokensCount,
+                    profit.percent,
+                    profit.profit,
+                    0,
+                    await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
+                    new Map(),
+                    await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
+                    timestamp
+                );
+                this.acceptTransaction(arb);
+
+                cheapValue = (historyPerHour.get(profit.cheapTokenName) || 0) *
+                    (this.tokensAmount.get(profit.cheapTokenName) || 0) * Config.getBtcUsdPrice();
+                expValue = (historyPerHour.get(profit.expensiveTokenName) || 0) *
+                    (this.tokensAmount.get(profit.expensiveTokenName) || 0) * Config.getBtcUsdPrice();
+
+                console.log(profit.cheapTokenName, cheapValue, this.tokensAmount.get(profit.cheapTokenName));
+                console.log(profit.expensiveTokenName, expValue, this.tokensAmount.get(profit.expensiveTokenName));
+
+                arb.arbiterCap = await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
+                arb.arbiterTokensCap = await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour);
+
+                result.push(arb);
+            }
+        }
+
+        const arbFinished: Arbitration = new Arbitration(
+            0,
+            '',
+            0,
+            '',
+            0,
+            0,
+            0,
+            await this.calculateCapByHistory(this.tokensAmount, historyPerHour),
+            await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
+            await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour),
+            await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
+            timestamp
+        );
+        result.push(arbFinished);
+
+        for (const [key, value] of this.tokensAmount) {
+            console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
+        }
+
+        return result;
+    }
+
+    async calculateCap(): Promise<number> {
+        const historyPerHour: Map<string, number> = new Map();
+        this.selectedTokensHistory.forEach((value, key) => {
+            historyPerHour.set(key, value[this.endCalculationIndex].close);
+        });
+
+        return await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
+    }
+
+    private async calculateCapByHistory(tokensAmounts: Map<string, number>,
+                                        history: Map<string, number>): Promise<number> {
+        let cap: number = 0;
+
+        tokensAmounts.forEach((value, key) => {
+            cap += value * (history.get(key) || 0);
+        });
+
+        return cap;
+    }
+
+    private async calculateTokensPriceByHistory(tokensAmounts: Map<string, number>,
+                                                history: Map<string, number>): Promise<Map<string, number>> {
+        const result: Map<string, number> = new Map();
+
+        tokensAmounts.forEach((value, key) => {
+            result.set(key, value * (history.get(key) || 0));
+        });
+
+        return result;
+    }
+
+    private async calculateArbiterProfit(cheapName: string,
+                                         cheapWeight: number,
+                                         cheapBalance: number,
+                                         cheapPrice: number,
+                                         expensiveName: string,
+                                         expensiveWeight: number,
+                                         expensiveBalance: number,
+                                         expensivePrice: number,
+                                         txPrice: number): Promise<ArbiterProfit> {
+        // x = sqrt(p_2 * s_1 * b_1 * b_2 / p_1 / s_2) - b_1
+        const max: number = Math.sqrt(
+            expensivePrice * cheapWeight *
+            cheapBalance * expensiveBalance /
+            cheapPrice / expensiveWeight
+        ) - cheapBalance;
+
+        const percent: number = max / cheapBalance;
+
+        if (max > 0) {
+            const contractSellTokens: number =
+                this.contractSellTokens(cheapName, expensiveName, max);
+
+            const profit: number =
+                (contractSellTokens * expensivePrice) - (txPrice + (max * cheapPrice));
+
+            return new ArbiterProfit(percent, expensiveName, contractSellTokens, cheapName, max, profit);
+        }
+
+        return new ArbiterProfit(percent, '', 0, '', max, 0);
+    }
+
+    private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): number {
+        // https://github.com/MultiTKN/MultiTKN/blob/master/contracts/MultiToken.sol#L33
+        const fromBalance: BigNumber = new BigNumber(this.tokensAmount.get(fromSymbol) || 0);
+        const fromWeight: number = this.tokensWeight.get(fromSymbol) || 0;
+        const toBalance: BigNumber = new BigNumber(this.tokensAmount.get(toSymbol) || 0);
+        const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
+
+        // console.log(fromSymbol, fromWeight, toSymbol, toWeight);
+
+        const result: number = toBalance
+            .multipliedBy(amount)
+            .multipliedBy(fromWeight)
+            .div(toWeight)
+            .div(fromBalance.plus(amount))
+            .multipliedBy(0.98)
+            .toNumber();
+        // console.log('from', fromAmounts.toNumber());
+        // console.log('to', toAmounts.toNumber());
+        // console.log('amount', amount);
+        // console.log('result', result);
+
+        return result;
+    }
+
+    private acceptTransaction(arbitration: Arbitration): void {
+        const cheapAmounts: number = this.tokensAmount.get(arbitration.cheapName) || 0;
+        const expensiveAmounts: number = this.tokensAmount.get(arbitration.expensiveName) || 0;
+        const cheapResult: number = cheapAmounts + arbitration.cheapCount;
+        const expensiveResult: number = expensiveAmounts - arbitration.expensiveCount;
+
+        if (cheapResult <= 0 || expensiveResult <= 0) {
+            console.log(arbitration);
+            console.log(cheapAmounts, cheapResult);
+            console.log(expensiveAmounts, expensiveResult);
+            throw 'wrong calculation';
+        }
+
+        this.tokensAmount.set(arbitration.cheapName, cheapResult);
+        this.tokensAmount.set(arbitration.expensiveName, expensiveResult);
+        console.log(
+            'exp',
+            this.tokensAmount.get(arbitration.expensiveName),
+            'che',
+            this.tokensAmount.get(arbitration.cheapName)
+        );
+    }
+
+}
