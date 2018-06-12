@@ -1,4 +1,4 @@
-import AbstractChart, { AbstractProperties } from './AbstractChart';
+import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import Config from '../../Config';
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
@@ -15,14 +15,14 @@ const DATE_FORMAT: DateTimeFormatOptions = {
     hour: '2-digit'
 };
 
-export class HistoryChart extends AbstractChart<Properties, Map<string, Array<TokenPriceHistory>>, any> {
+export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, Array<TokenPriceHistory>>, any> {
 
-    shouldComponentUpdate(data: Readonly<Properties>, data1: Readonly<{}>, data2: any): boolean {
+    shouldComponentUpdate(data: Readonly<Properties>, data1: Readonly<AbstractState>, data2: any): boolean {
         return super.shouldComponentUpdate(data, data1, data2) ||
             (this.props.start !== data.start || this.props.end !== data.end);
     }
 
-    public parseData(): Array<any> {
+    public parseData(data: Map<string, Array<TokenPriceHistory>>): Array<any> {
         const result: Array<any> = [];
 
         for (let i = this.props.start; i < this.props.end; i++) {
@@ -30,13 +30,13 @@ export class HistoryChart extends AbstractChart<Properties, Map<string, Array<To
                 continue;
             }
 
-            const data: any = {data: ''};
-            this.props.data.forEach((value, key) => {
-                data.date = new Date(value[i].time).toLocaleDateString(['en-US'], DATE_FORMAT);
-                data[key] = value[i].close * Config.getBtcUsdPrice();
+            const dataResult: any = {data: ''};
+            data.forEach((value, key) => {
+                dataResult.date = new Date(value[i].time).toLocaleDateString(['en-US'], DATE_FORMAT);
+                dataResult[key] = value[i].close * Config.getBtcUsdPrice();
             });
 
-            result.push(data);
+            result.push(dataResult);
         }
 
         return result;

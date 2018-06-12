@@ -1,4 +1,4 @@
-import AbstractChart, { AbstractProperties } from './AbstractChart';
+import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 import { Arbitration } from '../../repository/models/Arbitration';
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 import Config from '../../Config';
@@ -13,20 +13,21 @@ const DATE_FORMAT: DateTimeFormatOptions = {
     hour: '2-digit'
 };
 
-export class TokensCapChart extends AbstractChart<Properties, Array<Arbitration>, any> {
+export class TokensCapChart extends AbstractChart<Properties, AbstractState, Array<Arbitration>, any> {
 
-    public parseData(): Array<any> {
-        return this.props.data.map(value => {
-            const data: any = {};
-            data.date = new Date(value.timestamp).toLocaleDateString(['en-US'], DATE_FORMAT);
+    public parseData(data: Array<Arbitration>): Array<any> {
+        return data.map(value => {
+            const dataResult: any = {};
+            dataResult.date = new Date(value.timestamp).toLocaleDateString(['en-US'], DATE_FORMAT);
+
             value.arbiterTokensCap.forEach((value2, key) => {
-                data['arbiter' + key] = value2 * Config.getBtcUsdPrice();
+                dataResult['arbiter' + key] = value2 * Config.getBtcUsdPrice();
             });
             value.originTokensCap.forEach((value2, key) => {
-                data['origin' + key] = value2 * Config.getBtcUsdPrice();
+                dataResult['origin' + key] = value2 * Config.getBtcUsdPrice();
             });
 
-            return data;
+            return dataResult;
         });
     }
 

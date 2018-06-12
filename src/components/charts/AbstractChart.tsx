@@ -1,58 +1,104 @@
 import * as React from 'react';
-
-const {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip} = require('recharts');
+import { Range } from 'react-input-range';
 import { scaleLog } from 'd3-scale';
-//
-// const data = [
-//     {time: 'Page A', uv: 4000, pv: 2400, amt: 2400},
-//     {name: 'Page B', uv: 3000, pv: 1398, amt: 2210},
-//     {name: 'Page C', uv: 2000, pv: 9800, amt: 2290},
-//     {name: 'Page D', uv: 2780, pv: 3908, amt: 2000},
-//     {name: 'Page E', uv: 1890, pv: 4800, amt: 2181},
-//     {name: 'Page F', uv: 2390, pv: 3800, amt: 2500},
-//     {name: 'Page G', uv: 3490, pv: 4300, amt: 2100},
-// ];
+
+const InputRange = require('react-input-range');
+const {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip} = require('recharts');
 
 export interface AbstractProperties<M> {
     data: M;
     colors: Array<string>;
     width: number;
     height: number;
+    showRange: boolean;
 }
 
-export default abstract class AbstractChart<P extends AbstractProperties<M>, M, D> extends React.Component<P, {}> {
+export interface AbstractState {
+    calculateRangeIndex: Range | number;
+}
+
+export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
+    extends React.Component<P, any> {
 
     scale: any;
+    data: Array<any>;
+    isChangedData: boolean = false;
 
     constructor(props: P) {
         super(props);
 
         this.scale = scaleLog().base(Math.E);
+        this.data = [];
+        this.isChangedData = false;
+
         this.state = {
-            adaptiveData: [],
-            names: []
+            calculateRangeIndex: {min: 0, max: 1}
         };
     }
 
-    shouldComponentUpdate(data: Readonly<P>, data1: Readonly<{}>, data2: any): boolean {
-        return this.props.data !== data.data;
+    shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
+        this.isChangedData = this.props.data !== props.data;
+
+        return this.isChangedData ||
+            (this.props.showRange && this.state.calculateRangeIndex !== state.calculateRangeIndex);
     }
 
     public render() {
         return (
-            <LineChart width={this.props.width} height={this.props.height} data={this.parseData()}>
-                <CartesianGrid strokeDasharray="3 3"/>
-                <XAxis dataKey="date"/>
-                <YAxis scale={this.scale} domain={['auto', 'auto']}/>
-                <Tooltip/>
-                {this.prepareLines()}
-            </LineChart>
+            <span>
+                <LineChart width={this.props.width} height={this.props.height} data={this.prepareData()}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey="date"/>
+                    <YAxis scale={this.scale} domain={['auto', 'auto']}/>
+                    <Tooltip/>
+                    {this.prepareLines()}
+                </LineChart>
+                {this.prepareRangeComponent()}
+            </span>
         );
     }
 
-    abstract parseData(): Array<D>;
+    abstract parseData(data: M): Array<D>;
 
     abstract getNames(): Array<string>;
+
+    private prepareData(): Array<any> {
+        if (this.isChangedData) {
+            this.data = this.parseData(this.props.data);
+            this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});
+
+            return [];
+        }
+
+        const min: number = (this.state.calculateRangeIndex as Range).min;
+        const max: number = (this.state.calculateRangeIndex as Range).max;
+
+        return this.props.showRange ? this.data.slice(min, max) : this.data;
+    }
+
+    private prepareRangeComponent(): any {
+        return this.props.showRange
+            ? (
+                <div style={{'width': this.props.width + 'px', 'padding': '0px 0px 0px 65px'}}>
+                    <InputRange
+                        maxValue={(this.data.length - 1) || 0}
+                        minValue={0}
+                        formatLabel={value => this.inputRangeTrackValue(value)}
+                        value={this.state.calculateRangeIndex}
+                        onChange={value => this.setState({calculateRangeIndex: value})}
+                    />
+                </div>
+            )
+            : null;
+    }
+
+    private inputRangeTrackValue(index: number): string {
+        if (index > -1 && index <= this.data.length - 1 && this.data[index].hasOwnProperty('date')) {
+            return this.data[index].date;
+        } else {
+            return 'wrong date';
+        }
+    }
 
     private prepareLines(): any {
         return this.getNames()

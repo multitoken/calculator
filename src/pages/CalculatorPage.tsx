@@ -154,6 +154,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                                 colors={this.COLORS}
                                 start={(this.state.calculateRangeDateIndex as Range).min}
                                 end={(this.state.calculateRangeDateIndex as Range).max}
+                                showRange={true}
                                 width={800}
                                 height={200}
                             />
@@ -170,6 +171,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                                 colors={this.COLORS}
                                 width={800}
                                 height={200}
+                                showRange={true}
                             />
                         </div>
                     </FormGroup>
@@ -185,6 +187,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                                 colors={this.COLORS}
                                 width={800}
                                 height={200}
+                                showRange={true}
                             />
                         </div>
                     </FormGroup>
@@ -200,7 +203,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
     }
 
     private inputRangeTrackValue(value: number): string {
-        if (value <= this.state.tokensDate.length - 1) {
+        if (value > -1 && value <= this.state.tokensDate.length - 1) {
             return new Date(this.state.tokensDate[value])
                 .toLocaleDateString(['en-US'], DATE_FORMAT);
         } else {
