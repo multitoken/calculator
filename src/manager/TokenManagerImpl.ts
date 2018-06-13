@@ -321,7 +321,7 @@ export default class TokenManagerImpl implements TokenManager {
             .multipliedBy(fromWeight)
             .div(toWeight)
             .div(fromBalance.plus(amount))
-            .multipliedBy(0.98)
+            .multipliedBy(0.998)
             .toNumber();
         // console.log('from', fromAmounts.toNumber());
         // console.log('to', toAmounts.toNumber());
