@@ -10,7 +10,7 @@ merge_develop:
 	git merge $(DEVELOP_BRANCH)
 
 siteclean:
-	rm -f ./static
+	rm -rf ./static/*
 
 gensite:
 	npm run build
