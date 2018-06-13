@@ -4,7 +4,7 @@ DEVELOP_BRANCH = develop
 site: bump_version ghpages merge_develop siteclean gensite copysite
 
 bump_version:
-	npm run bump:minor
+	npm run bump:patch
 
 ghpages:
 	git checkout gh-pages
