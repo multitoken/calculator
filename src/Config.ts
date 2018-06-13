@@ -1,9 +1,7 @@
 export default class Config {
 
-    private static isDebug: boolean = true;
-
     public static getCryptoCurrencyPriceApi(): string {
-        return this.isDebug ? 'https://min-api.cryptocompare.com' : '';
+        return '';
     }
 
     public static getBtcUsdPrice(): number {

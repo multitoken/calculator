@@ -27,7 +27,7 @@ export class ArbiterChart extends AbstractChart<Properties, AbstractState, Array
     }
 
     public getNames(): Array<string> {
-        return ['originCap', 'arbiterCap'];
+        return ['arbiterCap', 'originCap'];
     }
 
 }
