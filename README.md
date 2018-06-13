@@ -1,7 +1,9 @@
 # arbitrator-simulator
-start project in root dir:
-npm install
-npm start
+Start project in project dir:
+```sh
+$ npm install
+$ npm start
+```
 
 ### Deploy a new version
 Use a Makefile command for generation a new version of the site:
