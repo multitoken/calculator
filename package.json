@@ -1,6 +1,6 @@
 {
   "name": "Arbitrator-simulator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "homepage": "./",
   "dependencies": {
@@ -38,6 +38,5 @@
     "bump:patch": "npm version patch",
     "bump:prerelease": "npm version prerelease"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
