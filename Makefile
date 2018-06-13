@@ -1,7 +1,10 @@
 
 DEVELOP_BRANCH = develop
 
-site: ghpages merge_develop siteclean gensite copysite
+site: bump_version ghpages merge_develop siteclean gensite copysite
+
+bump_version:
+	npm run bump:minor
 
 ghpages:
 	git checkout gh-pages
@@ -18,4 +21,4 @@ gensite:
 copysite:
 	cp -R ./build/* ./
 
-.PHONY: site ghpages merge_develop siteclean gensite copysite
+.PHONY: site bump_version ghpages merge_develop siteclean gensite copysite
