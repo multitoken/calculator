@@ -14,7 +14,7 @@ export class CryptocurrencyRepositoryImpl implements CryptocurrencyRepository {
         ['OMG', 'omgbtc'], ['ICX', 'icxbtc'], ['ZIL', 'zilbtc'], ['AE', 'aebtc'], ['ZRX', 'zrxbtc'],
     ]);
 
-    private readonly HISTORY_BY_HOUR_API_PATH: string = '/data/{file}.json';
+    private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
 
     private host: string;
 
