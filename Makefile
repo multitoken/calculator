@@ -1,7 +1,7 @@
 
 DEVELOP_BRANCH = develop
 
-site: bump_version ghpages merge_develop siteclean gensite copysite
+site: bump_version ghpages merge_develop siteclean gensite copysite commit_build
 
 bump_version:
 	npm run bump:patch
@@ -21,4 +21,7 @@ gensite:
 copysite:
 	cp -R ./build/* ./
 
-.PHONY: site bump_version ghpages merge_develop siteclean gensite copysite
+commit_build:
+	git commit -a 'build'
+
+.PHONY: site bump_version ghpages merge_develop siteclean gensite copysite commit_build
