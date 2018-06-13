@@ -22,6 +22,6 @@ copysite:
 	cp -R ./build/* ./
 
 commit_build:
-	git commit -a 'build'
+	git add . && git commit -m 'build'
 
 .PHONY: site bump_version ghpages merge_develop siteclean gensite copysite commit_build
