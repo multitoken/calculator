@@ -106,7 +106,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
                         type="monotone"
                         key={value}
                         dataKey={value}
-                        dot={undefined}
+                        dot={false}
                         stroke={this.props.colors[index]}
                     />
                 );
