@@ -4,15 +4,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './res/styles/index.css';
 import 'react-input-range/lib/css/index.css';
 import SetupTokenPage from './pages/SetupTokenPage';
-import { HashRouter, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import CalculatorPage from './pages/CalculatorPage';
 
 ReactDOM.render(
-    <HashRouter>
+    <Router>
         <div className="router">
             <Route exact={true} path="/" component={SetupTokenPage}/>
             <Route exact={true} path="/calculator" component={CalculatorPage}/>
         </div>
-    </HashRouter>,
+    </Router>,
     document.getElementById('root') as HTMLElement
 );
