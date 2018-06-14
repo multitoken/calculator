@@ -9,12 +9,11 @@ interface Properties extends AbstractProperties<TokenProportion> {
 
 export class TokensProportionsList extends AbstractList<Properties, TokenProportion> {
 
-    public bindHolder(dataItem: TokenProportion, position: number): Object {
+    public bindHolder(dataItem: TokenProportion, position: number): object {
         return (
             <TokenProportionHolder
                 onChangeProportion={(name, value) => this.props.onChangeProportion(name, value, position)}
                 model={dataItem}
-                onClick={null}
                 key={position}
                 selected={false}
             />

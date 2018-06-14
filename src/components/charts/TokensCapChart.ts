@@ -7,10 +7,10 @@ interface Properties extends AbstractProperties<Arbitration[]> {
 }
 
 const DATE_FORMAT: DateTimeFormatOptions = {
-    year: '2-digit',
-    month: 'short',
     day: '2-digit',
-    hour: '2-digit'
+    hour: '2-digit',
+    month: 'short',
+    year: '2-digit',
 };
 
 export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arbitration[], any> {

@@ -9,10 +9,10 @@ export interface Properties extends AbstractProperties<TokenProportion> {
     onChangeProportion(name: string, value: number): void;
 }
 
-export interface State extends AbstractState {
-}
+// export interface State extends AbstractState {
+// }
 
-export class TokenProportionHolder extends AbstractHolder<Properties, TokenProportion, State> {
+export class TokenProportionHolder extends AbstractHolder<Properties, TokenProportion, AbstractState> {
 
     constructor(prop: Properties) {
         super(prop);
@@ -22,7 +22,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
         };
     }
 
-    public bindModel(model: TokenProportion): Object {
+    public bindModel(model: TokenProportion): object {
         return (
             <div>
                 <InputGroup>

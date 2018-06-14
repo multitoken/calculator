@@ -39,10 +39,10 @@ interface State {
 }
 
 const DATE_FORMAT: any = {
-  year: '2-digit',
-  month: 'short',
   day: '2-digit',
-  hour: '2-digit'
+  hour: '2-digit',
+  month: 'short',
+  year: '2-digit',
 };
 
 function inputNumberParser(value: string) {
@@ -62,17 +62,17 @@ export default class CalculatorPage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tokenNames: new Map(),
-      tokensHistory: new Map(),
-      tokensDate: [],
-      arbitrationList: [],
       amount: 10000,
-      cap: 0,
       arbiterCap: 0,
-      proportionList: [],
-      calculateRangeDateIndex: {min: 0, max: 1},
-      calculateMaxDateIndex: 1,
       arbiterProfit: 0,
+      arbitrationList: [],
+      calculateMaxDateIndex: 1,
+      calculateRangeDateIndex: {min: 0, max: 1},
+      cap: 0,
+      proportionList: [],
+      tokenNames: new Map(),
+      tokensDate: [],
+      tokensHistory: new Map(),
     };
   }
 

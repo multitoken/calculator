@@ -9,10 +9,10 @@ interface Properties extends AbstractProperties<Map<string, TokenPriceHistory[]>
 }
 
 const DATE_FORMAT: DateTimeFormatOptions = {
-    year: '2-digit',
-    month: 'short',
     day: '2-digit',
-    hour: '2-digit'
+    hour: '2-digit',
+    month: 'short',
+    year: '2-digit',
 };
 
 export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, TokenPriceHistory[]>, any> {
