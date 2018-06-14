@@ -110,8 +110,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       return this.availableTokensMap.get(tokenName) || '';
     });
 
-    console.log(selectedTokenSymbols);
-
     this.tokenManager.setupTokens(selectedTokenSymbols)
       .then(() => history.push('calculator'))
       .catch(reason => {
