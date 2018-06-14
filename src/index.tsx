@@ -7,11 +7,13 @@ import CalculatorPage from './pages/CalculatorPage';
 import SetupTokenPage from './pages/SetupTokenPage';
 import './res/styles/index.css';
 
+// const GH_PAGES_PREFIX_URL = 'arbitrator-simulator';
+
 ReactDOM.render(
     <Router>
         <div className="router">
-            <Route exact={true} path="/" component={SetupTokenPage}/>
-            <Route exact={true} path="/calculator" component={CalculatorPage}/>
+            <Route exact={true} path="/arbitrator-simulator" component={SetupTokenPage}/>
+            <Route exact={true} path="/arbitrator-simulator/calculator" component={CalculatorPage}/>
         </div>
     </Router>,
     document.getElementById('root') as HTMLElement
