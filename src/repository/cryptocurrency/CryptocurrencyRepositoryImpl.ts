@@ -1,6 +1,6 @@
-import { CryptocurrencyRepository } from './CryptocurrencyRepository';
-import { TokenPriceHistory } from '../models/TokenPriceHistory';
 import axios from 'axios';
+import { TokenPriceHistory } from '../models/TokenPriceHistory';
+import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 
 export class CryptocurrencyRepositoryImpl implements CryptocurrencyRepository {
 
@@ -22,20 +22,20 @@ export class CryptocurrencyRepositoryImpl implements CryptocurrencyRepository {
         this.host = host;
     }
 
-    async getAvailableTokens(): Promise<Map<string, string>> {
+    public async getAvailableTokens(): Promise<Map<string, string>> {
         return this.AVAILABLE_TOKENS;
     }
 
     public async getPriceHistoryByHour(tokenName: string,
                                        convertToSymbol: string,
-                                       hours: number): Promise<Array<TokenPriceHistory>> {
-        const result: Array<TokenPriceHistory> = [];
+                                       hours: number): Promise<TokenPriceHistory[]> {
+        const result: TokenPriceHistory[] = [];
 
         const response = await axios.get(this.host + this.HISTORY_BY_HOUR_API_PATH
             .replace('{file}', this.BTC_VALUES.get(tokenName) || '')
         );
 
-        for (let item of response.data) {
+        for (const item of response.data) {
             result.push(Object.assign(new TokenPriceHistory(), item));
         }
 

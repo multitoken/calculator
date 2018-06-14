@@ -1,22 +1,22 @@
-import * as React from 'react';
 import { Checkbox } from 'antd';
 import { CheckboxOptionType } from 'antd/es/checkbox';
+import * as React from 'react';
 import './CheckButtonList.css';
 
 const CheckboxGroup = Checkbox.Group;
 
 interface Props {
-  data: Array<string>;
+  data: string[];
   onCheck(checkedValues: string[]): void;
 }
 
 export default class CheckButtonList extends React.Component<Props, {}> {
 
-  onChange = (checkedValues: string[]) => {
+  public onChange = (checkedValues: string[]) => {
     this.props.onCheck(checkedValues);
   }
 
-  render() {
+  public render() {
     const options = this.getOptions();
 
     return (
@@ -28,8 +28,8 @@ export default class CheckButtonList extends React.Component<Props, {}> {
     );
   }
 
-  getOptions() {
-    const options: Array<CheckboxOptionType> = [];
+  public getOptions() {
+    const options: CheckboxOptionType[] = [];
 
     this.props.data.forEach((tokenName: string) => {
       options.push({

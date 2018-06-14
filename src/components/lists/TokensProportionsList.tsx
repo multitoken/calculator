@@ -1,7 +1,7 @@
 import * as React from 'react';
-import AbstractList, { AbstractProperties } from './AbstractList';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenProportionHolder } from '../holders/TokenProportionHolder';
+import AbstractList, { AbstractProperties } from './AbstractList';
 
 interface Properties extends AbstractProperties<TokenProportion> {
     onChangeProportion(name: string, value: number, position: number): void;

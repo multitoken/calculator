@@ -1,9 +1,9 @@
 export class TokenProportion {
 
-    name: string;
-    proportion: number;
-    min: number;
-    max: number;
+    public name: string;
+    public proportion: number;
+    public min: number;
+    public max: number;
 
     constructor(name: string, proportion: number, min: number, max: number) {
         this.name = name;

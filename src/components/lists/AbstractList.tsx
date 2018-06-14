@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface AbstractProperties<M> {
-    data: Array<M>;
+    data: M[];
     onItemClick?: Function;
     selectable?: boolean;
 }
@@ -42,6 +42,6 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M> e
         }
     }
 
-    abstract bindHolder(dataItem: M, position: number): Object;
+    public abstract bindHolder(dataItem: M, position: number): Object;
 
 }

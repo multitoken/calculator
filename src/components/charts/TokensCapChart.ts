@@ -1,9 +1,9 @@
-import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
-import { Arbitration } from '../../repository/models/Arbitration';
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 import Config from '../../Config';
+import { Arbitration } from '../../repository/models/Arbitration';
+import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
-interface Properties extends AbstractProperties<Array<Arbitration>> {
+interface Properties extends AbstractProperties<Arbitration[]> {
 }
 
 const DATE_FORMAT: DateTimeFormatOptions = {
@@ -13,9 +13,9 @@ const DATE_FORMAT: DateTimeFormatOptions = {
     hour: '2-digit'
 };
 
-export class TokensCapChart extends AbstractChart<Properties, AbstractState, Array<Arbitration>, any> {
+export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arbitration[], any> {
 
-    public parseData(data: Array<Arbitration>): Array<any> {
+    public parseData(data: Arbitration[]): any[] {
         return data.map(value => {
             const dataResult: any = {};
             dataResult.date = new Date(value.timestamp).toLocaleDateString(['en-US'], DATE_FORMAT);
@@ -31,7 +31,7 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arr
         });
     }
 
-    public getNames(): Array<string> {
+    public getNames(): string[] {
         if (this.props.data.length > 0 && this.props.data[0].originTokensCap.size > 0) {
             const result: Set<string> = new Set();
 

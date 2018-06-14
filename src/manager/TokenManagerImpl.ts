@@ -1,18 +1,18 @@
+import { BigNumber } from 'bignumber.js';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import { TokenManager } from './TokenManager';
-import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
-import { Arbitration } from '../repository/models/Arbitration';
-import { BigNumber } from 'bignumber.js';
-import { ArbiterProfit } from '../repository/models/ArbiterProfit';
 import Config from '../Config';
+import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
+import { ArbiterProfit } from '../repository/models/ArbiterProfit';
+import { Arbitration } from '../repository/models/Arbitration';
+import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { TokenManager } from './TokenManager';
 
 @injectable()
 export default class TokenManagerImpl implements TokenManager {
 
     private cryptocurrencyRepository: CryptocurrencyRepository;
-    private readonly selectedTokensHistory: Map<string, Array<TokenPriceHistory>> = new Map();
+    private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
     private readonly tokensAmount: Map<string, number> = new Map();
     private readonly tokensAmountFixed: Map<string, number> = new Map();
     private readonly tokensWeight: Map<string, number> = new Map();
@@ -24,7 +24,7 @@ export default class TokenManagerImpl implements TokenManager {
         this.cryptocurrencyRepository = cryptocurrencyRepository;
     }
 
-    async setupTokens(tokenSymbols: Array<string>): Promise<Map<string, Array<TokenPriceHistory>>> {
+    public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
         this.selectedTokensHistory.clear();
         this.tokensAmount.clear();
         this.tokensAmountFixed.clear();
@@ -33,9 +33,9 @@ export default class TokenManagerImpl implements TokenManager {
         this.endCalculationIndex = 0;
         this.maxCalculationIndex = 0;
 
-        for (let item of tokenSymbols) {
+        for (const item of tokenSymbols) {
             try {
-                const result: Array<TokenPriceHistory> = await this.cryptocurrencyRepository
+                const result: TokenPriceHistory[] = await this.cryptocurrencyRepository
                     .getPriceHistoryByHour(item, 'USD', 2000);
 
                 this.selectedTokensHistory.set(item, result);
@@ -52,14 +52,14 @@ export default class TokenManagerImpl implements TokenManager {
         return this.selectedTokensHistory;
     }
 
-    changeProportions(proportions: Map<string, number>) {
+    public changeProportions(proportions: Map<string, number>) {
         proportions.forEach((value, key) => {
             console.log('set weight', key, value);
             this.tokensWeight.set(key, value);
         });
     }
 
-    changeCalculationDate(indexStart: number, indexEnd: number) {
+    public changeCalculationDate(indexStart: number, indexEnd: number) {
         if (indexEnd < this.maxCalculationIndex &&
             indexEnd > 0 &&
             indexStart >= 0 &&
@@ -69,23 +69,23 @@ export default class TokenManagerImpl implements TokenManager {
             this.endCalculationIndex = indexEnd;
             console.log(`change start index ${indexStart}; end index ${indexEnd}`);
         } else {
-            throw 'incorrect range';
+            throw new Error('incorrect range');
         }
     }
 
-    getMaxCalculationIndex(): number {
+    public getMaxCalculationIndex(): number {
         return this.maxCalculationIndex;
     }
 
-    getPriceHistory(): Map<string, Array<TokenPriceHistory>> {
+    public getPriceHistory(): Map<string, TokenPriceHistory[]> {
         return this.selectedTokensHistory;
     }
 
-    async getAvailableTokens(): Promise<Map<string, string>> {
+    public async getAvailableTokens(): Promise<Map<string, string>> {
         return this.cryptocurrencyRepository.getAvailableTokens();
     }
 
-    async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
+    public async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
         const result: Map<string, number> = new Map();
         let maxProportions: number = 0;
 
@@ -127,9 +127,9 @@ export default class TokenManagerImpl implements TokenManager {
         return result;
     }
 
-    async calculateArbitration(): Promise<Array<Arbitration>> {
-        const result: Array<Arbitration> = [];
-        let historyPerHour: Map<string, number> = new Map();
+    public async calculateArbitration(): Promise<Arbitration[]> {
+        const result: Arbitration[] = [];
+        const historyPerHour: Map<string, number> = new Map();
         let timestamp: number = 0;
 
         for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
@@ -179,8 +179,8 @@ export default class TokenManagerImpl implements TokenManager {
             if (profit.profit > 0) {
                 console.log('best', profit);
 
-                let cheapPrice: number = historyPerHour.get(profit.cheapTokenName) || 0;
-                let expensivePrice: number = historyPerHour.get(profit.expensiveTokenName) || 0;
+                const cheapPrice: number = historyPerHour.get(profit.cheapTokenName) || 0;
+                const expensivePrice: number = historyPerHour.get(profit.expensiveTokenName) || 0;
 
                 let cheapValue: number =
                     cheapPrice * (this.tokensAmount.get(profit.cheapTokenName) || 0) * Config.getBtcUsdPrice();
@@ -245,7 +245,7 @@ export default class TokenManagerImpl implements TokenManager {
         return result;
     }
 
-    async calculateCap(): Promise<number> {
+    public async calculateCap(): Promise<number> {
         const historyPerHour: Map<string, number> = new Map();
         this.selectedTokensHistory.forEach((value, key) => {
             historyPerHour.set(key, value[this.endCalculationIndex].close);
@@ -341,7 +341,7 @@ export default class TokenManagerImpl implements TokenManager {
             console.log(arbitration);
             console.log(cheapAmounts, cheapResult);
             console.log(expensiveAmounts, expensiveResult);
-            throw 'wrong calculation';
+            throw new Error('wrong calculation');
         }
 
         this.tokensAmount.set(arbitration.cheapName, cheapResult);

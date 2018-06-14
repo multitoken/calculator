@@ -1,23 +1,23 @@
+import { Button, Col, InputNumber, Layout, Row } from 'antd';
 import * as React from 'react';
+import InputRange, { Range } from 'react-input-range';
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Layout, Row, Col, Button, InputNumber } from 'antd';
-import Label from 'reactstrap/lib/Label';
-import FormGroup from 'reactstrap/lib/FormGroup';
 import Form from 'reactstrap/lib/Form';
-import InputRange, { Range } from 'react-input-range';
-import { lazyInject, Services } from '../Injections';
-import { TokenManager } from '../manager/TokenManager';
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
-import { Arbitration } from '../repository/models/Arbitration';
+import FormGroup from 'reactstrap/lib/FormGroup';
+import Label from 'reactstrap/lib/Label';
 import { ArbiterChart } from '../components/charts/ArbiterChart';
-import { TokensCapChart } from '../components/charts/TokensCapChart';
 import { HistoryChart } from '../components/charts/HistoryChart';
+import { TokensCapChart } from '../components/charts/TokensCapChart';
 import { TokensProportionsList } from '../components/lists/TokensProportionsList';
-import { TokenProportion } from '../repository/models/TokenProportion';
-import Config from '../Config';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
+import Config from '../Config';
+import { lazyInject, Services } from '../Injections';
+import { TokenManager } from '../manager/TokenManager';
+import { Arbitration } from '../repository/models/Arbitration';
+import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../repository/models/TokenProportion';
 
 const { Header } = Layout;
 
@@ -26,13 +26,13 @@ interface Props extends RouteComponentProps<{}> {
 
 interface State {
   tokenNames: Map<string, boolean>;
-  tokensHistory: Map<string, Array<TokenPriceHistory>>;
-  tokensDate: Array<number>;
-  arbitrationList: Array<Arbitration>;
+  tokensHistory: Map<string, TokenPriceHistory[]>;
+  tokensDate: number[];
+  arbitrationList: Arbitration[];
   amount: number;
   cap: number;
   arbiterCap: number;
-  proportionList: Array<TokenProportion>;
+  proportionList: TokenProportion[];
   calculateRangeDateIndex: Range | number;
   calculateMaxDateIndex: number;
   arbiterProfit: number;
@@ -50,7 +50,7 @@ function inputNumberParser(value: string) {
 }
 
 export default class CalculatorPage extends React.Component<Props, State> {
-  private readonly COLORS: Array<string> = [
+  private readonly COLORS: string[] = [
     '#8884d8', '#82ca9d', '#f4f142', '#a6f441', '#41f497', '#41f4df', '#414cf4', '#d941f4',
     '#f4419d', '#720009'
   ];
@@ -76,7 +76,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount(): void {
+  public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       window.location.replace('/');
     }
@@ -88,7 +88,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       .catch(reason => alert(reason.message));
   }
 
-  render() {
+  public render() {
     return (
       <Layout
         style={{
@@ -248,7 +248,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
   private onSyncTokens(tokens: Map<string, string>) {
     const tokenItems: Map<string, boolean> = new Map();
-    const proportions: Array<TokenProportion> = [];
+    const proportions: TokenProportion[] = [];
 
     tokens.forEach((value, key) => tokenItems.set(key, false));
 
@@ -256,7 +256,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       proportions.push(new TokenProportion(key, 1, 1, 10));
     });
     const firstTokenName: string = Array.from(this.tokenManager.getPriceHistory().keys())[0];
-    const history: Array<TokenPriceHistory> = this.tokenManager.getPriceHistory().get(firstTokenName) || [];
+    const history: TokenPriceHistory[] = this.tokenManager.getPriceHistory().get(firstTokenName) || [];
 
     this.setState({tokensDate: history.map(value => value.time)});
 
@@ -290,7 +290,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       .then(result => this.tokenManager.calculateCap())
       .then(cap => {
         this.setState({tokensHistory: this.tokenManager.getPriceHistory()});
-        this.setState({cap: cap});
+        this.setState({cap});
 
         return this.tokenManager.calculateArbitration();
       })

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import AbstractHolder, { AbstractProperties, AbstractState } from './AbstractHolder';
-import { TokenProportion } from '../../repository/models/TokenProportion';
 import { InputGroup, InputGroupAddon } from 'reactstrap';
 import Input from 'reactstrap/lib/Input';
 import InputGroupText from 'reactstrap/lib/InputGroupText';
+import { TokenProportion } from '../../repository/models/TokenProportion';
+import AbstractHolder, { AbstractProperties, AbstractState } from './AbstractHolder';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
     onChangeProportion(name: string, value: number): void;
@@ -22,7 +22,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
         };
     }
 
-    bindModel(model: TokenProportion): Object {
+    public bindModel(model: TokenProportion): Object {
         return (
             <div>
                 <InputGroup>

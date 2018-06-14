@@ -1,11 +1,11 @@
+import { Col, Layout, Row } from 'antd';
 import * as React from 'react';
-import { Layout, Row, Col } from 'antd';
 import './PageContent.css';
 
 const { Content } = Layout;
 
 export default class PageContent extends React.Component {
-  render() {
+  public render() {
     return (
       <Content className="PageContent">
         <Row type="flex" justify="center">

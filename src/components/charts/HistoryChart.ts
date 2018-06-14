@@ -1,9 +1,9 @@
-import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
-import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import Config from '../../Config';
+import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 
-interface Properties extends AbstractProperties<Map<string, Array<TokenPriceHistory>>> {
+interface Properties extends AbstractProperties<Map<string, TokenPriceHistory[]>> {
     start: number;
     end: number;
 }
@@ -15,15 +15,15 @@ const DATE_FORMAT: DateTimeFormatOptions = {
     hour: '2-digit'
 };
 
-export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, Array<TokenPriceHistory>>, any> {
+export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, TokenPriceHistory[]>, any> {
 
-    shouldComponentUpdate(data: Readonly<Properties>, data1: Readonly<AbstractState>, data2: any): boolean {
+    public shouldComponentUpdate(data: Readonly<Properties>, data1: Readonly<AbstractState>, data2: any): boolean {
         return super.shouldComponentUpdate(data, data1, data2) ||
             (this.props.start !== data.start || this.props.end !== data.end);
     }
 
-    public parseData(data: Map<string, Array<TokenPriceHistory>>): Array<any> {
-        const result: Array<any> = [];
+    public parseData(data: Map<string, TokenPriceHistory[]>): any[] {
+        const result: any[] = [];
 
         for (let i = this.props.start; i < this.props.end; i++) {
             if (i % 3600 !== 0) {
@@ -42,7 +42,7 @@ export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<s
         return result;
     }
 
-    public getNames(): Array<string> {
+    public getNames(): string[] {
         return Array.from(this.props.data.keys());
     }
 

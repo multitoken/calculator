@@ -1,12 +1,11 @@
+import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
-import { scaleLog } from 'd3-scale';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 export interface AbstractProperties<M> {
     data: M;
-    colors: Array<string>;
+    colors: string[];
     width: number;
     height: number;
     showRange: boolean;
@@ -19,9 +18,9 @@ export interface AbstractState {
 export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
     extends React.Component<P, any> {
 
-    scale: any;
-    data: Array<any>;
-    isChangedData: boolean = false;
+    public scale: any;
+    public data: any[];
+    public isChangedData: boolean = false;
 
     constructor(props: P) {
         super(props);
@@ -35,7 +34,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         };
     }
 
-    shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
+    public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
         this.isChangedData = this.props.data !== props.data;
 
         return this.isChangedData ||
@@ -57,11 +56,11 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         );
     }
 
-    abstract parseData(data: M): Array<D>;
+    public abstract parseData(data: M): D[];
 
-    abstract getNames(): Array<string>;
+    public abstract getNames(): string[];
 
-    private prepareData(): Array<any> {
+    private prepareData(): any[] {
         if (this.isChangedData) {
             this.data = this.parseData(this.props.data);
             this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});

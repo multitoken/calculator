@@ -1,11 +1,11 @@
-import * as React from 'react';
 import { Layout } from 'antd';
+import * as React from 'react';
 import './PageFooter.css';
 
 const { Footer } = Layout;
 
 export default class PageFooter extends React.Component {
-  render() {
+  public render() {
     const version = process.env.REACT_APP_VERSION;
     const versionText = version || 'undefined';
     const versionLink = `https://github.com/MultiTKN/arbitrator-simulator/tree/v${version}`;

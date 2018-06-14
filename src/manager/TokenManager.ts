@@ -1,9 +1,9 @@
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { Arbitration } from '../repository/models/Arbitration';
+import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 
 export interface TokenManager {
 
-    setupTokens(tokenSymbols: Array<string>): Promise<Map<string, Array<TokenPriceHistory>>>;
+    setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
     changeProportions(proportions: Map<string, number>): void;
 
@@ -11,13 +11,13 @@ export interface TokenManager {
 
     getMaxCalculationIndex(): number;
 
-    getPriceHistory(): Map<string, Array<TokenPriceHistory>>;
+    getPriceHistory(): Map<string, TokenPriceHistory[]>;
 
     getAvailableTokens(): Promise<Map<string, string>>;
 
     calculateInitialAmounts(amount: number): Promise<Map<string, number>>;
 
-    calculateArbitration(): Promise<Array<Arbitration>>;
+    calculateArbitration(): Promise<Arbitration[]>;
 
     calculateCap(): Promise<number>;
 

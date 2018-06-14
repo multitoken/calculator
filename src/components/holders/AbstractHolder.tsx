@@ -13,11 +13,11 @@ export interface AbstractState {
 export default abstract class AbstractHolder<P extends AbstractProperties<M>, M, S extends AbstractState>
     extends React.Component<P, S> {
 
-    componentWillMount() {
+    public componentWillMount() {
         this.setState({selected: this.props.selected});
     }
 
-    render() {
+    public render() {
         return (
             <div
                 onClick={() => {
@@ -32,6 +32,6 @@ export default abstract class AbstractHolder<P extends AbstractProperties<M>, M,
         );
     }
 
-    abstract bindModel(model: M): object;
+    public abstract bindModel(model: M): object;
 
 }

@@ -2,12 +2,12 @@ export class ArbiterProfit {
 
     private static readonly emptyProfit: ArbiterProfit = new ArbiterProfit(0, '', 0, '', 0, 0);
 
-    percent: number;
-    expensiveTokenName: string;
-    expensiveTokensCount: number;
-    cheapTokenName: string;
-    cheapTokensCount: number;
-    profit: number;
+    public percent: number;
+    public expensiveTokenName: string;
+    public expensiveTokensCount: number;
+    public cheapTokenName: string;
+    public cheapTokensCount: number;
+    public profit: number;
 
     public static empty(): ArbiterProfit {
         return ArbiterProfit.emptyProfit;

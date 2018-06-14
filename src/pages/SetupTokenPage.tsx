@@ -1,12 +1,12 @@
+import { Button, Col, Layout, Row } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Layout, Row, Col, Button } from 'antd';
-import { lazyInject, Services } from '../Injections';
-import { TokenManager } from '../manager/TokenManager';
 import CheckButtonList from '../components/lists/CheckButtonList';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
+import { lazyInject, Services } from '../Injections';
+import { TokenManager } from '../manager/TokenManager';
 import './SetupTokenPage.css';
 
 const { Header } = Layout;
@@ -22,8 +22,8 @@ interface State {
 export default class SetupTokenPage extends React.Component<Props, State> {
 
   @lazyInject(Services.TOKEN_MANAGER)
-  tokenManager: TokenManager;
-  availableTokensMap: Map<string, string>;
+  public tokenManager: TokenManager;
+  public availableTokensMap: Map<string, string>;
 
   constructor(props: Props) {
     super(props);
@@ -36,14 +36,14 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount(): void {
+  public componentDidMount(): void {
     this.tokenManager
       .getAvailableTokens()
       .then(this.onSyncTokens)
       .catch(reason => alert(reason.message));
   }
 
-  render() {
+  public render() {
     return (
       <Layout
         style={{

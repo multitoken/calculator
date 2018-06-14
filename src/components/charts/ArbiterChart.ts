@@ -1,9 +1,9 @@
-import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
-import { Arbitration } from '../../repository/models/Arbitration';
 import Config from '../../Config';
+import { Arbitration } from '../../repository/models/Arbitration';
+import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 
-interface Properties extends AbstractProperties<Array<Arbitration>> {
+interface Properties extends AbstractProperties<Arbitration[]> {
 }
 
 const DATE_FORMAT: DateTimeFormatOptions = {
@@ -13,9 +13,9 @@ const DATE_FORMAT: DateTimeFormatOptions = {
     hour: '2-digit'
 };
 
-export class ArbiterChart extends AbstractChart<Properties, AbstractState, Array<Arbitration>, any> {
+export class ArbiterChart extends AbstractChart<Properties, AbstractState, Arbitration[], any> {
 
-    public parseData(data: Array<Arbitration>): Array<any> {
+    public parseData(data: Arbitration[]): any[] {
         return data.map(value => {
             const copy: any = Object.assign({}, value);
             copy.originCap *= Config.getBtcUsdPrice();
@@ -26,7 +26,7 @@ export class ArbiterChart extends AbstractChart<Properties, AbstractState, Array
         });
     }
 
-    public getNames(): Array<string> {
+    public getNames(): string[] {
         return ['arbiterCap', 'originCap'];
     }
 

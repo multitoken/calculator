@@ -1,9 +1,9 @@
-import getDecorators from 'inversify-inject-decorators';
 import { Container } from 'inversify';
+import getDecorators from 'inversify-inject-decorators';
 import 'reflect-metadata';
+import Config from './Config';
 import { TokenManager } from './manager/TokenManager';
 import TokenManagerImpl from './manager/TokenManagerImpl';
-import Config from './Config';
 import { CryptocurrencyRepository } from './repository/cryptocurrency/CryptocurrencyRepository';
 import { CryptocurrencyRepositoryImpl } from './repository/cryptocurrency/CryptocurrencyRepositoryImpl';
 
@@ -11,9 +11,9 @@ export enum Services {
     TOKEN_MANAGER = 'TokenManager'
 }
 
-let kernel = new Container();
+const kernel = new Container();
 
-let {
+const {
     lazyInject,
     lazyInjectNamed,
     lazyInjectTagged,
