@@ -28,7 +28,8 @@
     "eject": "react-scripts-ts-antd eject",
     "bump:minor": "npm version minor",
     "bump:patch": "npm version patch",
-    "bump:prerelease": "npm version prerelease"
+    "bump:prerelease": "npm version prerelease",
+    "tslint": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'"
   },
   "devDependencies": {
     "@types/d3-scale": "^2.0.1",
