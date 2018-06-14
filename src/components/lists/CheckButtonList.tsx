@@ -1,43 +1,44 @@
 import * as React from 'react';
-import ButtonGroup from 'reactstrap/lib/ButtonGroup';
-import Button from 'reactstrap/lib/Button';
+import { Checkbox } from 'antd';
+import { CheckboxOptionType } from 'antd/es/checkbox';
+import './CheckButtonList.css';
 
-interface Properties {
-    data: Map<string, boolean>;
-    onCheck: Function;
+const CheckboxGroup = Checkbox.Group;
+
+interface Props {
+  data: Array<string>;
+  onCheck: Function;
 }
 
-export default class CheckButtonList extends React.Component<Properties, {}> {
+export default class CheckButtonList extends React.Component<Props, {}> {
 
-    render() {
-        return (
-            <ButtonGroup>
-                {this.bindItems()}
-            </ButtonGroup>
-        );
-    }
+  onChange = (checkedValues) => {
+    this.props.onCheck(checkedValues);
+  }
 
-    bindItems() {
-        const data: Map<string, boolean> = this.props.data;
-        const result: Array<Object> = [];
-        let item: object;
+  render() {
+    const options = this.getOptions();
 
-        data.forEach((value: boolean, key: string) => {
-            item = (
-                <Button
-                    key={key}
-                    color="warning"
-                    onClick={() => this.props.onCheck(key, !this.props.data.get(key))}
-                    active={data.get(key)}
-                >
-                    {key}
-                </Button>
-            );
+    return (
+      <CheckboxGroup
+        options={options}
+        onChange={this.onChange}
+        className="CheckButtonList"
+      />
+    );
+  }
 
-            result.push(item);
-        });
+  getOptions() {
+    const options: Array<CheckboxOptionType> = [];
 
-        return result;
-    }
+    this.props.data.forEach((tokenName: string) => {
+      options.push({
+        label: tokenName,
+        value: tokenName,
+      });
+    });
+
+    return options;
+  }
 
 }

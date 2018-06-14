@@ -1,100 +1,127 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
+import { Link } from 'react-router-dom';
+import { Layout, Row, Col, Button } from 'antd';
 import { lazyInject, Services } from '../Injections';
 import { TokenManager } from '../manager/TokenManager';
 import CheckButtonList from '../components/lists/CheckButtonList';
-import Container from 'reactstrap/lib/Container';
-import Button from 'reactstrap/lib/Button';
+import PageContent from '../components/page-content/PageContent';
+import PageFooter from '../components/page-footer/PageFooter';
+import './SetupTokenPage.css';
+
+const { Header } = Layout;
 
 interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-    tokenNames: Map<string, boolean>;
+  availableTokenNames: string[];
+  selectedTokenNames: string[];
 }
 
 export default class SetupTokenPage extends React.Component<Props, State> {
 
-    @lazyInject(Services.TOKEN_MANAGER)
-    tokenManager: TokenManager;
-    availableTokens: Map<string, string>;
+  @lazyInject(Services.TOKEN_MANAGER)
+  tokenManager: TokenManager;
+  availableTokensMap: Map<string, string>;
 
-    constructor(props: Props) {
-        super(props);
+  constructor(props: Props) {
+    super(props);
 
-        this.availableTokens = new Map();
+    this.availableTokensMap = new Map();
 
-        this.state = {
-            tokenNames: new Map()
-        };
-    }
+    this.state = {
+      availableTokenNames: [],
+      selectedTokenNames: [],
+    };
+  }
 
-    componentDidMount(): void {
-        this.tokenManager
-            .getAvailableTokens()
-            .then(this.onSyncTokens.bind(this))
-            .catch(reason => alert(reason.message));
-    }
+  componentDidMount(): void {
+    this.tokenManager
+      .getAvailableTokens()
+      .then(this.onSyncTokens)
+      .catch(reason => alert(reason.message));
+  }
 
-    render() {
-        return (
-            <Container className="text-center">
-                Please select tokens for MultiToken. (Min two tokens)
-                <div className="m-4 text-center">
-                    <CheckButtonList
-                        data={this.state.tokenNames}
-                        onCheck={(key: string, checked: boolean) => this.onCheckToken(key, checked)}
-                    />
-                </div>
+  render() {
+    return (
+      <Layout
+        style={{
+          minHeight: '100vh',
+          minWidth: 320
+        }}
+      >
+        <Header style={{ color: 'white' }}>
+          <Row type="flex" justify="start">
+            <Col span={24}>
+              <Link to="/" className="SetupTokenPage-logo">Arbitrator simulator</Link>
+            </Col>
+          </Row>
+        </Header>
+        <PageContent>
+          <div className="SetupTokenPage">
+            <header className="SetupTokenPage-header">
+              Select tokens to simulate multiToken
+              <br />
+              (at least two)
+            </header>
 
-                <div className="text-center">
-                    <Button
-                        color="primary"
-                        onClick={() => this.onNextClick()}
-                        disabled={!this.checkActiveNext()}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </Container>
-        );
-    }
+            <CheckButtonList
+              data={this.state.availableTokenNames}
+              onCheck={this.onCheckToken}
+            />
 
-    private onSyncTokens(tokens: Map<string, string>) {
-        this.availableTokens = tokens;
-        const tokenItems: Map<string, boolean> = new Map();
-        tokens.forEach((value, key) => tokenItems.set(key, false));
+            <Button
+              type="primary"
+              onClick={this.onNextClick}
+              disabled={!this.checkActiveNext()}
+              size="large"
+              style={{
+                marginTop: 30,
+              }}
+            >
+              Simulate
+            </Button>
+          </div>
+        </PageContent>
+        <PageFooter />
+      </Layout>
+    );
+  }
 
-        this.setState({tokenNames: tokenItems});
-    }
+  private onSyncTokens = (tokens: Map<string, string>) => {
+    this.availableTokensMap = tokens;
 
-    private onCheckToken(key: string, checked: boolean) {
-        this.state.tokenNames.set(key, checked);
-        this.setState({tokenNames: this.state.tokenNames});
-    }
+    this.setState({
+      availableTokenNames: Array.from(tokens.keys()),
+    });
+  }
 
-    private onNextClick() {
-        const {history} = this.props;
-        const result: Array<string> = [];
-        this.state.tokenNames.forEach((value, key) => {
-            if (this.availableTokens.has(key) && value) {
-                result.push(this.availableTokens.get(key) || '');
-            }
-        });
+  private onCheckToken = (checkedValue) => {
+    this.setState({
+      selectedTokenNames: checkedValue,
+    });
+  }
 
-        this.tokenManager.setupTokens(result)
-            .then(() => history.push('calculator'))
-            .catch(reason => {
-                console.log(reason);
-                alert('something went wrong');
-            });
-    }
+  private onNextClick = () => {
+    const { history } = this.props;
 
-    private checkActiveNext(): boolean {
-        let count: number = 0;
-        this.state.tokenNames.forEach(value => count += value ? 1 : 0);
+    const selectedTokenSymbols = this.state.selectedTokenNames.map((tokenName) => {
+      return this.availableTokensMap.get(tokenName) || '';
+    });
 
-        return count > 1;
-    }
+    console.log(selectedTokenSymbols);
+
+    this.tokenManager.setupTokens(selectedTokenSymbols)
+      .then(() => history.push('calculator'))
+      .catch(reason => {
+        console.log(reason);
+        alert('something went wrong');
+      });
+  }
+
+  private checkActiveNext(): boolean {
+    return this.state.selectedTokenNames.length > 1;
+  }
 
 }
