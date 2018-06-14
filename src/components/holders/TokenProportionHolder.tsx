@@ -6,7 +6,7 @@ import Input from 'reactstrap/lib/Input';
 import InputGroupText from 'reactstrap/lib/InputGroupText';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
-    onChangeProportion: Function;
+    onChangeProportion(name: string, value: number): void;
 }
 
 export interface State extends AbstractState {

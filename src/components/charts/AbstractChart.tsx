@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Range } from 'react-input-range';
+import InputRange, { Range } from 'react-input-range';
 import { scaleLog } from 'd3-scale';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-const InputRange = require('react-input-range');
-const {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip} = require('recharts');
 
 export interface AbstractProperties<M> {
     data: M;
@@ -108,7 +107,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
                         type="monotone"
                         key={value}
                         dataKey={value}
-                        dot={null}
+                        dot={undefined}
                         stroke={this.props.colors[index]}
                     />
                 );

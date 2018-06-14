@@ -4,7 +4,7 @@ import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenProportionHolder } from '../holders/TokenProportionHolder';
 
 interface Properties extends AbstractProperties<TokenProportion> {
-    onChangeProportion: Function;
+    onChangeProportion(name: string, value: number, position: number): void;
 }
 
 export class TokensProportionsList extends AbstractList<Properties, TokenProportion> {

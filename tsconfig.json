@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "outDir": "example/dist",
+    "baseUrl": ".",
+    "outDir": "build/dist",
     "module": "esnext",
     "target": "es5",
-    "baseUrl": ".",
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["es6", "dom"],
     "sourceMap": true,
     "allowJs": true,
     "jsx": "react",
@@ -15,24 +12,20 @@
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
-    "downlevelIteration": true,
     "noImplicitThis": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictNullChecks": true,
-    "checkJs": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
-    "types": ["reflect-metadata"],
+    "downlevelIteration": true,
+    "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./node_modules/@types/node/index.d.ts",
-    "./src/**/*"
-  ],
   "exclude": [
+    "node_modules",
     "build",
-    "public",
     "scripts",
     "acceptance-tests",
     "webpack",

@@ -2,11 +2,12 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 import { Layout, Row, Col, Button, InputNumber } from 'antd';
-import { lazyInject, Services } from '../Injections';
-import { TokenManager } from '../manager/TokenManager';
 import Label from 'reactstrap/lib/Label';
 import FormGroup from 'reactstrap/lib/FormGroup';
 import Form from 'reactstrap/lib/Form';
+import InputRange, { Range } from 'react-input-range';
+import { lazyInject, Services } from '../Injections';
+import { TokenManager } from '../manager/TokenManager';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { Arbitration } from '../repository/models/Arbitration';
 import { ArbiterChart } from '../components/charts/ArbiterChart';
@@ -14,13 +15,11 @@ import { TokensCapChart } from '../components/charts/TokensCapChart';
 import { HistoryChart } from '../components/charts/HistoryChart';
 import { TokensProportionsList } from '../components/lists/TokensProportionsList';
 import { TokenProportion } from '../repository/models/TokenProportion';
-import { Range } from 'react-input-range';
 import Config from '../Config';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
 
 const { Header } = Layout;
-const InputRange = require('react-input-range');
 
 interface Props extends RouteComponentProps<{}> {
 }

@@ -7,12 +7,12 @@ const CheckboxGroup = Checkbox.Group;
 
 interface Props {
   data: Array<string>;
-  onCheck: Function;
+  onCheck(checkedValues: string[]): void;
 }
 
 export default class CheckButtonList extends React.Component<Props, {}> {
 
-  onChange = (checkedValues) => {
+  onChange = (checkedValues: string[]) => {
     this.props.onCheck(checkedValues);
   }
 

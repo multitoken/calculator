@@ -5,9 +5,9 @@ export interface TokenManager {
 
     setupTokens(tokenSymbols: Array<string>): Promise<Map<string, Array<TokenPriceHistory>>>;
 
-    changeProportions(proportions: Map<string, number>);
+    changeProportions(proportions: Map<string, number>): void;
 
-    changeCalculationDate(indexStart: number, indexEnd: number);
+    changeCalculationDate(indexStart: number, indexEnd: number): void;
 
     getMaxCalculationIndex(): number;
 

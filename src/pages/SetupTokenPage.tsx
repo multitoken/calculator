@@ -97,7 +97,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     });
   }
 
-  private onCheckToken = (checkedValue) => {
+  private onCheckToken = (checkedValue: string[]) => {
     this.setState({
       selectedTokenNames: checkedValue,
     });
