@@ -16,6 +16,7 @@ export default class TokenManagerImpl implements TokenManager {
     private readonly tokensAmount: Map<string, number> = new Map();
     private readonly tokensAmountFixed: Map<string, number> = new Map();
     private readonly tokensWeight: Map<string, number> = new Map();
+    private readonly tokensWeightTimeline: Map<number, Map<string, number>> = new Map();
     private startCalculationIndex: number;
     private endCalculationIndex: number;
     private maxCalculationIndex: number;
@@ -57,6 +58,18 @@ export default class TokenManagerImpl implements TokenManager {
             console.log('set weight', key, value);
             this.tokensWeight.set(key, value);
         });
+    }
+
+    public getTimelineProportions(): Map<number, Map<string, number>> {
+        return this.tokensWeightTimeline;
+    }
+
+    public setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void {
+        this.tokensWeightTimeline.set(positionCalcDate, proportions);
+    }
+
+    public removeTimelineProportion(positionCalcDate: number): boolean {
+        return this.tokensWeightTimeline.delete(positionCalcDate);
     }
 
     public changeCalculationDate(indexStart: number, indexEnd: number) {
@@ -140,6 +153,8 @@ export default class TokenManagerImpl implements TokenManager {
                 timestamp = value[i].time;
             });
 
+            this.applyCustomProportions(i);
+
             const txPrice: number = (Math.random() * 0.5 + 0.2) / Config.getBtcUsdPrice(); // max $0.5 min $0.2
             let profit: ArbiterProfit = ArbiterProfit.empty();
 
@@ -155,7 +170,6 @@ export default class TokenManagerImpl implements TokenManager {
                     const expensiveBalance: number = this.tokensAmount.get(expensive) || 0; // expensive
                     const expensiveWeight: number = this.tokensWeight.get(expensive) || 0; // expensive
 
-                    // Pair<contractSellTokens/percent>
                     const arbiterProfit: ArbiterProfit = await this.calculateArbiterProfit(
                         cheap,
                         cheapWeight,
@@ -252,6 +266,12 @@ export default class TokenManagerImpl implements TokenManager {
         });
 
         return await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
+    }
+
+    private applyCustomProportions(indexOfHistory: number) {
+        if (this.getTimelineProportions().has(indexOfHistory)) {
+            // todo make function for change proportions
+        }
     }
 
     private async calculateCapByHistory(tokensAmounts: Map<string, number>,
