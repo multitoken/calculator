@@ -269,9 +269,37 @@ export default class TokenManagerImpl implements TokenManager {
     }
 
     private applyCustomProportions(indexOfHistory: number) {
-        if (this.getTimelineProportions().has(indexOfHistory)) {
-            // todo make function for change proportions
-        }
+        const proportions: Map<string, number> = this.getTimelineProportions().get(indexOfHistory) || new Map();
+        proportions.forEach((weight, name) => {
+            const oldWeight: number = this.tokensWeight.get(name) || 0;
+            const amount: number = this.tokensAmount.get(name) || 0;
+            let reCalcAmount: number = 0;
+
+            try {
+                reCalcAmount = new BigNumber(amount)
+                    .div(oldWeight)
+                    .multipliedBy(weight)
+                    .toNumber();
+            } catch (e) {
+                console.log(e);
+            }
+
+            if (reCalcAmount > 0) {
+                this.tokensWeight.set(name, weight);
+                this.tokensAmount.set(name, reCalcAmount);
+
+            } else {
+                throw new Error(
+                    `invalid value of recalculate amount!
+                     indexOfHistory: ${indexOfHistory} 
+                     name: ${name};
+                     oldWeight: ${oldWeight};
+                     newWeight: ${weight};
+                     amount: ${amount};
+                     newAmount: ${reCalcAmount}`
+                );
+            }
+        });
     }
 
     private async calculateCapByHistory(tokensAmounts: Map<string, number>,
