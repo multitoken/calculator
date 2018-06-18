@@ -4,7 +4,6 @@ import InputRange, { Range } from 'react-input-range';
 import { RouteComponentProps } from 'react-router';
 import Form from 'reactstrap/lib/Form';
 import FormGroup from 'reactstrap/lib/FormGroup';
-import Label from 'reactstrap/lib/Label';
 import { ArbiterChart } from '../components/charts/ArbiterChart';
 import { HistoryChart } from '../components/charts/HistoryChart';
 import { TokensCapChart } from '../components/charts/TokensCapChart';
@@ -102,7 +101,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
         <PageContent>
           <Form style={{ width: 900, marginBottom: 50 }}>
             <FormGroup>
-              <Label>Amount of money:&nbsp;</Label>
+              <span>Amount of money:&nbsp;</span>
               <InputNumber
                 value={this.state.amount}
                 formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -146,6 +145,9 @@ export default class CalculatorPage extends React.Component<Props, State> {
               type="primary"
               size="large"
               onClick={() => this.onCalculateClick()}
+              style={{
+                padding: '0 30px',
+              }}
             >
               Calculate
             </Button>
