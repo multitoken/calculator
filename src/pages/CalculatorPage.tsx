@@ -157,14 +157,14 @@ export default class CalculatorPage extends React.Component<Props, State> {
             <div>
               <p>
                 Result cap <b>without/with</b> arbitrage BTC:&nbsp;
-                <span className="CalculatorPage-summary-value">
+                <span className="CalculatorPage-result-value">
                   {this.state.cap} / {this.state.arbiterCap}
                   </span>
               </p>
 
               <p>
                 Result cap <b>without/with</b> arbitrage $:&nbsp;
-                <span className="CalculatorPage-summary-value">
+                <span className="CalculatorPage-result-value">
                   {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
                   {this.state.arbiterCap * Config.getBtcUsdPrice()}
                   &nbsp;
@@ -174,76 +174,72 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
               <p>
                 Result percent. in {this.calcCountDays()} days:&nbsp;
-                <span className="CalculatorPage-summary-value">
+                <span className="CalculatorPage-result-value">
                   {(1 - (this.state.cap / this.state.arbiterCap)) * 100}%
                 </span>
               </p>
 
               <p>
                 Total Arbiter transactions fee:&nbsp;
-                <span className="CalculatorPage-summary-value">
+                <span className="CalculatorPage-result-value">
                   ${this.state.arbiterTotalTxFee}
                 </span>
               </p>
 
               <p>
                 Arbiter profit:&nbsp;
-                <span className="CalculatorPage-summary-value">
+                <span className="CalculatorPage-result-value">
                   ${this.state.arbiterProfit * Config.getBtcUsdPrice()}
                 </span>
               </p>
             </div>
           </div>
 
-          <FormGroup>
-            <Label>Tokens history price $:</Label>
-            <div>
-              <HistoryChart
-                data={this.state.tokensHistory}
-                colors={this.COLORS}
-                start={(this.state.calculateRangeDateIndex as Range).min}
-                end={(this.state.calculateRangeDateIndex as Range).max}
-                showRange={true}
-                width={800}
-                height={200}
-              />
-            </div>
-          </FormGroup>
-          <FormGroup>
-            <Label>
-              Manipulation by the arbitrators (cap)$
-              (count Operations:{this.getArbitrationListLen()}) :
-            </Label>
-            <div>
-              <ArbiterChart
-                data={this.state.arbitrationList}
-                colors={this.COLORS}
-                width={800}
-                height={200}
-                showRange={true}
-              />
-            </div>
-          </FormGroup>
-          <FormGroup
+          <div className="CalculatorPage-result-chart">
+            <b>Tokens history price $</b>
+            <HistoryChart
+              data={this.state.tokensHistory}
+              colors={this.COLORS}
+              start={(this.state.calculateRangeDateIndex as Range).min}
+              end={(this.state.calculateRangeDateIndex as Range).max}
+              showRange={true}
+              width={800}
+              height={200}
+            />
+          </div>
+
+          <div className="CalculatorPage-result-chart">
+            <b>
+              Manipulation by the arbitrators (cap)$<br />
+              (Operations count: {this.getArbitrationListLen()})
+            </b>
+            <ArbiterChart
+              data={this.state.arbitrationList}
+              colors={this.COLORS}
+              width={800}
+              height={200}
+              showRange={true}
+            />
+          </div>
+
+          <div
+            className="CalculatorPage-result-chart"
             style={{
-              marginBottom: 300,
+              marginBottom: 200,
             }}
           >
-            <Label>
-              Tokens history price when manipulation by the arbitrators (cap per
-              token)$
-              (count Operations:{this.getArbitrationListLen()}) :
-            </Label>
-            <div >
-              <TokensCapChart
-                data={this.state.arbitrationList}
-                colors={this.COLORS}
-                width={800}
-                height={200}
-                showRange={true}
-              />
-            </div>
-          </FormGroup>
+            <b>
+              Tokens history price when manipulation by the arbitrators (cap per token)$<br />
+              (Operations count:{this.getArbitrationListLen()})
+            </b>
+            <TokensCapChart
+              data={this.state.arbitrationList}
+              colors={this.COLORS}
+              width={800}
+              height={200}
+              showRange={true}
+            />
+          </div>
         </PageContent>
         <PageFooter />
       </Layout>
