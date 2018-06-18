@@ -1,8 +1,7 @@
-import { Button, Col, InputNumber, Layout, Row } from 'antd';
+import { Button, InputNumber, Layout } from 'antd';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
 import Form from 'reactstrap/lib/Form';
 import FormGroup from 'reactstrap/lib/FormGroup';
 import Label from 'reactstrap/lib/Label';
@@ -12,14 +11,13 @@ import { TokensCapChart } from '../components/charts/TokensCapChart';
 import { TokensProportionsList } from '../components/lists/TokensProportionsList';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
+import PageHeader from '../components/page-header/PageHeader';
 import Config from '../Config';
 import { lazyInject, Services } from '../Injections';
 import { TokenManager } from '../manager/TokenManager';
 import { Arbitration } from '../repository/models/Arbitration';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
-
-const { Header } = Layout;
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -97,13 +95,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
           minWidth: 1000
         }}
       >
-        <Header style={{ color: 'white' }}>
-          <Row type="flex" justify="start">
-            <Col span={24}>
-              <Link to="/">Arbitrator simulator</Link>
-            </Col>
-          </Row>
-        </Header>
+        <PageHeader />
         <PageContent>
           <Form style={{ width: 900 }}>
             <FormGroup>
@@ -206,7 +198,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 token)$
                 (count Operations:{this.getArbitrationListLen()}) :
               </Label>
-              <div>
+              <div >
                 <TokensCapChart
                   data={this.state.arbitrationList}
                   colors={this.COLORS}
