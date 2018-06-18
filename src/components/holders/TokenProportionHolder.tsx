@@ -11,20 +11,9 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
 
   public bindModel(model: TokenProportion): object {
     return (
-      <div
-        style={{
-          // alignItems: 'center',
-          // display: 'flex',
-          // justifyContent: 'flex-start',
-          // width: 500,
-        }}
-      >
+      <>
         <div>{model.name} proportion:&nbsp;</div>
-        <div
-          style={{
-            flexGrow: 1,
-          }}
-        >
+        <div>
           <StepInteger
             max={model.max}
             min={model.min}
@@ -32,7 +21,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
             onAfterChange={value => this.onChangeProportion(model.name, value)}
           />
         </div>
-      </div>
+      </>
     );
   }
 

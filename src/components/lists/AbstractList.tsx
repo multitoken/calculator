@@ -1,4 +1,5 @@
 import * as React from 'react';
+import './AbstractList.css';
 
 export interface AbstractProperties<M> {
     data: M[];
@@ -7,7 +8,11 @@ export interface AbstractProperties<M> {
 export default abstract class AbstractList<P extends AbstractProperties<M>, M> extends React.Component<P> {
 
     public render() {
-        return (this.props.data.length > 0) ? this.bindItems() : this.prepareEmptyList();
+        return (
+          <div className="AbstractList">
+            {this.props.data.length > 0 ? this.bindItems() : this.prepareEmptyList()}
+          </div>
+        );
     }
 
     protected prepareEmptyList() {

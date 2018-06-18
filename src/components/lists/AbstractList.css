@@ -1,0 +1,5 @@
+.AbstractList {
+    display: grid;
+    grid-template-columns: max-content auto;
+    align-items: center;
+}
