@@ -15,7 +15,6 @@ export class TokensProportionsList extends AbstractList<Properties, TokenProport
                 onChangeProportion={(name, value) => this.props.onChangeProportion(name, value, position)}
                 model={dataItem}
                 key={position}
-                selected={false}
             />
         );
     }
