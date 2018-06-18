@@ -1,4 +1,4 @@
-import { scaleLog } from 'd3-scale';
+// import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
 import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
@@ -18,14 +18,14 @@ export interface AbstractState {
 export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
   extends React.Component<P, any> {
 
-  public scale: any;
+  // public scale: any;
   public data: any[];
   public isChangedData: boolean = false;
 
   constructor(props: P) {
     super(props);
 
-    this.scale = scaleLog().base(Math.E);
+    // this.scale = scaleLog().base(Math.E);
     this.data = [];
     this.isChangedData = false;
 
@@ -43,7 +43,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   public render() {
     return (
-      <div>
+      <div className="AbstractChart">
         <LineChart
           data={this.prepareData()}
           width={this.props.width}
@@ -54,7 +54,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         >
           <CartesianGrid strokeDasharray="3 3"/>
           <XAxis dataKey="date"/>
-          <YAxis scale={this.scale} domain={['auto', 'auto']}/>
+          <YAxis domain={['auto', 'auto']}/>
           <Tooltip/>
           {this.prepareLines()}
         </LineChart>
