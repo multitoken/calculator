@@ -28,13 +28,14 @@ interface State {
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensDate: number[];
   arbitrationList: Arbitration[];
+  arbiterCap: number;
+  arbiterProfit: number;
+  arbiterTotalTxFee: number;
   amount: number;
   cap: number;
-  arbiterCap: number;
   proportionList: TokenProportion[];
   calculateRangeDateIndex: Range | number;
   calculateMaxDateIndex: number;
-  arbiterProfit: number;
 }
 
 const DATE_FORMAT: any = {
@@ -64,6 +65,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       amount: 10000,
       arbiterCap: 0,
       arbiterProfit: 0,
+      arbiterTotalTxFee: 0,
       arbitrationList: [],
       calculateMaxDateIndex: 1,
       calculateRangeDateIndex: {min: 0, max: 1},
@@ -174,6 +176,13 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 Result percent. in {this.calcCountDays()} days&nbsp;
                 <span className="CalculatorPage-summary-value">
                   {(1 - (this.state.cap / this.state.arbiterCap)) * 100}%
+                </span>
+              </p>
+
+              <p>
+                Total Arbiter transactions fee&nbsp;
+                <span className="CalculatorPage-summary-value">
+                  ${this.state.arbiterTotalTxFee}
                 </span>
               </p>
 
@@ -317,18 +326,20 @@ export default class CalculatorPage extends React.Component<Props, State> {
         this.setState({arbitrationList: result});
         console.log(result);
         let profit: number = 0;
-        let txSum: number = 0;
+        let totalTxPrice: number = 0;
 
         result.forEach(value => {
           profit += value.arbiterProfit;
-          txSum += value.txPrice;
+          totalTxPrice += value.txPrice;
         });
 
-        this.setState({arbiterProfit: profit});
+        this.setState({
+          arbiterProfit: profit,
+          arbiterTotalTxFee: totalTxPrice * Config.getBtcUsdPrice(),
+        });
 
         console.log('summary profit for arbiter', profit);
-        console.log('summary eth price', txSum); // this is already in btc
-        // todo: derive in $ = txSum * Config.getBtcUsdPrice()
+        console.log('summary tx in BTC price', totalTxPrice);
 
         return this.tokenManager.calculateCap();
       })
