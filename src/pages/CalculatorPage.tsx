@@ -322,7 +322,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       })
       .then(result => {
         this.setState({arbitrationList: result});
-        console.log(result);
+        // console.log(result);
         let profit: number = 0;
         let totalTxPrice: number = 0;
 
@@ -336,8 +336,8 @@ export default class CalculatorPage extends React.Component<Props, State> {
           arbiterTotalTxFee: totalTxPrice * Config.getBtcUsdPrice(),
         });
 
-        console.log('summary profit for arbiter', profit);
-        console.log('summary tx in BTC price', totalTxPrice);
+        // console.log('summary profit for arbiter', profit);
+        // console.log('summary tx in BTC price', totalTxPrice);
 
         return this.tokenManager.calculateCap();
       })
