@@ -113,6 +113,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       .catch(reason => {
         console.log(reason);
         alert('something went wrong');
+        this.setState({ isTokenLoading: false });
       });
   }
 
