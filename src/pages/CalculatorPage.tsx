@@ -99,7 +99,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
         <PageContent>
           <Form style={{ width: 900 }}>
             <FormGroup>
-              <Label>Amount: </Label>
+              <Label>Amount:&nbsp;</Label>
 
               <InputNumber
                 value={this.state.amount}
@@ -109,7 +109,12 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 style={{ width: 200 }}
               />
 
-              <div className="m-4">
+              <div
+                style={{
+                  padding: 50,
+                  width: 700,
+                }}
+              >
                 <InputRange
                   maxValue={this.state.calculateMaxDateIndex}
                   minValue={0}
@@ -136,79 +141,83 @@ export default class CalculatorPage extends React.Component<Props, State> {
             >
               Calculate
             </Button>
-
-            <FormGroup>
-              <Label>Result cap <b>without/with</b> arbitrage BTC: </Label>
-              <div>
-                <Label>{this.state.cap} / {this.state.arbiterCap}</Label>
-              </div>
-              <Label>Result cap <b>without/with</b> arbitrage $: </Label>
-              <div>
-                <Label>
-                  {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
-                  {this.state.arbiterCap * Config.getBtcUsdPrice()}
-                </Label>
-                &nbsp;
-                <Label>
-                  ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
-                </Label>
-              </div>
-              <Label>Result percent. in {this.calcCountDays()} days</Label>
-              <div>
-                <Label>{(1 - (this.state.cap / this.state.arbiterCap)) * 100}%</Label>
-              </div>
-              <Label>Arbiter profit</Label>
-              <div>
-                <Label>${this.state.arbiterProfit * Config.getBtcUsdPrice()}</Label>
-              </div>
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Tokens history price $:</Label>
-              <div>
-                <HistoryChart
-                  data={this.state.tokensHistory}
-                  colors={this.COLORS}
-                  start={(this.state.calculateRangeDateIndex as Range).min}
-                  end={(this.state.calculateRangeDateIndex as Range).max}
-                  showRange={true}
-                  width={800}
-                  height={200}
-                />
-              </div>
-            </FormGroup>
-            <FormGroup>
-              <Label>
-                Manipulation by the arbitrators (cap)$
-                (count Operations:{this.getArbitrationListLen()}) :
-              </Label>
-              <div>
-                <ArbiterChart
-                  data={this.state.arbitrationList}
-                  colors={this.COLORS}
-                  width={800}
-                  height={200}
-                  showRange={true}
-                />
-              </div>
-            </FormGroup>
-            <FormGroup>
-              <Label>
-                Tokens history price when manipulation by the arbitrators (cap per
-                token)$
-                (count Operations:{this.getArbitrationListLen()}) :
-              </Label>
-              <div >
-                <TokensCapChart
-                  data={this.state.arbitrationList}
-                  colors={this.COLORS}
-                  width={800}
-                  height={200}
-                  showRange={true}
-                />
-              </div>
-            </FormGroup>
           </Form>
+
+          <FormGroup>
+            <Label>Result cap <b>without/with</b> arbitrage BTC: </Label>
+            <div>
+              <Label>{this.state.cap} / {this.state.arbiterCap}</Label>
+            </div>
+            <Label>Result cap <b>without/with</b> arbitrage $: </Label>
+            <div>
+              <Label>
+                {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
+                {this.state.arbiterCap * Config.getBtcUsdPrice()}
+              </Label>
+              &nbsp;
+              <Label>
+                ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
+              </Label>
+            </div>
+            <Label>Result percent. in {this.calcCountDays()} days</Label>
+            <div>
+              <Label>{(1 - (this.state.cap / this.state.arbiterCap)) * 100}%</Label>
+            </div>
+            <Label>Arbiter profit</Label>
+            <div>
+              <Label>${this.state.arbiterProfit * Config.getBtcUsdPrice()}</Label>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Tokens history price $:</Label>
+            <div>
+              <HistoryChart
+                data={this.state.tokensHistory}
+                colors={this.COLORS}
+                start={(this.state.calculateRangeDateIndex as Range).min}
+                end={(this.state.calculateRangeDateIndex as Range).max}
+                showRange={true}
+                width={800}
+                height={200}
+              />
+            </div>
+          </FormGroup>
+          <FormGroup>
+            <Label>
+              Manipulation by the arbitrators (cap)$
+              (count Operations:{this.getArbitrationListLen()}) :
+            </Label>
+            <div>
+              <ArbiterChart
+                data={this.state.arbitrationList}
+                colors={this.COLORS}
+                width={800}
+                height={200}
+                showRange={true}
+              />
+            </div>
+          </FormGroup>
+          <FormGroup
+            style={{
+              marginBottom: 300,
+            }}
+          >
+            <Label>
+              Tokens history price when manipulation by the arbitrators (cap per
+              token)$
+              (count Operations:{this.getArbitrationListLen()}) :
+            </Label>
+            <div >
+              <TokensCapChart
+                data={this.state.arbitrationList}
+                colors={this.COLORS}
+                width={800}
+                height={200}
+                showRange={true}
+              />
+            </div>
+          </FormGroup>
         </PageContent>
         <PageFooter />
       </Layout>

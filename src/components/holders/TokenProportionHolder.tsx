@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { InputGroup, InputGroupAddon } from 'reactstrap';
-import Input from 'reactstrap/lib/Input';
-import InputGroupText from 'reactstrap/lib/InputGroupText';
 import { TokenProportion } from '../../repository/models/TokenProportion';
+import StepInteger from '../step-integer/StepInteger';
 import AbstractHolder, { AbstractProperties, AbstractState } from './AbstractHolder';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
-    onChangeProportion(name: string, value: number): void;
+  onChangeProportion(name: string, value: number): void;
 }
 
 // export interface State extends AbstractState {
@@ -14,43 +12,43 @@ export interface Properties extends AbstractProperties<TokenProportion> {
 
 export class TokenProportionHolder extends AbstractHolder<Properties, TokenProportion, AbstractState> {
 
-    constructor(prop: Properties) {
-        super(prop);
+  constructor(prop: Properties) {
+    super(prop);
 
-        this.state = {
-            selected: false,
-        };
-    }
+    this.state = {
+      selected: false,
+    };
+  }
 
-    public bindModel(model: TokenProportion): object {
-        return (
-            <div>
-                <InputGroup>
-                    <InputGroupAddon addonType="prepend">
-                            <InputGroupText>{model.name} Proportion:</InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                        value={model.proportion}
-                        onChange={e => this.onChangeProportion(model.name, parseInt(e.target.value, 0))}
-                        type="range"
-                        step={1}
-                        min={model.min}
-                        max={model.max}
-                    />
-                    <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                            <span className="col-1">
-                            {model.proportion}
-                            </span>
-                        </InputGroupText>
-                    </InputGroupAddon>
-                </InputGroup>
-            </div>
-        );
-    }
+  public bindModel(model: TokenProportion): object {
+    return (
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'flex-start',
+          width: 500,
+        }}
+      >
+        <div>{model.name} proportion:&nbsp;</div>
+        <div
+          style={{
+            flexGrow: 1,
+          }}
+        >
+          <StepInteger
+            max={model.max}
+            min={model.min}
+            defaultValue={model.proportion}
+            onAfterChange={value => this.onChangeProportion(model.name, value)}
+          />
+        </div>
+      </div>
+    );
+  }
 
-    private onChangeProportion(name: string, value: number) {
-        this.props.onChangeProportion(name, value);
-    }
+  private onChangeProportion(name: string, value: number) {
+    this.props.onChangeProportion(name, value);
+  }
 
 }
