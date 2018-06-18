@@ -1,15 +1,13 @@
-import { Button, Col, Layout, Row } from 'antd';
+import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
 import CheckButtonList from '../components/lists/CheckButtonList';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
+import PageHeader from '../components/page-header/PageHeader';
 import { lazyInject, Services } from '../Injections';
 import { TokenManager } from '../manager/TokenManager';
 import './SetupTokenPage.css';
-
-const { Header } = Layout;
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -51,13 +49,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           minWidth: 320
         }}
       >
-        <Header style={{ color: 'white' }}>
-          <Row type="flex" justify="start">
-            <Col span={24}>
-              <Link to="/" className="SetupTokenPage-logo">Arbitrator simulator</Link>
-            </Col>
-          </Row>
-        </Header>
+        <PageHeader />
         <PageContent>
           <div className="SetupTokenPage">
             <header className="SetupTokenPage-header">
@@ -80,7 +72,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
                 marginTop: 30,
               }}
             >
-              Simulate
+              Next
             </Button>
           </div>
         </PageContent>

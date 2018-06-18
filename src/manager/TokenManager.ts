@@ -7,6 +7,12 @@ export interface TokenManager {
 
     changeProportions(proportions: Map<string, number>): void;
 
+    getTimelineProportions(): Map<number, Map<string, number>>;
+
+    setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void;
+
+    removeTimelineProportion(positionCalcDate: number): boolean;
+
     changeCalculationDate(indexStart: number, indexEnd: number): void;
 
     getMaxCalculationIndex(): number;
