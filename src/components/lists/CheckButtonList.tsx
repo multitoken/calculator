@@ -7,6 +7,7 @@ const CheckboxGroup = Checkbox.Group;
 
 interface Props {
   data: string[];
+  disabled: boolean;
   onCheck(checkedValues: string[]): void;
 }
 
@@ -22,6 +23,7 @@ export default class CheckButtonList extends React.Component<Props, {}> {
     return (
       <CheckboxGroup
         options={options}
+        disabled={this.props.disabled}
         onChange={this.onChange}
         className="CheckButtonList"
       />

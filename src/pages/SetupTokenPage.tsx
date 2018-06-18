@@ -15,6 +15,7 @@ interface Props extends RouteComponentProps<{}> {
 interface State {
   availableTokenNames: string[];
   selectedTokenNames: string[];
+  isTokenLoading: boolean;
 }
 
 export default class SetupTokenPage extends React.Component<Props, State> {
@@ -30,6 +31,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
     this.state = {
       availableTokenNames: [],
+      isTokenLoading: false,
       selectedTokenNames: [],
     };
   }
@@ -61,6 +63,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
             <CheckButtonList
               data={this.state.availableTokenNames}
               onCheck={this.onCheckToken}
+              disabled={this.state.isTokenLoading}
             />
 
             <Button
@@ -68,8 +71,10 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               onClick={this.onNextClick}
               disabled={!this.checkActiveNext()}
               size="large"
+              loading={this.state.isTokenLoading}
               style={{
                 marginTop: 30,
+                padding: '0 50px',
               }}
             >
               Next
@@ -96,6 +101,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   }
 
   private onNextClick = () => {
+    this.setState({ isTokenLoading: true });
     const { history } = this.props;
 
     const selectedTokenSymbols = this.state.selectedTokenNames.map((tokenName) => {
