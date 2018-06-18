@@ -52,12 +52,13 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
             zIndex: 1,
           }}
         >
-            <CartesianGrid strokeDasharray="3 3"/>
-            <XAxis dataKey="date"/>
-            <YAxis scale={this.scale} domain={['auto', 'auto']}/>
-            <Tooltip/>
+          <CartesianGrid strokeDasharray="3 3"/>
+          <XAxis dataKey="date"/>
+          <YAxis scale={this.scale} domain={['auto', 'auto']}/>
+          <Tooltip/>
           {this.prepareLines()}
         </LineChart>
+
         {this.prepareRangeComponent()}
       </span>
     );
@@ -85,7 +86,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     return this.props.showRange
       ? (
         <div style={{
-            padding: '0px 0px 0px 65px',
+            padding: '25px 50px 50px',
             width: this.props.width,
           }}
         >
