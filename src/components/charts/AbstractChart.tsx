@@ -84,7 +84,11 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   private prepareRangeComponent(): any {
     return this.props.showRange
       ? (
-        <div style={{'width': this.props.width + 'px', 'padding': '0px 0px 0px 65px'}}>
+        <div style={{
+            padding: '0px 0px 0px 65px',
+            width: this.props.width,
+          }}
+        >
           <InputRange
             maxValue={(this.data.length - 1) || 0}
             minValue={0}
