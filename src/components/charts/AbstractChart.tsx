@@ -43,7 +43,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   public render() {
     return (
-      <span>
+      <div>
         <LineChart
           data={this.prepareData()}
           width={this.props.width}
@@ -60,7 +60,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         </LineChart>
 
         {this.prepareRangeComponent()}
-      </span>
+      </div>
     );
   }
 
