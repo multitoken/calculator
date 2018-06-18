@@ -173,21 +173,21 @@ export default class CalculatorPage extends React.Component<Props, State> {
               </p>
 
               <p>
-                Result percent. in {this.calcCountDays()} days&nbsp;
+                Result percent. in {this.calcCountDays()} days:&nbsp;
                 <span className="CalculatorPage-summary-value">
                   {(1 - (this.state.cap / this.state.arbiterCap)) * 100}%
                 </span>
               </p>
 
               <p>
-                Total Arbiter transactions fee&nbsp;
+                Total Arbiter transactions fee:&nbsp;
                 <span className="CalculatorPage-summary-value">
                   ${this.state.arbiterTotalTxFee}
                 </span>
               </p>
 
               <p>
-                Arbiter profit&nbsp;
+                Arbiter profit:&nbsp;
                 <span className="CalculatorPage-summary-value">
                   ${this.state.arbiterProfit * Config.getBtcUsdPrice()}
                 </span>
