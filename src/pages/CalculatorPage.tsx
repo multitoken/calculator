@@ -18,6 +18,7 @@ import { TokenManager } from '../manager/TokenManager';
 import { Arbitration } from '../repository/models/Arbitration';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
+import './CalculatorPage.css';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -97,10 +98,9 @@ export default class CalculatorPage extends React.Component<Props, State> {
       >
         <PageHeader />
         <PageContent>
-          <Form style={{ width: 900 }}>
+          <Form style={{ width: 900, marginBottom: 50 }}>
             <FormGroup>
-              <Label>Amount:&nbsp;</Label>
-
+              <Label>Amount of money:&nbsp;</Label>
               <InputNumber
                 value={this.state.amount}
                 formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -109,22 +109,27 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 style={{ width: 200 }}
               />
 
-              <div
-                style={{
-                  padding: 50,
-                  width: 700,
-                }}
-              >
-                <InputRange
-                  maxValue={this.state.calculateMaxDateIndex}
-                  minValue={0}
-                  formatLabel={value => this.inputRangeTrackValue(value)}
-                  value={this.state.calculateRangeDateIndex}
-                  onChange={value => this.setState({calculateRangeDateIndex: value})}
-                  onChangeComplete={(value: Range) => {
-                    this.tokenManager.changeCalculationDate(value.min, value.max);
+              <div>
+                <div>
+                  Period of time
+                </div>
+                <div
+                  style={{
+                    padding: '25px 50px 50px 50px',
+                    width: 700,
                   }}
-                />
+                >
+                  <InputRange
+                    maxValue={this.state.calculateMaxDateIndex}
+                    minValue={0}
+                    formatLabel={value => this.inputRangeTrackValue(value)}
+                    value={this.state.calculateRangeDateIndex}
+                    onChange={value => this.setState({calculateRangeDateIndex: value})}
+                    onChangeComplete={(value: Range) => {
+                      this.tokenManager.changeCalculationDate(value.min, value.max);
+                    }}
+                  />
+                </div>
               </div>
 
               <TokensProportionsList
@@ -137,37 +142,49 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
             <Button
               type="primary"
+              size="large"
               onClick={() => this.onCalculateClick()}
             >
               Calculate
             </Button>
           </Form>
 
-          <FormGroup>
-            <Label>Result cap <b>without/with</b> arbitrage BTC: </Label>
+          <div>
+            <h4>Result</h4>
+
             <div>
-              <Label>{this.state.cap} / {this.state.arbiterCap}</Label>
+              <p>
+                Result cap <b>without/with</b> arbitrage BTC:&nbsp;
+                <span className="CalculatorPage-summary-value">
+                  {this.state.cap} / {this.state.arbiterCap}
+                  </span>
+              </p>
+
+              <p>
+                Result cap <b>without/with</b> arbitrage $:&nbsp;
+                <span className="CalculatorPage-summary-value">
+                  {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
+                  {this.state.arbiterCap * Config.getBtcUsdPrice()}
+                  &nbsp;
+                  ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
+                </span>
+              </p>
+
+              <p>
+                Result percent. in {this.calcCountDays()} days&nbsp;
+                <span className="CalculatorPage-summary-value">
+                  {(1 - (this.state.cap / this.state.arbiterCap)) * 100}%
+                </span>
+              </p>
+
+              <p>
+                Arbiter profit&nbsp;
+                <span className="CalculatorPage-summary-value">
+                  ${this.state.arbiterProfit * Config.getBtcUsdPrice()}
+                </span>
+              </p>
             </div>
-            <Label>Result cap <b>without/with</b> arbitrage $: </Label>
-            <div>
-              <Label>
-                {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
-                {this.state.arbiterCap * Config.getBtcUsdPrice()}
-              </Label>
-              &nbsp;
-              <Label>
-                ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
-              </Label>
-            </div>
-            <Label>Result percent. in {this.calcCountDays()} days</Label>
-            <div>
-              <Label>{(1 - (this.state.cap / this.state.arbiterCap)) * 100}%</Label>
-            </div>
-            <Label>Arbiter profit</Label>
-            <div>
-              <Label>${this.state.arbiterProfit * Config.getBtcUsdPrice()}</Label>
-            </div>
-          </FormGroup>
+          </div>
 
           <FormGroup>
             <Label>Tokens history price $:</Label>
