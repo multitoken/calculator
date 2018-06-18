@@ -1,41 +1,19 @@
 import * as React from 'react';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import StepInteger from '../step-integer/StepInteger';
-import AbstractHolder, { AbstractProperties, AbstractState } from './AbstractHolder';
+import AbstractHolder, { AbstractProperties } from './AbstractHolder';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
   onChangeProportion(name: string, value: number): void;
 }
 
-// export interface State extends AbstractState {
-// }
-
-export class TokenProportionHolder extends AbstractHolder<Properties, TokenProportion, AbstractState> {
-
-  constructor(prop: Properties) {
-    super(prop);
-
-    this.state = {
-      selected: false,
-    };
-  }
+export class TokenProportionHolder extends AbstractHolder<Properties, TokenProportion, object> {
 
   public bindModel(model: TokenProportion): object {
     return (
-      <div
-        style={{
-          alignItems: 'center',
-          display: 'flex',
-          justifyContent: 'flex-start',
-          width: 500,
-        }}
-      >
+      <>
         <div>{model.name} proportion:&nbsp;</div>
-        <div
-          style={{
-            flexGrow: 1,
-          }}
-        >
+        <div>
           <StepInteger
             max={model.max}
             min={model.min}
@@ -43,7 +21,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
             onAfterChange={value => this.onChangeProportion(model.name, value)}
           />
         </div>
-      </div>
+      </>
     );
   }
 

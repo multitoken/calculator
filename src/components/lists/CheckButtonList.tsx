@@ -22,10 +22,10 @@ export default class CheckButtonList extends React.Component<Props, {}> {
 
     return (
       <CheckboxGroup
-        options={options}
+        className="CheckButtonList"
         disabled={this.props.disabled}
         onChange={this.onChange}
-        className="CheckButtonList"
+        options={options}
       />
     );
   }
