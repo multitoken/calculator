@@ -3,4 +3,5 @@
     grid-template-columns: max-content auto;
     align-items: center;
     width: 500px;
+    border: 1px solid #ededed;
 }

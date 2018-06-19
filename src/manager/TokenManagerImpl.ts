@@ -72,6 +72,10 @@ export default class TokenManagerImpl implements TokenManager {
     return this.tokensWeightTimeline.delete(positionCalcDate);
   }
 
+  public resetTimelineProportions(): void {
+    this.tokensWeightTimeline.clear();
+  }
+
   public changeCalculationDate(indexStart: number, indexEnd: number) {
     if (indexEnd < this.maxCalculationIndex &&
       indexEnd > 0 &&
@@ -277,15 +281,23 @@ export default class TokenManagerImpl implements TokenManager {
 
       try {
         reCalcAmount = new BigNumber(amount)
-          .div(oldWeight)
           .multipliedBy(weight)
+          .div(oldWeight)
           .toNumber();
+
+        console.log(
+          `indexOfHistory: ${indexOfHistory} 
+           name: ${name};
+           oldWeight: ${oldWeight};
+           newWeight: ${weight};
+           amount: ${amount};
+           newAmount: ${reCalcAmount}`
+        );
       } catch (e) {
         console.log(e);
       }
 
       if (reCalcAmount > 0) {
-        this.tokensWeight.set(name, weight);
         this.tokensAmount.set(name, reCalcAmount);
 
       } else {

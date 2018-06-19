@@ -37,7 +37,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
     this.isChangedData = this.props.data !== props.data;
 
-    return this.isChangedData ||
+    return this.isChangedData || !this.props.showRange ||
       (this.props.showRange && this.state.calculateRangeIndex !== state.calculateRangeIndex);
   }
 
@@ -86,12 +86,12 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     return this.props.showRange
       ? (
         <div style={{
-            padding: '25px 50px 50px',
-            width: this.props.width,
-          }}
+          padding: '25px 50px 50px',
+          width: this.props.width,
+        }}
         >
           <InputRange
-            maxValue={(this.data.length - 1) || 0}
+            maxValue={Math.max(this.data.length - 1, 1)}
             minValue={0}
             formatLabel={value => this.inputRangeTrackValue(value)}
             value={this.state.calculateRangeIndex}

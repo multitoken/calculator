@@ -12,15 +12,15 @@ export class TokenProportionHolder extends AbstractHolder<Properties, TokenPropo
   public bindModel(model: TokenProportion): object {
     return (
       <>
-        <div>{model.name} proportion:&nbsp;</div>
-        <div>
-          <StepInteger
-            max={model.max}
-            min={model.min}
-            defaultValue={model.proportion}
-            onAfterChange={value => this.onChangeProportion(model.name, value)}
-          />
-        </div>
+      <div>{model.name} proportion:&nbsp;</div>
+      <div>
+        <StepInteger
+          max={model.max}
+          min={model.min}
+          defaultValue={model.proportion}
+          onAfterChange={value => this.onChangeProportion(model.name, value)}
+        />
+      </div>
       </>
     );
   }
