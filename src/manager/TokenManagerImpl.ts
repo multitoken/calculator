@@ -298,7 +298,6 @@ export default class TokenManagerImpl implements TokenManager {
       }
 
       if (reCalcAmount > 0) {
-        this.tokensWeight.set(name, weight);
         this.tokensAmount.set(name, reCalcAmount);
 
       } else {
