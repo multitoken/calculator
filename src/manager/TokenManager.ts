@@ -3,28 +3,30 @@ import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 
 export interface TokenManager {
 
-    setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
+  setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
-    changeProportions(proportions: Map<string, number>): void;
+  changeProportions(proportions: Map<string, number>): void;
 
-    getTimelineProportions(): Map<number, Map<string, number>>;
+  getTimelineProportions(): Map<number, Map<string, number>>;
 
-    setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void;
+  setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void;
 
-    removeTimelineProportion(positionCalcDate: number): boolean;
+  removeTimelineProportion(positionCalcDate: number): boolean;
 
-    changeCalculationDate(indexStart: number, indexEnd: number): void;
+  resetTimelineProportions(): void;
 
-    getMaxCalculationIndex(): number;
+  changeCalculationDate(indexStart: number, indexEnd: number): void;
 
-    getPriceHistory(): Map<string, TokenPriceHistory[]>;
+  getMaxCalculationIndex(): number;
 
-    getAvailableTokens(): Promise<Map<string, string>>;
+  getPriceHistory(): Map<string, TokenPriceHistory[]>;
 
-    calculateInitialAmounts(amount: number): Promise<Map<string, number>>;
+  getAvailableTokens(): Promise<Map<string, string>>;
 
-    calculateArbitration(): Promise<Arbitration[]>;
+  calculateInitialAmounts(amount: number): Promise<Map<string, number>>;
 
-    calculateCap(): Promise<number>;
+  calculateArbitration(): Promise<Arbitration[]>;
+
+  calculateCap(): Promise<number>;
 
 }

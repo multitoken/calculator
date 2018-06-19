@@ -1,19 +1,12 @@
 import Config from '../../Config';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import { DateUtils } from '../../utils/DateUtils';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
-import DateTimeFormatOptions = Intl.DateTimeFormatOptions;
 
 interface Properties extends AbstractProperties<Map<string, TokenPriceHistory[]>> {
   start: number;
   end: number;
 }
-
-const DATE_FORMAT: DateTimeFormatOptions = {
-  day: '2-digit',
-  hour: '2-digit',
-  month: 'short',
-  year: '2-digit',
-};
 
 export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, TokenPriceHistory[]>, any> {
 
@@ -32,14 +25,12 @@ export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<s
 
       const dataResult: any = {data: ''};
       data.forEach((value, key) => {
-        dataResult.date = new Date(value[i].time).toLocaleDateString(['en-US'], DATE_FORMAT);
+        dataResult.date = DateUtils.toStringDate(value[i].time, DateUtils.DATE_FORMAT_SHORT);
         dataResult[key] = Number((value[i].close * Config.getBtcUsdPrice()).toFixed(4));
       });
 
       result.push(dataResult);
     }
-
-    console.log(result);
 
     return result;
   }
