@@ -26,7 +26,7 @@ export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<s
       const dataResult: any = {data: ''};
       data.forEach((value, key) => {
         dataResult.date = DateUtils.toStringDate(value[i].time, DateUtils.DATE_FORMAT_SHORT);
-        dataResult[key] = Number((value[i].close * Config.getBtcUsdPrice()).toFixed(4));
+        dataResult[key] = Number((value[i].value * Config.getBtcUsdPrice()).toFixed(4));
       });
 
       result.push(dataResult);
