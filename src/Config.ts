@@ -1,11 +1,15 @@
 export default class Config {
 
-    public static getCryptoCurrencyPriceApi(): string {
-        return '';
-    }
+  public static getStatic(): string {
+    return '';
+  }
 
-    public static getBtcUsdPrice(): number {
-        return 7500;
-    }
+  public static getStableCoinsApi(): string {
+    return 'https://api.icex.ch';
+  }
+
+  public static getBtcUsdPrice(): number {
+    return 7500;
+  }
 
 }
