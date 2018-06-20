@@ -29,7 +29,12 @@
     "bump:minor": "npm version minor",
     "bump:patch": "npm version patch",
     "bump:prerelease": "npm version prerelease",
-    "tslint": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'"
+    "tslint": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+    "site:new": "npm run bump:patch && npm run ghpages && npm run merge:develop && npm run site:clean && npm run build && npm run site:copy",
+    "ghpages": "git checkout gh-pages",
+    "merge:develop": "git merge develop",
+    "site:clean": "rm -rf ./static/*",
+    "site:copy": "cp -R ./build/* ./"
   },
   "devDependencies": {
     "@types/d3-scale": "^2.0.1",
