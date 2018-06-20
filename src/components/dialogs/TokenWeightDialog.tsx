@@ -34,30 +34,23 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     };
   }
 
-  // public shouldComponentUpdate(nextProps: Readonly<Properties>, nextState: Readonly<State>,
-  // nextContext: any): boolean {
-  //   return nextProps.openDialog !== this.props.openDialog ||
-  //     nextProps.tokenWeight === undefined &&
-  //     (nextState.selectedToken !== this.state.selectedToken ||
-  //       nextState.selectedDateIndex !== this.state.selectedDateIndex ||
-  //       nextState.selectedWeight !== this.state.selectedWeight) ||
-  //     nextProps.tokenWeight !== undefined;
-  // }
-
   public componentDidUpdate(prevProps: Readonly<Properties>, prevState: Readonly<State>, snapshot?: any): void {
     if (!prevProps.openDialog && prevProps.tokenWeight && this.props.tokenWeight &&
       (prevState.selectedDateIndex !== this.props.tokenWeight.index ||
         prevState.selectedToken !== this.props.tokenWeight.tokenName ||
         prevState.selectedWeight !== this.props.tokenWeight.weight)) {
+
       this.setState({
         selectedDateIndex: prevProps.tokenWeight.index,
         selectedToken: prevProps.tokenWeight.tokenName,
         selectedWeight: prevProps.tokenWeight.weight
       });
+
     } else if (!prevProps.openDialog && !prevProps.tokenWeight &&
       (prevState.selectedToken !== (this.props.tokenNames.length > -1 ? this.props.tokenNames[0] : '') ||
         prevState.selectedDateIndex !== 0 ||
         prevState.selectedWeight !== 1)) {
+
       this.setState({
         selectedDateIndex: 0,
         selectedToken: this.props.tokenNames.length > -1 ? this.props.tokenNames[0] : '',

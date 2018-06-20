@@ -37,7 +37,7 @@ export default class TokenManagerImpl implements TokenManager {
     for (const item of tokenSymbols) {
       try {
         const result: TokenPriceHistory[] = await this.cryptocurrencyRepository
-          .getPriceHistoryByHour(item, 'USD', 2000);
+          .getHistoryPrice(item, 'USD', 2000);
 
         this.selectedTokensHistory.set(item, result);
 
@@ -99,7 +99,7 @@ export default class TokenManagerImpl implements TokenManager {
   }
 
   public async getAvailableTokens(): Promise<Map<string, string>> {
-    return this.cryptocurrencyRepository.getAvailableTokens();
+    return this.cryptocurrencyRepository.getAvailableCurrencies();
   }
 
   public async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
@@ -125,13 +125,13 @@ export default class TokenManagerImpl implements TokenManager {
           .div(maxProportions)
           .multipliedBy(btcAmount);
 
-        const count: number = btc.div(value[this.startCalculationIndex].close).toNumber();
+        const count: number = btc.div(value[this.startCalculationIndex].value).toNumber();
 
         console.log(
           'name/weight/btc/count/price(per one)/', key, weight, btc.toNumber(), count,
-          value[this.startCalculationIndex].close,
+          value[this.startCalculationIndex].value,
           new BigNumber(count)
-            .multipliedBy(value[this.startCalculationIndex].close)
+            .multipliedBy(value[this.startCalculationIndex].value)
             .multipliedBy(Config.getBtcUsdPrice())
             .toNumber()
         );
@@ -153,7 +153,7 @@ export default class TokenManagerImpl implements TokenManager {
       historyPerHour.clear();
 
       this.selectedTokensHistory.forEach((value, key) => {
-        historyPerHour.set(key, value[i].close);
+        historyPerHour.set(key, value[i].value);
         timestamp = value[i].time;
       });
 
@@ -266,7 +266,7 @@ export default class TokenManagerImpl implements TokenManager {
   public async calculateCap(): Promise<number> {
     const historyPerHour: Map<string, number> = new Map();
     this.selectedTokensHistory.forEach((value, key) => {
-      historyPerHour.set(key, value[this.endCalculationIndex].close);
+      historyPerHour.set(key, value[this.endCalculationIndex].value);
     });
 
     return await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
