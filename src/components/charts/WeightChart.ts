@@ -8,8 +8,6 @@ interface Properties extends AbstractProperties<TokenWeight[]> {
 export class WeightChart extends AbstractChart<Properties, AbstractState, TokenWeight[], any> {
 
   public parseData(data: TokenWeight[]): any[] {
-    console.log('claer data: ', data);
-
     return this.props.data.map(value => {
       const dataResult: any = {data: ''};
       dataResult.date = DateUtils.toStringDate(value.timestamp, DateUtils.DATE_FORMAT_SHORT);
