@@ -2,8 +2,10 @@ import { TokenPriceHistory } from '../models/TokenPriceHistory';
 
 export interface CryptocurrencyRepository {
 
-    getAvailableTokens(): Promise<Map<string, string>>;
+  getAvailableCurrencies(): Promise<Map<string, string>>;
 
-    getPriceHistoryByHour(tokenName: string, convertToSymbol: string, hours: number): Promise<TokenPriceHistory[]>;
+  getHistoryPrice(name: string, convertTo: string, hours: number): Promise<TokenPriceHistory[]>;
+
+  getMinDate(names: string[]): Promise<number>;
 
 }

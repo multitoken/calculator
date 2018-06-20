@@ -1,27 +1,11 @@
 export class TokenPriceHistory {
 
     public time: number;
-    public high: number;
-    public low: number;
-    public open: number;
-    public volumefrom: number;
-    public volumeto: number;
-    public close: number;
+    public value: number;
 
-    constructor(time: number = 0,
-                high: number = 0,
-                low: number = 0,
-                open: number = 0,
-                volumefrom: number = 0,
-                volumeto: number = 0,
-                close: number = 0) {
+    constructor(time: number = 0, value: number = 0) {
         this.time = time;
-        this.high = high;
-        this.low = low;
-        this.open = open;
-        this.volumefrom = volumefrom;
-        this.volumeto = volumeto;
-        this.close = close;
+        this.value = value;
     }
 
 }
