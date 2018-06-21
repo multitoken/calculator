@@ -5,13 +5,14 @@ import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyRepository {
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
-    ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'], ['Binance', 'BNB'],
+    ['USDT', 'USDT'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'], ['Binance', 'BNB'],
     ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX']
   ]);
 
   private readonly BTC_VALUES: Map<string, any> = new Map([
-    ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'], ['VeChain', 'venbtc'], ['Binance', 'bnbbtc'],
-    ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'], ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
+    ['USDT', 'usdbtc'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'], ['VeChain', 'venbtc'],
+    ['Binance', 'bnbbtc'], ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'],
+    ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
   ]);
 
   private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
