@@ -1,7 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import Config from '../Config';
 import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
 import { ArbiterProfit } from '../repository/models/ArbiterProfit';
 import { Arbitration } from '../repository/models/Arbitration';
@@ -39,7 +38,7 @@ export default class TokenManagerImpl implements TokenManager {
     for (const item of tokenSymbols) {
       try {
         const result: TokenPriceHistory[] = await this.cryptocurrencyRepository
-          .getHistoryPrice(item, 'USD', 2000);
+          .getHistoryPrice(item, 'USD', 2160);
 
         this.selectedTokensHistory.set(item, result);
 
@@ -107,8 +106,7 @@ export default class TokenManagerImpl implements TokenManager {
       maxProportions += value;
     });
 
-    const btcAmount: BigNumber = new BigNumber(amount).div(Config.getBtcUsdPrice());
-    console.log('Amount$ -> BTC', amount, btcAmount.toNumber());
+    const actualAmount: BigNumber = new BigNumber(amount);
 
     this.selectedTokensHistory
       .forEach((value, key) => {
@@ -118,18 +116,17 @@ export default class TokenManagerImpl implements TokenManager {
         }
         const weight: number = this.tokensWeight.get(key) || 0;
 
-        const btc: BigNumber = new BigNumber(weight)
+        const amountPerCurrency: BigNumber = new BigNumber(weight)
           .div(maxProportions)
-          .multipliedBy(btcAmount);
+          .multipliedBy(actualAmount);
 
-        const count: number = btc.div(value[this.startCalculationIndex].value).toNumber();
+        const count: number = amountPerCurrency.div(value[this.startCalculationIndex].value).toNumber();
 
         console.log(
-          'name/weight/btc/count/price(per one)/', key, weight, btc.toNumber(), count,
+          'name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency.toNumber(), count,
           value[this.startCalculationIndex].value,
           new BigNumber(count)
             .multipliedBy(value[this.startCalculationIndex].value)
-            .multipliedBy(Config.getBtcUsdPrice())
             .toNumber()
         );
 
@@ -156,7 +153,7 @@ export default class TokenManagerImpl implements TokenManager {
 
       this.applyCustomProportions(i);
 
-      const txPrice: number = (Math.random() * 0.5 + 0.2) / Config.getBtcUsdPrice(); // max $0.5 min $0.2
+      const txPrice: number = (Math.random() * 0.5 + 0.2); // max $0.5 min $0.2
       let profit: ArbiterProfit = ArbiterProfit.empty();
 
       for (const [cheap, cheapPrice] of historyPerHour) {

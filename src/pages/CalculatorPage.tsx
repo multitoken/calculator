@@ -14,7 +14,6 @@ import { TokenWeightList } from '../components/lists/TokenWeightList';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
 import PageHeader from '../components/page-header/PageHeader';
-import Config from '../Config';
 import { lazyInject, Services } from '../Injections';
 import { TokenManager } from '../manager/TokenManager';
 import { Arbitration } from '../repository/models/Arbitration';
@@ -240,10 +239,10 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <p>
                 Result cap <b>without/with</b> arbitrage $:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
-                  {this.state.arbiterCap * Config.getBtcUsdPrice()}
+                  {this.state.cap} /&nbsp;
+                  {this.state.arbiterCap}
                   &nbsp;
-                  ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
+                  ({(this.state.arbiterCap - this.state.cap)})
                 </span>
               </p>
 
@@ -264,7 +263,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <p>
                 Arbiter profit:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  ${this.state.arbiterProfit * Config.getBtcUsdPrice()}
+                  ${this.state.arbiterProfit}
                 </span>
               </p>
             </div>
@@ -441,16 +440,14 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
     this.applyTimelineProportions();
 
-    this.tokenManager.calculateInitialAmounts(this.state.amount)
-      .then(result => this.tokenManager.calculateCap())
-      .then(cap => {
-        this.setState({cap});
-
-        return this.tokenManager.calculateArbitration();
-      })
+    this.tokenManager
+      .calculateInitialAmounts(this.state.amount)
+      .then(() => this.tokenManager.calculateCap())
+      .then(cap => Promise.resolve(this.setState({cap})))
+      .then(() => this.tokenManager.calculateArbitration())
       .then(result => {
         this.setState({arbitrationList: result});
-        // console.log(result);
+        console.log(result);
         let profit: number = 0;
         let totalTxPrice: number = 0;
 
@@ -461,7 +458,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
         this.setState({
           arbiterProfit: profit,
-          arbiterTotalTxFee: totalTxPrice * Config.getBtcUsdPrice(),
+          arbiterTotalTxFee: totalTxPrice,
         });
 
         return this.tokenManager.calculateCap();

@@ -17,9 +17,11 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
 
   private host: string;
+  private btcToUsdPrice: number;
 
-  constructor(host: string) {
+  constructor(host: string, btcToUsdPrice: number) {
     this.host = host;
+    this.btcToUsdPrice = btcToUsdPrice;
   }
 
   public async getAvailableCurrencies(): Promise<Map<string, string>> {
@@ -38,7 +40,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     const data: number[] = response.data;
 
     for (let i = 0; i < data.length; i += 2) {
-      result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1])));
+      result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1] * this.btcToUsdPrice)));
     }
 
     return result;

@@ -4,9 +4,10 @@ import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 
 export class CryptocurrencyCoinsRepositoryImpl implements CryptocurrencyRepository {
 
+  private readonly POINT_STEP_SEC: number = 15;
   private readonly COINS_API_PATH: string = '/api/coins?detail=false&short=true';
-  private readonly HISTORY_BY_HOUR_API_PATH: string = '/api/coins/{coin}/hist' +
-    '?convert={convert}&start={start}&interval=1h&readable=0';
+  private readonly HISTORY_BY_HOUR_API_PATH: string =
+    `/api/coins/{coin}/hist?convert={convert}&start={start}&interval=${this.POINT_STEP_SEC}s&readable=0`;
 
   private host: string;
 
@@ -33,7 +34,8 @@ export class CryptocurrencyCoinsRepositoryImpl implements CryptocurrencyReposito
     const response = await axios.get(this.host + this.HISTORY_BY_HOUR_API_PATH
       .replace('{coin}', name)
       .replace('{convert}', convertTo)
-      .replace('{start}', (currentDate - (hours * 60 * 60)).toString())
+      .replace('{start}', (currentDate - 1).toString())
+      .replace('{end}', (currentDate - 5).toString())
     );
 
     const data: any[] = response.data.data[0].values;
@@ -46,10 +48,11 @@ export class CryptocurrencyCoinsRepositoryImpl implements CryptocurrencyReposito
   }
 
   public async getMinDate(names: string[]): Promise<number> {
-    let timestamp: number = 0;
+    let timestamp: number;
     let result: number = 0;
     const currentDate: number = Math.round(new Date().getTime() / 1000);
 
+    console.log(currentDate, currentDate - 3600, (currentDate - 3600).toString());
     for (const name of names) {
       const response = await axios.get(this.host + this.HISTORY_BY_HOUR_API_PATH
         .replace('{coin}', name)
