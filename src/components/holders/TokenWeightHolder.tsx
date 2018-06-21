@@ -1,5 +1,6 @@
 import { List } from 'antd';
 import * as React from 'react';
+import { Token } from '../../repository/models/Token';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
 import AbstractHolder, { AbstractProperties } from './AbstractHolder';
@@ -20,12 +21,17 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
         }}
       >
         <div style={{width: '100%', cursor: 'pointer'}} onClick={e => this.props.onClick(model)}>
-          <div>name: {model.tokenName}</div>
+          {this.prepareTokens(model)}
           <div>date: {DateUtils.toStringDate(model.timestamp, DateUtils.DATE_FORMAT_SHORT)}</div>
-          <div>proportion: {model.weight}</div>
         </div>
       </List.Item>
     );
+  }
+
+  private prepareTokens(model: TokenWeight): any[] {
+    return model.tokens.toArray().map((value: Token) => {
+      return <div key={value.name}>name: {value.name} -> weight: {value.weight}</div>;
+    });
   }
 
 }

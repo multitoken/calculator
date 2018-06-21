@@ -8,8 +8,4 @@ export default class Config {
     return 'https://api.icex.ch';
   }
 
-  public static getBtcUsdPrice(): number {
-    return 7500;
-  }
-
 }

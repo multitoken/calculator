@@ -104,6 +104,8 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.setState({ isTokenLoading: true });
     const { history } = this.props;
 
+    this.state.selectedTokenNames.sort();
+
     this.tokenManager.setupTokens(this.state.selectedTokenNames)
       .then(() => history.push('calculator'))
       .catch(reason => {

@@ -6,9 +6,11 @@ $ npm start
 ```
 
 ### Deploy a new version
-Use a Makefile command for generation a new version of the site:
+* Use `Makefile` or `package.json`:
 ```sh
 $ make site
+or
+$ npm run site:new
 ```
 After that, push updated `gh-pages` branch to origin to deploy the generated site.
 

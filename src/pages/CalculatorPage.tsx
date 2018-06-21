@@ -14,10 +14,11 @@ import { TokenWeightList } from '../components/lists/TokenWeightList';
 import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
 import PageHeader from '../components/page-header/PageHeader';
-import Config from '../Config';
 import { lazyInject, Services } from '../Injections';
 import { TokenManager } from '../manager/TokenManager';
 import { Arbitration } from '../repository/models/Arbitration';
+import Pair from '../repository/models/Pair';
+import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
 import { TokenWeight } from '../repository/models/TokenWeight';
@@ -43,9 +44,10 @@ interface State {
   calculateRangeDateIndex: Range | number;
   calculateMaxDateIndex: number;
   tokensWeightList: TokenWeight[];
-  tokenWeightSelected: number;
   tokenDialogDateList: string[];
   tokenDialogOpen: boolean;
+  tokenLatestWeights: Map<string, number>;
+  changeWeightMinDateIndex: number;
 }
 
 function inputNumberParser(value: string) {
@@ -73,11 +75,12 @@ export default class CalculatorPage extends React.Component<Props, State> {
       calculateMaxDateIndex: 1,
       calculateRangeDateIndex: {min: 0, max: 1},
       cap: 0,
+      changeWeightMinDateIndex: 1,
       proportionList: [],
       tokenDialogDateList: [],
       tokenDialogOpen: false,
+      tokenLatestWeights: new Map(),
       tokenNames: new Map(),
-      tokenWeightSelected: -1,
       tokensDate: [],
       tokensHistory: new Map(),
       tokensWeightList: [],
@@ -90,7 +93,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
       window.location.replace('/arbitrator-simulator');
     }
 
-    // console.log( this.tokenManager.cryptocurrencyRepository);
     this.tokenManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
@@ -129,6 +131,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                   }}
                 >
                   <InputRange
+                    disabled={this.state.tokensWeightList.length > 0}
                     maxValue={this.state.calculateMaxDateIndex}
                     minValue={0}
                     formatLabel={value => this.inputRangeTrackValue(value)}
@@ -143,6 +146,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
               <TokensProportionsList
                 data={this.state.proportionList}
+                disabled={this.state.tokensWeightList.length > 0}
                 onChangeProportion={
                   (name, value, position) => this.onChangeProportion(name, value, position)
                 }
@@ -154,8 +158,12 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 tokens weight:
               </b>
               <WeightChart
+                applyScale={false}
                 data={this.state.tokensWeightList}
                 colors={this.COLORS}
+                initialDate={this.state.tokensDate[(this.state.calculateRangeDateIndex as Range).min]}
+                initialState={this.state.proportionList}
+                finishDate={this.state.tokensDate[(this.state.calculateRangeDateIndex as Range).max]}
                 width={800}
                 height={200}
                 showRange={false}
@@ -171,9 +179,8 @@ export default class CalculatorPage extends React.Component<Props, State> {
                   <Content>
                     <TokenWeightList
                       bordered={true}
-                      selectedPosition={this.state.tokenWeightSelected}
+                      selectedPosition={-1}
                       data={this.state.tokensWeightList}
-                      onItemSelect={(model, position) => this.setState({tokenWeightSelected: position})}
                     />
                   </Content>
 
@@ -182,34 +189,24 @@ export default class CalculatorPage extends React.Component<Props, State> {
                       background: 'transparent',
                       marginLeft: '15px'
                     }}>
-                    <div>
+                    <div className="pb-2">
                       <Button
                         type="primary"
                         size="small"
                         shape="circle"
                         icon="plus"
-                        onClick={() => this.onChangeTokenWeightClick(false)}
+                        onClick={() => this.onAddTokenExchangeWeightClick()}
                       />
                     </div>
                     <div>
                       <Button
                         type="primary"
                         size="small"
-                        shape="circle"
-                        icon="delete"
-                        disabled={this.state.tokenWeightSelected === -1}
+                        disabled={this.state.tokensWeightList.length <= 0}
                         onClick={() => this.onDeleteTokenWeightClick()}
-                      />
-                    </div>
-                    <div>
-                      <Button
-                        type="primary"
-                        size="small"
-                        shape="circle"
-                        icon="edit"
-                        disabled={this.state.tokenWeightSelected === -1}
-                        onClick={() => this.onChangeTokenWeightClick(true)}
-                      />
+                      >
+                        Remove last item
+                      </Button>
                     </div>
                   </Sider>
                 </Layout>
@@ -242,17 +239,17 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <p>
                 Result cap <b>without/with</b> arbitrage $:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {this.state.cap * Config.getBtcUsdPrice()} /&nbsp;
-                  {this.state.arbiterCap * Config.getBtcUsdPrice()}
+                  {this.state.cap} /&nbsp;
+                  {this.state.arbiterCap}
                   &nbsp;
-                  ({(this.state.arbiterCap - this.state.cap) * Config.getBtcUsdPrice()})
+                  ({(this.state.arbiterCap - this.state.cap)})
                 </span>
               </p>
 
               <p>
                 Result percent. in {this.calcCountDays()} days:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {(1 - (this.state.cap / this.state.arbiterCap)) * 100}%
+                  {((1 - (this.state.cap / this.state.arbiterCap)) * 100) || 0}%
                 </span>
               </p>
 
@@ -266,7 +263,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <p>
                 Arbiter profit:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  ${this.state.arbiterProfit * Config.getBtcUsdPrice()}
+                  ${this.state.arbiterProfit}
                 </span>
               </p>
             </div>
@@ -318,17 +315,12 @@ export default class CalculatorPage extends React.Component<Props, State> {
           </div>
 
           <TokenWeightDialog
-            onOkClick={(token: string, dateIndex: number, weight: number, oldModel?: TokenWeight) => {
-              this.onTokenDialogOkClick(token, dateIndex, weight, oldModel);
-            }}
+            onOkClick={(tokenWeight: TokenWeight) => this.onTokenDialogOkClick(tokenWeight)}
             onCancel={() => this.setState({tokenDialogOpen: false})}
             openDialog={this.state.tokenDialogOpen}
-            tokenWeight={
-              this.state.tokenWeightSelected >= 0
-                ? this.state.tokensWeightList[this.state.tokenWeightSelected]
-                : undefined
-            }
+            tokenWeights={this.state.tokenLatestWeights}
             maxWeight={10}
+            minDateIndex={this.state.changeWeightMinDateIndex}
             tokenNames={Array.from(this.tokenManager.getPriceHistory().keys())}
             dateList={this.state.tokensDate}
           />
@@ -338,45 +330,47 @@ export default class CalculatorPage extends React.Component<Props, State> {
     );
   }
 
-  private onChangeTokenWeightClick(edit: boolean): void {
-    if (edit && this.state.tokenWeightSelected > -1) {
-      this.setState({tokenDialogOpen: true});
+  private onAddTokenExchangeWeightClick(): void {
+    const latestTokensWeight: Map<string, number> = new Map();
+    this.state.tokensWeightList.forEach(value => {
+      value.tokens.toArray().forEach((value2: Token) => {
+        latestTokensWeight.set(value2.name, value2.weight);
+      });
+    });
 
-    } else if (!edit) {
-      this.setState({tokenWeightSelected: -1, tokenDialogOpen: true});
+    if (latestTokensWeight.size === 0) {
+      this.state.proportionList.forEach(value => {
+        latestTokensWeight.set(value.name, value.weight);
+      });
     }
+
+    const weightList: TokenWeight[] = this.state.tokensWeightList;
+    const minDateIndex: number = weightList.length > 0
+      ? weightList[weightList.length - 1].index
+      : (this.state.calculateRangeDateIndex as Range).min;
+
+    this.setState({
+      changeWeightMinDateIndex: minDateIndex + 1,
+      tokenDialogOpen: true,
+      tokenLatestWeights: latestTokensWeight,
+    });
   }
 
   private onDeleteTokenWeightClick(): void {
-    if (this.state.tokenWeightSelected < 0) {
-      return;
-    }
-
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
 
-    list.splice(this.state.tokenWeightSelected, 1);
-    list.sort((a, b) => a.timestamp - b.timestamp);
+    list.pop();
 
     this.setState({
-      tokenWeightSelected: -1,
       tokensWeightList: list,
     });
   }
 
-  private onTokenDialogOkClick(token: string, dateIndex: number, weight: number, oldModel?: TokenWeight) {
+  private onTokenDialogOkClick(model: TokenWeight) {
     this.setState({tokenDialogOpen: false});
-    const model: TokenWeight = new TokenWeight(token, weight, this.state.tokensDate[dateIndex], dateIndex);
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
+    list.push(model);
 
-    if (oldModel) {
-      const position: number = list.indexOf(oldModel);
-      list.splice(position, 1, model);
-
-    } else {
-      list.push(model);
-    }
-
-    list.sort((a, b) => a.timestamp - b.timestamp);
     this.setState({tokensWeightList: list});
   }
 
@@ -399,7 +393,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
   }
 
   private onChangeProportion(name: string, value: number, position: number) {
-    this.state.proportionList[position].proportion = value;
+    this.state.proportionList[position].weight = value;
     this.setState({proportionList: this.state.proportionList});
   }
 
@@ -439,23 +433,21 @@ export default class CalculatorPage extends React.Component<Props, State> {
     const mapProportions: Map<string, number> = new Map();
 
     this.state.proportionList.forEach(value => {
-      mapProportions.set(value.name, value.proportion);
+      mapProportions.set(value.name, value.weight);
     });
 
     this.tokenManager.changeProportions(mapProportions);
 
     this.applyTimelineProportions();
 
-    this.tokenManager.calculateInitialAmounts(this.state.amount)
-      .then(result => this.tokenManager.calculateCap())
-      .then(cap => {
-        this.setState({cap});
-
-        return this.tokenManager.calculateArbitration();
-      })
+    this.tokenManager
+      .calculateInitialAmounts(this.state.amount)
+      .then(() => this.tokenManager.calculateCap())
+      .then(cap => Promise.resolve(this.setState({cap})))
+      .then(() => this.tokenManager.calculateArbitration())
       .then(result => {
         this.setState({arbitrationList: result});
-        // console.log(result);
+        console.log(result);
         let profit: number = 0;
         let totalTxPrice: number = 0;
 
@@ -466,7 +458,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
         this.setState({
           arbiterProfit: profit,
-          arbiterTotalTxFee: totalTxPrice * Config.getBtcUsdPrice(),
+          arbiterTotalTxFee: totalTxPrice,
         });
 
         return this.tokenManager.calculateCap();
@@ -475,17 +467,13 @@ export default class CalculatorPage extends React.Component<Props, State> {
   }
 
   private applyTimelineProportions(): void {
-    const result: Map<number, Map<string, number>> = new Map();
+    const result: Map<number, Pair<Token, Token>> = new Map();
 
-    this.state.tokensWeightList.forEach(value => {
-      const map: Map<string, number> = result.get(value.index) || new Map();
-      map.set(value.tokenName, value.weight);
-      result.set(value.index, map);
+    this.state.tokensWeightList.forEach(weights => {
+      result.set(weights.index, weights.tokens);
     });
 
-    this.tokenManager.resetTimelineProportions();
-
-    result.forEach((value, key) => this.tokenManager.setTimelineProportion(key, value));
+    this.tokenManager.setExchangeWeights(result);
   }
 
 }

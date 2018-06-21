@@ -1,4 +1,3 @@
-import Config from '../../Config';
 import { Arbitration } from '../../repository/models/Arbitration';
 import { DateUtils } from '../../utils/DateUtils';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
@@ -14,10 +13,10 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arb
       dataResult.date = DateUtils.toStringDate(value.timestamp, DateUtils.DATE_FORMAT_SHORT);
 
       value.arbiterTokensCap.forEach((value2, key) => {
-        dataResult['arbiter' + key] = value2 * Config.getBtcUsdPrice();
+        dataResult['arbiter' + key] = value2;
       });
       value.originTokensCap.forEach((value2, key) => {
-        dataResult['origin' + key] = value2 * Config.getBtcUsdPrice();
+        dataResult['origin' + key] = value2;
       });
 
       return dataResult;

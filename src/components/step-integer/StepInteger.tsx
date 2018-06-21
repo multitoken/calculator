@@ -2,14 +2,17 @@ import { Col, InputNumber, Row, Slider } from 'antd';
 import * as React from 'react';
 
 export interface Properties {
+  disabled: boolean;
   min?: number;
   max?: number;
   defaultValue?: number;
+
   onAfterChange(value: number): void;
 }
 
 export default class StepInteger extends React.Component<Properties, any> {
   public state = {
+    disabled: false,
     inputValue: 1,
   };
 
@@ -33,6 +36,7 @@ export default class StepInteger extends React.Component<Properties, any> {
       <Row>
         <Col span={12}>
           <Slider
+            disabled={this.props.disabled}
             min={this.props.min}
             max={this.props.max}
             value={this.state.inputValue}
