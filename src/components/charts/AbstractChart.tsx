@@ -5,6 +5,7 @@ import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
 
 export interface AbstractProperties<M> {
   data: M;
+  applyScale?: boolean;
   colors: string[];
   width: number;
   height: number;
@@ -53,7 +54,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         >
           <CartesianGrid strokeDasharray="3 3"/>
           <XAxis dataKey="date"/>
-          <YAxis scale={AbstractChart.SCALE} domain={['auto', 'auto']}/>
+          <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
           <Tooltip/>
           {this.prepareLines()}
         </LineChart>

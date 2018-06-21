@@ -1,4 +1,6 @@
 import { Arbitration } from '../repository/models/Arbitration';
+import Pair from '../repository/models/Pair';
+import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 
 export interface TokenManager {
@@ -7,13 +9,9 @@ export interface TokenManager {
 
   changeProportions(proportions: Map<string, number>): void;
 
-  getTimelineProportions(): Map<number, Map<string, number>>;
+  getExchangedWeights(): Map<number, Pair<Token, Token>>;
 
-  setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void;
-
-  removeTimelineProportion(positionCalcDate: number): boolean;
-
-  resetTimelineProportions(): void;
+  setExchangeWeights(tokenWeights: Map<number, Pair<Token, Token>>): void;
 
   changeCalculationDate(indexStart: number, indexEnd: number): void;
 

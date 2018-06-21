@@ -9,7 +9,11 @@ export class DateUtils {
     year: '2-digit',
   };
 
-  public static toStringDate(timestamp: number, format: DateTimeFormatOptions): string {
+  public static toStringDate(timestamp: number, format ?: DateTimeFormatOptions): string {
+    if (!format) {
+      return new Date(timestamp).toString();
+    }
+
     return new Date(timestamp).toLocaleDateString(['en-US'], format);
   }
 

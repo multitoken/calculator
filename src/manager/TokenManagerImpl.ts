@@ -5,6 +5,8 @@ import Config from '../Config';
 import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
 import { ArbiterProfit } from '../repository/models/ArbiterProfit';
 import { Arbitration } from '../repository/models/Arbitration';
+import Pair from '../repository/models/Pair';
+import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenManager } from './TokenManager';
 
@@ -16,7 +18,7 @@ export default class TokenManagerImpl implements TokenManager {
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensAmountFixed: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
-  private readonly tokensWeightTimeline: Map<number, Map<string, number>> = new Map();
+  private readonly tokensWeightTimeline: Map<number, Pair<Token, Token>> = new Map();
   private startCalculationIndex: number;
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
@@ -60,20 +62,15 @@ export default class TokenManagerImpl implements TokenManager {
     });
   }
 
-  public getTimelineProportions(): Map<number, Map<string, number>> {
+  public getExchangedWeights(): Map<number, Pair<Token, Token>> {
     return this.tokensWeightTimeline;
   }
 
-  public setTimelineProportion(positionCalcDate: number, proportions: Map<string, number>): void {
-    this.tokensWeightTimeline.set(positionCalcDate, proportions);
-  }
-
-  public removeTimelineProportion(positionCalcDate: number): boolean {
-    return this.tokensWeightTimeline.delete(positionCalcDate);
-  }
-
-  public resetTimelineProportions(): void {
+  public setExchangeWeights(tokenWeights: Map<number, Pair<Token, Token>>): void {
     this.tokensWeightTimeline.clear();
+    tokenWeights.forEach((value, key) => {
+      this.tokensWeightTimeline.set(key, value);
+    });
   }
 
   public changeCalculationDate(indexStart: number, indexEnd: number) {
@@ -273,23 +270,27 @@ export default class TokenManagerImpl implements TokenManager {
   }
 
   private applyCustomProportions(indexOfHistory: number) {
-    const proportions: Map<string, number> = this.getTimelineProportions().get(indexOfHistory) || new Map();
-    proportions.forEach((weight, name) => {
-      const oldWeight: number = this.tokensWeight.get(name) || 0;
-      const amount: number = this.tokensAmount.get(name) || 0;
+    const proportions: Pair<Token, Token> | undefined = this.getExchangedWeights().get(indexOfHistory);
+    if (!proportions) {
+      return;
+    }
+
+    proportions.toArray().forEach(token => {
+      const oldWeight: number = this.tokensWeight.get(token.name) || 0;
+      const amount: number = this.tokensAmount.get(token.name) || 0;
       let reCalcAmount: number = 0;
 
       try {
         reCalcAmount = new BigNumber(amount)
-          .multipliedBy(weight)
+          .multipliedBy(token.weight)
           .div(oldWeight)
           .toNumber();
 
         console.log(
           `indexOfHistory: ${indexOfHistory} 
-           name: ${name};
+           name: ${token.name};
            oldWeight: ${oldWeight};
-           newWeight: ${weight};
+           newWeight: ${token.weight};
            amount: ${amount};
            newAmount: ${reCalcAmount}`
         );
@@ -298,15 +299,16 @@ export default class TokenManagerImpl implements TokenManager {
       }
 
       if (reCalcAmount > 0) {
-        this.tokensAmount.set(name, reCalcAmount);
+        this.tokensWeight.set(token.name, token.weight);
+        this.tokensAmount.set(token.name, reCalcAmount);
 
       } else {
         throw new Error(
           `invalid value of recalculate amount!
                      indexOfHistory: ${indexOfHistory} 
-                     name: ${name};
+                     name: ${token.name};
                      oldWeight: ${oldWeight};
-                     newWeight: ${weight};
+                     newWeight: ${token.weight};
                      amount: ${amount};
                      newAmount: ${reCalcAmount}`
         );

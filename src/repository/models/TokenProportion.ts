@@ -1,13 +1,13 @@
-export class TokenProportion {
+import { Token } from './Token';
 
-    public name: string;
-    public proportion: number;
+export class TokenProportion extends Token {
+
     public min: number;
     public max: number;
 
-    constructor(name: string, proportion: number, min: number, max: number) {
-        this.name = name;
-        this.proportion = proportion;
+    constructor(name: string, weight: number, min: number, max: number) {
+        super(name, weight);
+
         this.min = min;
         this.max = max;
     }
