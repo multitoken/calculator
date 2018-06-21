@@ -12,5 +12,5 @@ $ make site
 or
 $ npm run site:new
 ```
-After that, push updated `gh-pages` branch to origin to deploy the generated site.
+After that, commit all changes and push updated `gh-pages` branch to origin to deploy the generated site.
 
