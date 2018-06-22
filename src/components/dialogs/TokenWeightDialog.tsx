@@ -79,11 +79,19 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           title="exchange token weight"
           visible={this.props.openDialog}
           onOk={() => {
+            const tokens: Token[] = [];
+            this.props.tokenWeights.forEach((value, key) => {
+              if (key !== this.state.selectedTokenFirst && key !== this.state.selectedTokenSecond) {
+                tokens.push(new Token(key, value));
+              }
+            });
+
             this.props.onOkClick(new TokenWeight(
               new Pair(
                 new Token(this.state.selectedTokenFirst, this.state.selectedWeightFirst),
                 new Token(this.state.selectedTokenSecond, this.state.selectedWeightSecond)
               ),
+              tokens,
               this.props.dateList[this.state.selectedDateIndex],
               this.state.selectedDateIndex
             ));

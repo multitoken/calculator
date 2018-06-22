@@ -4,6 +4,7 @@ import InputRange, { Range } from 'react-input-range';
 import { RouteComponentProps } from 'react-router';
 import Form from 'reactstrap/lib/Form';
 import FormGroup from 'reactstrap/lib/FormGroup';
+import { ChartType } from '../components/charts/AbstractChart';
 import { ArbiterChart } from '../components/charts/ArbiterChart';
 import { HistoryChart } from '../components/charts/HistoryChart';
 import { TokensCapChart } from '../components/charts/TokensCapChart';
@@ -177,6 +178,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 width={800}
                 height={200}
                 showRange={false}
+                type={ChartType.BAR}
               />
               <div>
                 <Layout
@@ -252,21 +254,21 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {((this.state.cap - this.state.amount) / this.state.amount * 100) || 0}%
+                  {((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(4) || 0}%
                 </span>
               </p>
 
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0}%
+                 {((this.state.arbiterCap - this.state.amount) / this.state.amount * 100).toFixed(4) || 0}%
                 </span>
               </p>
 
               <p>
                 Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0}%
+                 {((this.state.arbiterCap - this.state.cap) / this.state.cap * 100).toFixed(4) || 0}%
                 </span>
               </p>
 
@@ -353,17 +355,18 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
   private onAddTokenExchangeWeightClick(): void {
     const latestTokensWeight: Map<string, number> = new Map();
+
     this.state.tokensWeightList.forEach(value => {
       value.tokens.toArray().forEach((value2: Token) => {
         latestTokensWeight.set(value2.name, value2.weight);
       });
     });
 
-    if (latestTokensWeight.size === 0) {
-      this.state.proportionList.forEach(value => {
+    this.state.proportionList.forEach(value => {
+      if (!latestTokensWeight.has(value.name)) {
         latestTokensWeight.set(value.name, value.weight);
-      });
-    }
+      }
+    });
 
     const weightList: TokenWeight[] = this.state.tokensWeightList;
     const minDateIndex: number = weightList.length > 0

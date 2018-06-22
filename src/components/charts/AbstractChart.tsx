@@ -1,7 +1,13 @@
 import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
-import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+
+export enum ChartType {
+  LINES,
+  BAR,
+  BAR_STACKED
+}
 
 export interface AbstractProperties<M> {
   data: M;
@@ -10,6 +16,7 @@ export interface AbstractProperties<M> {
   width: number;
   height: number;
   showRange: boolean;
+  type?: ChartType;
 }
 
 export interface AbstractState {
@@ -44,21 +51,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public render() {
     return (
       <div className="AbstractChart">
-        <LineChart
-          data={this.prepareData()}
-          width={this.props.width}
-          height={this.props.height}
-          style={{
-            zIndex: 1,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3"/>
-          <XAxis dataKey="date"/>
-          <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
-          <Tooltip/>
-          {this.prepareLines()}
-        </LineChart>
-
+        {this.prepareChart()}
         {this.prepareRangeComponent()}
       </div>
     );
@@ -67,6 +60,58 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public abstract parseData(data: M): D[];
 
   public abstract getNames(): string[];
+
+  private prepareChart() {
+    switch (this.props.type) {
+      case ChartType.LINES:
+        return this.prepareLineChart();
+
+      case ChartType.BAR_STACKED:
+      case ChartType.BAR:
+        return this.prepareBarChart(this.props.type);
+
+      default:
+        return this.prepareLineChart();
+    }
+  }
+
+  private prepareLineChart(): any {
+    return (
+      <LineChart
+        data={this.prepareData()}
+        width={this.props.width}
+        height={this.props.height}
+        style={{
+          zIndex: 1,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3"/>
+        <XAxis dataKey="date"/>
+        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <Tooltip/>
+        {this.prepareLines()}
+      </LineChart>
+    );
+  }
+
+  private prepareBarChart(type?: ChartType): any {
+    return (
+      <BarChart
+        data={this.prepareData()}
+        width={this.props.width}
+        height={this.props.height}
+        style={{
+          zIndex: 1,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3"/>
+        <XAxis dataKey="date"/>
+        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <Tooltip/>
+        {type === ChartType.BAR ? this.prepareBars() : this.prepareBarsStacked()}
+      </BarChart>
+    );
+  }
 
   private prepareData(): any[] {
     if (this.isChangedData) {
@@ -120,6 +165,34 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
             dataKey={value}
             dot={false}
             stroke={this.props.colors[index]}
+          />
+        );
+      });
+  }
+
+  private prepareBars(): any {
+    return this.getNames()
+      .map((value, index) => {
+        return (
+          <Bar
+            key={value}
+            dataKey={value}
+            stackId={''}
+            fill={this.props.colors[index]}
+          />
+        );
+      });
+  }
+
+  private prepareBarsStacked(): any {
+    return this.getNames()
+      .map((value, index) => {
+        return (
+          <Bar
+            key={value}
+            dataKey={value}
+            stackId={''}
+            fill={this.props.colors[index]}
           />
         );
       });
