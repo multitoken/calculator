@@ -8,6 +8,7 @@ import { ArbiterChart } from '../components/charts/ArbiterChart';
 import { HistoryChart } from '../components/charts/HistoryChart';
 import { TokensCapChart } from '../components/charts/TokensCapChart';
 import { WeightChart } from '../components/charts/WeightChart';
+import { ProgressDialog } from '../components/dialogs/ProgressDialog';
 import { TokenWeightDialog } from '../components/dialogs/TokenWeightDialog';
 import { TokensProportionsList } from '../components/lists/TokensProportionsList';
 import { TokenWeightList } from '../components/lists/TokenWeightList';
@@ -15,6 +16,7 @@ import PageContent from '../components/page-content/PageContent';
 import PageFooter from '../components/page-footer/PageFooter';
 import PageHeader from '../components/page-header/PageHeader';
 import { lazyInject, Services } from '../Injections';
+import { ProgressListener } from '../manager/ProgressListener';
 import { TokenManager } from '../manager/TokenManager';
 import { Arbitration } from '../repository/models/Arbitration';
 import Pair from '../repository/models/Pair';
@@ -40,6 +42,7 @@ interface State {
   arbiterTotalTxFee: number;
   amount: number;
   cap: number;
+  progressPercents: number;
   proportionList: TokenProportion[];
   calculateRangeDateIndex: Range | number;
   calculateMaxDateIndex: number;
@@ -54,7 +57,7 @@ function inputNumberParser(value: string) {
   return Number(value.replace(/\$\s?|(,*)/g, ''));
 }
 
-export default class CalculatorPage extends React.Component<Props, State> {
+export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
   private readonly COLORS: string[] = [
     '#8884d8', '#82ca9d', '#f4f142', '#a6f441', '#41f497', '#41f4df', '#414cf4', '#d941f4',
     '#f4419d', '#720009'
@@ -66,6 +69,8 @@ export default class CalculatorPage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.tokenManager.subscribeToProgress(this);
+
     this.state = {
       amount: 10000,
       arbiterCap: 0,
@@ -76,6 +81,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       calculateRangeDateIndex: {min: 0, max: 1},
       cap: 0,
       changeWeightMinDateIndex: 1,
+      progressPercents: 0,
       proportionList: [],
       tokenDialogDateList: [],
       tokenDialogOpen: false,
@@ -85,6 +91,10 @@ export default class CalculatorPage extends React.Component<Props, State> {
       tokensHistory: new Map(),
       tokensWeightList: [],
     };
+  }
+
+  public onProgress(percents: number): void {
+    this.setState({progressPercents: percents});
   }
 
   public componentDidMount(): void {
@@ -242,21 +252,21 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {((this.state.cap - this.state.amount) /  this.state.amount * 100) || 0}%
+                  {((this.state.cap - this.state.amount) / this.state.amount * 100) || 0}%
                 </span>
               </p>
 
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.amount) /  this.state.amount * 100) || 0}%
+                 {((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0}%
                 </span>
               </p>
 
               <p>
                 Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.cap) /  this.state.cap * 100) || 0}%
+                 {((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0}%
                 </span>
               </p>
 
@@ -330,6 +340,10 @@ export default class CalculatorPage extends React.Component<Props, State> {
             minDateIndex={this.state.changeWeightMinDateIndex}
             tokenNames={Array.from(this.tokenManager.getPriceHistory().keys())}
             dateList={this.state.tokensDate}
+          />
+          <ProgressDialog
+            openDialog={this.state.progressPercents > 0}
+            percentProgress={this.state.progressPercents}
           />
         </PageContent>
         <PageFooter/>
