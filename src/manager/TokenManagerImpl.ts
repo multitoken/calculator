@@ -7,6 +7,7 @@ import { Arbitration } from '../repository/models/Arbitration';
 import Pair from '../repository/models/Pair';
 import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { ProgressListener } from './ProgressListener';
 import { TokenManager } from './TokenManager';
 
 @injectable()
@@ -21,6 +22,7 @@ export default class TokenManagerImpl implements TokenManager {
   private startCalculationIndex: number;
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
+  private listener?: ProgressListener;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.cryptocurrencyRepository = cryptocurrencyRepository;
@@ -138,12 +140,34 @@ export default class TokenManagerImpl implements TokenManager {
     return result;
   }
 
+  public wait(): Promise<void> {
+    return new Promise(resolve => {
+      setTimeout(
+        () => {
+          resolve();
+        },
+        1
+      );
+    });
+  }
+
+  public subscribeToProgress(listener?: ProgressListener): void {
+    this.listener = listener;
+  }
+
   public async calculateArbitration(): Promise<Arbitration[]> {
     const result: Arbitration[] = [];
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
 
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
+      if (i % 1000 === 0) {
+        if (this.listener) {
+          this.listener.onProgress(Math.round(i / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100));
+        }
+        await this.wait();
+      }
+
       historyPerHour.clear();
 
       this.selectedTokensHistory.forEach((value, key) => {
@@ -252,6 +276,10 @@ export default class TokenManagerImpl implements TokenManager {
 
     for (const [key, value] of this.tokensAmount) {
       console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
+    }
+
+    if (this.listener) {
+      this.listener.onProgress(0);
     }
 
     return result;

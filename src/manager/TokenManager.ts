@@ -2,6 +2,7 @@ import { Arbitration } from '../repository/models/Arbitration';
 import Pair from '../repository/models/Pair';
 import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { ProgressListener } from './ProgressListener';
 
 export interface TokenManager {
 
@@ -22,6 +23,8 @@ export interface TokenManager {
   getAvailableTokens(): Promise<Map<string, string>>;
 
   calculateInitialAmounts(amount: number): Promise<Map<string, number>>;
+
+  subscribeToProgress(listener?: ProgressListener): void;
 
   calculateArbitration(): Promise<Arbitration[]>;
 
