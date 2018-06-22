@@ -22,21 +22,26 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
       value.tokens.toArray().forEach((value2: Token) => {
         dataResult[value2.name] = value2.weight;
       });
+
+      value.otherTokens.forEach((value2: Token) => {
+        dataResult[value2.name] = value2.weight;
+      });
+
       result.push(dataResult);
     });
 
-    const finisData: any = result[result.length - 1];
-    finisData.date = DateUtils.toStringDate(this.props.finishDate, DateUtils.DATE_FORMAT_SHORT);
-    result.push(finisData);
+    result.push(Object.assign({} , result[result.length - 1]));
+    result[result.length - 1].date = DateUtils.toStringDate(this.props.finishDate, DateUtils.DATE_FORMAT_SHORT);
 
     return result;
   }
 
   public getNames(): string[] {
     const names: Set<string> = new Set();
-    this.props.data.forEach((value: TokenWeight) =>
-      value.tokens.toArray().forEach((value2: Token) => names.add(value2.name))
-    );
+    this.props.data.forEach((value: TokenWeight) => {
+      value.tokens.toArray().forEach((value2: Token) => names.add(value2.name));
+      value.otherTokens.forEach((value2: Token) => names.add(value2.name));
+    });
 
     return Array.from(names.keys());
   }
