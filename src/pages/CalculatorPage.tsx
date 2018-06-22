@@ -230,13 +230,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
             <div>
               <p>
-                Result cap <b>without/with</b> arbitrage BTC:&nbsp;
-                <span className="CalculatorPage-result-value">
-                  {this.state.cap} / {this.state.arbiterCap}
-                  </span>
-              </p>
-
-              <p>
                 Result cap <b>without/with</b> arbitrage $:&nbsp;
                 <span className="CalculatorPage-result-value">
                   {this.state.cap} /&nbsp;
@@ -247,9 +240,23 @@ export default class CalculatorPage extends React.Component<Props, State> {
               </p>
 
               <p>
-                Result percent. in {this.calcCountDays()} days:&nbsp;
+                Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {((1 - (this.state.cap / this.state.arbiterCap)) * 100) || 0}%
+                  {((this.state.cap - this.state.amount) /  this.state.amount * 100) || 0}%
+                </span>
+              </p>
+
+              <p>
+                Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
+                <span className="CalculatorPage-result-value">
+                 {((this.state.arbiterCap - this.state.amount) /  this.state.amount * 100) || 0}%
+                </span>
+              </p>
+
+              <p>
+                Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
+                <span className="CalculatorPage-result-value">
+                 {((this.state.arbiterCap - this.state.cap) /  this.state.cap * 100) || 0}%
                 </span>
               </p>
 
