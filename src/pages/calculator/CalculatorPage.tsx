@@ -1,34 +1,32 @@
-import { Button, InputNumber, Layout } from 'antd';
+import { Button, Col, InputNumber, Layout, Row, Slider } from 'antd';
+import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
-import InputRange, { Range } from 'react-input-range';
 import { RouteComponentProps } from 'react-router';
 import Form from 'reactstrap/lib/Form';
 import FormGroup from 'reactstrap/lib/FormGroup';
-import { ChartType } from '../components/charts/AbstractChart';
-import { ArbiterChart } from '../components/charts/ArbiterChart';
-import { HistoryChart } from '../components/charts/HistoryChart';
-import { TokensCapChart } from '../components/charts/TokensCapChart';
-import { WeightChart } from '../components/charts/WeightChart';
-import { ProgressDialog } from '../components/dialogs/ProgressDialog';
-import { TokenWeightDialog } from '../components/dialogs/TokenWeightDialog';
-import { TokensProportionsList } from '../components/lists/TokensProportionsList';
-import { TokenWeightList } from '../components/lists/TokenWeightList';
-import PageContent from '../components/page-content/PageContent';
-import PageFooter from '../components/page-footer/PageFooter';
-import PageHeader from '../components/page-header/PageHeader';
-import { lazyInject, Services } from '../Injections';
-import { ProgressListener } from '../manager/ProgressListener';
-import { TokenManager } from '../manager/TokenManager';
-import { Arbitration } from '../repository/models/Arbitration';
-import Pair from '../repository/models/Pair';
-import { Token } from '../repository/models/Token';
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
-import { TokenProportion } from '../repository/models/TokenProportion';
-import { TokenWeight } from '../repository/models/TokenWeight';
-import { DateUtils } from '../utils/DateUtils';
-import './CalculatorPage.css';
-
-const {Content, Sider} = Layout;
+import { ChartType } from '../../components/charts/AbstractChart';
+import { ArbiterChart } from '../../components/charts/ArbiterChart';
+import { HistoryChart } from '../../components/charts/HistoryChart';
+import { TokensCapChart } from '../../components/charts/TokensCapChart';
+import { WeightChart } from '../../components/charts/WeightChart';
+import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
+import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
+import { TokensProportionsList } from '../../components/lists/TokensProportionsList';
+import { TokenWeightList } from '../../components/lists/TokenWeightList';
+import PageContent from '../../components/page-content/PageContent';
+import PageFooter from '../../components/page-footer/PageFooter';
+import PageHeader from '../../components/page-header/PageHeader';
+import { lazyInject, Services } from '../../Injections';
+import { ProgressListener } from '../../manager/ProgressListener';
+import { TokenManager } from '../../manager/TokenManager';
+import { Arbitration } from '../../repository/models/Arbitration';
+import Pair from '../../repository/models/Pair';
+import { Token } from '../../repository/models/Token';
+import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../../repository/models/TokenProportion';
+import { TokenWeight } from '../../repository/models/TokenWeight';
+import { DateUtils } from '../../utils/DateUtils';
+import './CalculatorPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -45,7 +43,7 @@ interface State {
   cap: number;
   progressPercents: number;
   proportionList: TokenProportion[];
-  calculateRangeDateIndex: Range | number;
+  calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
   tokensWeightList: TokenWeight[];
   tokenDialogDateList: string[];
@@ -79,7 +77,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       arbiterTotalTxFee: 0,
       arbitrationList: [],
       calculateMaxDateIndex: 1,
-      calculateRangeDateIndex: {min: 0, max: 1},
+      calculateRangeDateIndex: [0, 1],
       cap: 0,
       changeWeightMinDateIndex: 1,
       progressPercents: 0,
@@ -101,7 +99,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       // Redirect to root
-      window.location.replace('/arbitrator-simulator');
+      // window.location.replace('/arbitrator-simulator');
     }
 
     this.tokenManager
@@ -120,37 +118,42 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         }}
       >
         <PageHeader/>
+        <header className="CalculatorPage__header">
+          Options
+        </header>
+
         <PageContent>
-          <Form style={{width: 900, marginBottom: 50}}>
+          <Form style={{width: '100%'}}>
             <FormGroup>
-              <span>Amount of money:&nbsp;</span>
+              <div className="CalculatorPage__options-title">Amount of money:&nbsp;</div>
               <InputNumber
                 value={this.state.amount}
                 formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={inputNumberParser}
                 onChange={value => this.onAmountChange(value)}
-                style={{width: 200}}
+                style={{width: '100%'}}
               />
 
               <div>
-                <div>
-                  Period of time
+                <div className="CalculatorPage__options-title">
+                  Period of date:
                 </div>
                 <div
                   style={{
-                    padding: '25px 50px 50px 50px',
-                    width: 700,
+                    width: '100%',
                   }}
                 >
-                  <InputRange
+                  <Slider
+                    step={1}
+                    range={true}
                     disabled={this.state.tokensWeightList.length > 0}
-                    maxValue={this.state.calculateMaxDateIndex}
-                    minValue={0}
-                    formatLabel={value => this.inputRangeTrackValue(value)}
+                    max={this.state.calculateMaxDateIndex}
+                    min={0}
+                    tipFormatter={value => this.inputRangeTrackValue(value)}
                     value={this.state.calculateRangeDateIndex}
                     onChange={value => this.setState({calculateRangeDateIndex: value})}
-                    onChangeComplete={(value: Range) => {
-                      this.tokenManager.changeCalculationDate(value.min, value.max);
+                    onAfterChange={(value: SliderValue) => {
+                      this.tokenManager.changeCalculationDate(value[0], value[1]);
                     }}
                   />
                 </div>
@@ -165,7 +168,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               />
             </FormGroup>
 
-            <div className="CalculatorPage-result-chart">
+            <div className="CalculatorPage__result-chart">
               <b>
                 tokens weight:
               </b>
@@ -173,166 +176,187 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 applyScale={false}
                 data={this.state.tokensWeightList}
                 colors={this.COLORS}
-                initialDate={this.state.tokensDate[(this.state.calculateRangeDateIndex as Range).min]}
+                initialDate={this.state.tokensDate[this.state.calculateRangeDateIndex[0]]}
                 initialState={this.state.proportionList}
-                finishDate={this.state.tokensDate[(this.state.calculateRangeDateIndex as Range).max]}
-                width={800}
+                finishDate={this.state.tokensDate[this.state.calculateRangeDateIndex[1]]}
+                width={1000}
                 height={200}
                 showRange={false}
                 type={ChartType.BAR}
               />
-              <div>
-                <Layout
-                  style={{
-                    background: 'transparent',
-                    marginLeft: '65px',
-                    maxHeight: '200px',
-                    width: '945px'
-                  }}>
-                  <Content>
-                    <TokenWeightList
-                      bordered={true}
-                      selectedPosition={-1}
-                      data={this.state.tokensWeightList}
-                    />
-                  </Content>
+              <div style={{marginLeft: '65px'}}>
+                <div className="pb-4">
+                  <Button
+                    className="mr-3"
+                    type="primary"
+                    size="small"
+                    disabled={this.state.tokensWeightList.length <= 0}
+                    onClick={() => this.onDeleteTokenWeightClick()}
+                  >
+                    Remove last item
+                  </Button>
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => this.onAddTokenExchangeWeightClick()}
+                  >
+                    Add
+                  </Button>
+                </div>
 
-                  <Sider
-                    style={{
-                      background: 'transparent',
-                      marginLeft: '15px'
-                    }}>
-                    <div className="pb-2">
-                      <Button
-                        type="primary"
-                        size="small"
-                        shape="circle"
-                        icon="plus"
-                        onClick={() => this.onAddTokenExchangeWeightClick()}
-                      />
-                    </div>
-                    <div>
-                      <Button
-                        type="primary"
-                        size="small"
-                        disabled={this.state.tokensWeightList.length <= 0}
-                        onClick={() => this.onDeleteTokenWeightClick()}
-                      >
-                        Remove last item
-                      </Button>
-                    </div>
-                  </Sider>
-                </Layout>
+                <TokenWeightList
+                  bordered={true}
+                  selectedPosition={-1}
+                  maxHeight="200px"
+                  data={this.state.tokensWeightList}
+                />
               </div>
             </div>
 
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => this.onCalculateClick()}
-              style={{
-                padding: '0 30px',
-              }}
-            >
-              Calculate
-            </Button>
+            <div className="text-center mt-3">
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => this.onCalculateClick()}
+              >
+                Calculate
+              </Button>
+            </div>
           </Form>
+        </PageContent>
 
+        <header className="CalculatorPage__header">
+          Result
+        </header>
+
+        <PageContent>
           <div>
-            <h4>Result</h4>
-
             <div>
-              <p>
-                Result cap <b>without/with</b> arbitrage $:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Result cap <b>without/with</b> arbitrage $:
+                </Col>
+                <Col span={2}>
+                <span className="CalculatorPage__result-value">
                   {this.state.cap} /&nbsp;
                   {this.state.arbiterCap}
                   &nbsp;
                   ({(this.state.arbiterCap - this.state.cap)})
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   {
                     Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
                       .toFixed(4)
                   }%
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                  {
                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
                      .toFixed(4)
                  }%
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                  {
                    Math.max(0, (((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0))
                      .toFixed(4)
                  }%
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Arbitrage count:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Arbitrage count:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   ${this.getArbitrationListLen()}
                 </span>
-              </p>
-              <p>
-                Total Arbiter transactions fee:&nbsp;
-                <span className="CalculatorPage-result-value">
+                </Col>
+              </Row>
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Total Arbiter transactions fee:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   ${this.state.arbiterTotalTxFee}
                 </span>
-              </p>
-
-              <p>
-                Average Arbiter transactions fee:&nbsp;
-                <span className="CalculatorPage-result-value">
+                </Col>
+              </Row>
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Average Arbiter transactions fee:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   ${this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)}
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Total Arbiter profit:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Total Arbiter profit:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   ${this.state.arbiterProfit}
                 </span>
-              </p>
+                </Col>
+              </Row>
 
-              <p>
-                Average Arbiter profit:&nbsp;
-                <span className="CalculatorPage-result-value">
+              <Row>
+                <Col className="CalculatorPage__result-name" span={8}>
+                  Average Arbiter profit:&nbsp;
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
                   ${this.state.arbiterProfit / (this.getArbitrationListLen() || 1)}
                 </span>
-              </p>
-
+                </Col>
+              </Row>
             </div>
           </div>
 
-          <div className="CalculatorPage-result-chart">
+          <div className="CalculatorPage__result-chart mt-5">
             <b>Tokens history price $</b>
             <HistoryChart
               data={this.state.tokensHistory}
               colors={this.COLORS}
-              start={(this.state.calculateRangeDateIndex as Range).min}
-              end={(this.state.calculateRangeDateIndex as Range).max}
-              showRange={true}
-              width={800}
+              start={this.state.calculateRangeDateIndex[0]}
+              end={this.state.calculateRangeDateIndex[1]}
+              showRange={false}
+              width={1000}
               height={200}
             />
           </div>
 
-          <div className="CalculatorPage-result-chart">
+          <div className="CalculatorPage__result-chart">
             <b>
               Manipulation by the arbitrators (cap)$<br/>
               (Operations count: {this.getArbitrationListLen()})
@@ -340,17 +364,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <ArbiterChart
               data={this.state.arbitrationList}
               colors={this.COLORS}
-              width={800}
+              width={1000}
               height={200}
-              showRange={true}
+              showRange={false}
             />
           </div>
 
-          <div className="CalculatorPage-result-chart"
-               style={{
-                 marginBottom: 200,
-               }}
-          >
+          <div className="CalculatorPage__result-chart">
             <b>
               Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
               (Operations count:{this.getArbitrationListLen()})
@@ -358,9 +378,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <TokensCapChart
               data={this.state.arbitrationList}
               colors={this.COLORS}
-              width={800}
+              width={1000}
               height={200}
-              showRange={true}
+              showRange={false}
             />
           </div>
 
@@ -402,7 +422,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     const weightList: TokenWeight[] = this.state.tokensWeightList;
     const minDateIndex: number = weightList.length > 0
       ? weightList[weightList.length - 1].index
-      : (this.state.calculateRangeDateIndex as Range).min;
+      : this.state.calculateRangeDateIndex[0];
 
     this.setState({
       changeWeightMinDateIndex: minDateIndex + 1,
@@ -430,8 +450,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private calcCountDays(): number {
-    const max: number = (this.state.calculateRangeDateIndex as Range).max;
-    const min: number = (this.state.calculateRangeDateIndex as Range).min;
+    const min: number = this.state.calculateRangeDateIndex[0];
+    const max: number = this.state.calculateRangeDateIndex[1];
+
     return Math.floor((max - min) / 60 / 24);
   }
 
@@ -468,9 +489,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
     this.setState({
-      calculateMaxDateIndex: maxIndex,
-      calculateRangeDateIndex: {min: 0, max: maxIndex}
+      calculateMaxDateIndex: maxIndex || 0,
+      calculateRangeDateIndex: [0, maxIndex || 0]
     });
+
     this.setState({proportionList: proportions});
     this.setState({tokenNames: tokenItems});
     this.setState({tokensHistory: this.tokenManager.getPriceHistory()});

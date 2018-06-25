@@ -3,9 +3,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'react-input-range/lib/css/index.css';
 import { HashRouter as Router, Route } from 'react-router-dom';
-import CalculatorPage from './pages/CalculatorPage';
-import SetupTokenPage from './pages/SetupTokenPage';
-import './res/styles/index.less';
+import CalculatorPage from './pages/calculator/CalculatorPage';
+import SetupTokenPage from './pages/setup/SetupTokenPage';
+import './res/styles/Theme.less';
 
 // const GH_PAGES_PREFIX_URL = 'arbitrator-simulator';
 

@@ -1,12 +1,12 @@
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import CheckButtonList from '../components/lists/CheckButtonList';
-import PageContent from '../components/page-content/PageContent';
-import PageFooter from '../components/page-footer/PageFooter';
-import PageHeader from '../components/page-header/PageHeader';
-import { lazyInject, Services } from '../Injections';
-import { TokenManager } from '../manager/TokenManager';
+import CheckButtonList from '../../components/lists/CheckButtonList';
+import PageContent from '../../components/page-content/PageContent';
+import PageFooter from '../../components/page-footer/PageFooter';
+import PageHeader from '../../components/page-header/PageHeader';
+import { lazyInject, Services } from '../../Injections';
+import { TokenManager } from '../../manager/TokenManager';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {

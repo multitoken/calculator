@@ -1,4 +1,4 @@
-import { Col, InputNumber, Row, Slider } from 'antd';
+import { Slider } from 'antd';
 import * as React from 'react';
 
 export interface Properties {
@@ -6,6 +6,8 @@ export interface Properties {
   min?: number;
   max?: number;
   defaultValue?: number;
+
+  onChange?(value: number): void;
 
   onAfterChange(value: number): void;
 }
@@ -20,6 +22,10 @@ export default class StepInteger extends React.Component<Properties, any> {
     this.setState({
       inputValue: value,
     });
+
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
   }
 
   public onInputNumberChange = (value: number) => {
@@ -33,28 +39,14 @@ export default class StepInteger extends React.Component<Properties, any> {
 
   public render() {
     return (
-      <Row>
-        <Col span={12}>
-          <Slider
-            disabled={this.props.disabled}
-            min={this.props.min}
-            max={this.props.max}
-            value={this.state.inputValue}
-            onChange={this.onChange}
-            onAfterChange={this.onAfterChange}
-          />
-        </Col>
-        <Col span={4}>
-          <InputNumber
-            style={{marginLeft: 16}}
-            min={this.props.min}
-            max={this.props.max}
-            defaultValue={this.props.defaultValue}
-            value={this.state.inputValue}
-            onChange={this.onInputNumberChange}
-          />
-        </Col>
-      </Row>
+      <Slider
+        disabled={this.props.disabled}
+        min={this.props.min}
+        max={this.props.max}
+        value={this.state.inputValue}
+        onChange={this.onChange}
+        onAfterChange={this.onAfterChange}
+      />
     );
   }
 }
