@@ -114,8 +114,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     return (
       <Layout
         style={{
+          background: '#f5f8fa',
           minHeight: '100vh',
-          minWidth: 1000
+          minWidth: 1000,
         }}
       >
         <PageHeader/>
@@ -266,7 +267,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <span className="CalculatorPage-result-value">
                  {
                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
-                   .toFixed(4)
+                     .toFixed(4)
                  }%
                 </span>
               </p>

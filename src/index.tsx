@@ -5,7 +5,7 @@ import 'react-input-range/lib/css/index.css';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import CalculatorPage from './pages/CalculatorPage';
 import SetupTokenPage from './pages/SetupTokenPage';
-import './res/styles/index.css';
+import './res/styles/index.less';
 
 // const GH_PAGES_PREFIX_URL = 'arbitrator-simulator';
 
