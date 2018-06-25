@@ -254,24 +254,30 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(4) || 0}%
+                  {(((this.state.cap - this.state.amount) / this.state.amount * 100) || 0).toFixed(4)}%
                 </span>
               </p>
 
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.amount) / this.state.amount * 100).toFixed(4) || 0}%
+                 {(((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0).toFixed(4)}%
                 </span>
               </p>
 
               <p>
                 Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {((this.state.arbiterCap - this.state.cap) / this.state.cap * 100).toFixed(4) || 0}%
+                 {(((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0).toFixed(4)}%
                 </span>
               </p>
 
+              <p>
+                Arbitrage count:&nbsp;
+                <span className="CalculatorPage-result-value">
+                  ${this.getArbitrationListLen()}
+                </span>
+              </p>
               <p>
                 Total Arbiter transactions fee:&nbsp;
                 <span className="CalculatorPage-result-value">
@@ -280,11 +286,26 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               </p>
 
               <p>
-                Arbiter profit:&nbsp;
+                Average Arbiter transactions fee:&nbsp;
+                <span className="CalculatorPage-result-value">
+                  ${this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)}
+                </span>
+              </p>
+
+              <p>
+                Total Arbiter profit:&nbsp;
                 <span className="CalculatorPage-result-value">
                   ${this.state.arbiterProfit}
                 </span>
               </p>
+
+              <p>
+                Average Arbiter profit:&nbsp;
+                <span className="CalculatorPage-result-value">
+                  ${this.state.arbiterProfit / (this.getArbitrationListLen() || 1)}
+                </span>
+              </p>
+
             </div>
           </div>
 
