@@ -1,6 +1,13 @@
 {
-  "main.css": "static/css/main.88a6131d.css",
-  "main.css.map": "static/css/main.88a6131d.css.map",
-  "main.js": "static/js/main.d32647bb.js",
-  "main.js.map": "static/js/main.d32647bb.js.map"
+  "main.css": "static/css/main.550ce258.css",
+  "main.css.map": "static/css/main.550ce258.css.map",
+  "main.js": "static/js/main.b25b14a5.js",
+  "main.js.map": "static/js/main.b25b14a5.js.map",
+  "static\\media\\Roboto-Light.eot": "static/media/Roboto-Light.97b9f3ce.eot",
+  "static\\media\\Roboto-Light.ttf": "static/media/Roboto-Light.fc84e998.ttf",
+  "static\\media\\Roboto-Light.woff": "static/media/Roboto-Light.f3ca8cac.woff",
+  "static\\media\\Roboto-Regular.eot": "static/media/Roboto-Regular.947d4eb3.eot",
+  "static\\media\\Roboto-Regular.ttf": "static/media/Roboto-Regular.3e1af3ef.ttf",
+  "static\\media\\Roboto-Regular.woff": "static/media/Roboto-Regular.99433f7d.woff",
+  "static\\media\\logo-mtkn.svg": "static/media/logo-mtkn.f0f35a8b.svg"
 }
