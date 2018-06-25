@@ -254,21 +254,30 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                  {(((this.state.cap - this.state.amount) / this.state.amount * 100) || 0).toFixed(4)}%
+                  {
+                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
+                      .toFixed(4)
+                  }%
                 </span>
               </p>
 
               <p>
                 Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {(((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0).toFixed(4)}%
+                 {
+                   Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
+                   .toFixed(4)
+                 }%
                 </span>
               </p>
 
               <p>
                 Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 <span className="CalculatorPage-result-value">
-                 {(((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0).toFixed(4)}%
+                 {
+                   Math.max(0, (((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0))
+                     .toFixed(4)
+                 }%
                 </span>
               </p>
 
@@ -449,7 +458,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     tokens.forEach((value, key) => tokenItems.set(key, false));
 
     this.tokenManager.getPriceHistory().forEach((value, key) => {
-      proportions.push(new TokenProportion(key, 1, 1, 10));
+      proportions.push(new TokenProportion(key, 10, 1, 10));
     });
     const firstTokenName: string = Array.from(this.tokenManager.getPriceHistory().keys())[0];
     const history: TokenPriceHistory[] = this.tokenManager.getPriceHistory().get(firstTokenName) || [];

@@ -13,7 +13,7 @@ export interface Properties {
 export default class StepInteger extends React.Component<Properties, any> {
   public state = {
     disabled: false,
-    inputValue: 1,
+    inputValue: this.props.defaultValue,
   };
 
   public onChange = (value: number) => {
