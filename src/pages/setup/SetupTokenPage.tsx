@@ -1,13 +1,13 @@
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import CheckButtonList from '../components/lists/CheckButtonList';
-import PageContent from '../components/page-content/PageContent';
-import PageFooter from '../components/page-footer/PageFooter';
-import PageHeader from '../components/page-header/PageHeader';
-import { lazyInject, Services } from '../Injections';
-import { TokenManager } from '../manager/TokenManager';
-import './SetupTokenPage.css';
+import CheckButtonList from '../../components/lists/CheckButtonList';
+import PageContent from '../../components/page-content/PageContent';
+import PageFooter from '../../components/page-footer/PageFooter';
+import PageHeader from '../../components/page-header/PageHeader';
+import { lazyInject, Services } from '../../Injections';
+import { TokenManager } from '../../manager/TokenManager';
+import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -47,18 +47,18 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     return (
       <Layout
         style={{
+          background: '#f5f8fa',
           minHeight: '100vh',
-          minWidth: 320
+          minWidth: 320,
         }}
       >
         <PageHeader />
+        <header className="SetupTokenPage__header">
+          Select tokens to simulate multiToken(at least two)
+        </header>
+
         <PageContent>
           <div className="SetupTokenPage">
-            <header className="SetupTokenPage-header">
-              Select tokens to simulate multiToken
-              <br />
-              (at least two)
-            </header>
 
             <CheckButtonList
               data={this.state.availableTokenNames}
@@ -70,11 +70,9 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               type="primary"
               onClick={this.onNextClick}
               disabled={!this.checkActiveNext()}
-              size="large"
               loading={this.state.isTokenLoading}
               style={{
-                marginTop: 30,
-                padding: '0 50px',
+                marginTop: 30
               }}
             >
               Next

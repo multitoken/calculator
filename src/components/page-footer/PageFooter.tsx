@@ -1,8 +1,8 @@
 import { Layout } from 'antd';
 import * as React from 'react';
-import './PageFooter.css';
+import './PageFooter.less';
 
-const { Footer } = Layout;
+const {Footer} = Layout;
 
 export default class PageFooter extends React.Component {
   public render() {
@@ -11,7 +11,7 @@ export default class PageFooter extends React.Component {
     const versionLink = `https://github.com/MultiTKN/arbitrator-simulator/tree/v${version}`;
     return (
       <Footer
-        style={{textAlign: 'center'}}
+        style={{textAlign: 'center', background: '#f5f8fa'}}
       >
         MultiTKN&nbsp;©2018&nbsp;
         <code className="PageFooter-version">

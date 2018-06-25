@@ -4,8 +4,8 @@ export interface AbstractProperties<M> {
   model: M;
 }
 
-export default abstract class AbstractHolder<P extends AbstractProperties<M>, M, S>
-  extends React.Component<P, S> {
+export default abstract class AbstractHolder<P extends AbstractProperties<M>, S, M>
+  extends React.Component<P, any> {
 
   public render() {
     return this.bindModel(this.props.model);

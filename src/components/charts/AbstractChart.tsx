@@ -1,7 +1,7 @@
 import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export enum ChartType {
   LINES,
@@ -50,8 +50,10 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   public render() {
     return (
-      <div className="AbstractChart">
-        {this.prepareChart()}
+      <div>
+        <ResponsiveContainer aspect={5}>
+          {this.prepareChart()}
+        </ResponsiveContainer>
         {this.prepareRangeComponent()}
       </div>
     );
@@ -79,8 +81,6 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     return (
       <LineChart
         data={this.prepareData()}
-        width={this.props.width}
-        height={this.props.height}
         style={{
           zIndex: 1,
         }}
@@ -98,8 +98,6 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     return (
       <BarChart
         data={this.prepareData()}
-        width={this.props.width}
-        height={this.props.height}
         style={{
           zIndex: 1,
         }}

@@ -1,7 +1,7 @@
 import { Checkbox } from 'antd';
 import { CheckboxOptionType } from 'antd/es/checkbox';
 import * as React from 'react';
-import './CheckButtonList.css';
+import './CheckButtonList.less';
 
 const CheckboxGroup = Checkbox.Group;
 
