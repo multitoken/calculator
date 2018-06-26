@@ -45,6 +45,7 @@ interface State {
   proportionList: TokenProportion[];
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
+  tokensWeightSelectedIndex: number;
   tokensWeightList: TokenWeight[];
   tokenDialogDateList: string[];
   tokenDialogOpen: boolean;
@@ -87,6 +88,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokensDate: [],
       tokensHistory: new Map(),
       tokensWeightList: [],
+      tokensWeightSelectedIndex: -1,
     };
   }
 
@@ -131,14 +133,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 style={{width: '100%'}}
               />
 
-              <div className="CalculatorPage__options-title">Fee percents:&nbsp;</div>
+              <div className="CalculatorPage__options-title">Commission percents:&nbsp;</div>
               <InputNumber
                 value={this.state.commissionPercents}
                 step={0.01}
                 formatter={value => `${value || '0'}%`}
                 parser={value => parseFloat((value || '0').replace('%', ''))}
-                max={100}
-                min={0}
+                max={99.99}
+                min={0.01}
                 onChange={value => this.onFeeChange(value)}
                 style={{width: '100%'}}
               />
@@ -194,30 +196,37 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 type={ChartType.BAR}
               />
               <div style={{marginLeft: '65px'}}>
-                <div className="pb-4">
+                <div className="pb-4 text-right">
                   <Button
-                    className="mr-3"
+                    className="mr-2"
                     type="primary"
                     size="small"
-                    disabled={this.state.tokensWeightList.length <= 0}
+                    icon="delete"
+                    disabled={this.state.tokensWeightSelectedIndex <= -1}
                     onClick={() => this.onDeleteTokenWeightClick()}
-                  >
-                    Remove last item
-                  </Button>
+                  />
+                  <Button
+                    className="mr-2"
+                    type="primary"
+                    size="small"
+                    icon="edit"
+                    disabled={this.state.tokensWeightSelectedIndex <= -1}
+                    onClick={() => this.onEditTokenWeightClick()}
+                  />
                   <Button
                     type="primary"
                     size="small"
+                    icon="plus"
                     onClick={() => this.onAddTokenExchangeWeightClick()}
-                  >
-                    Add
-                  </Button>
+                  />
                 </div>
 
                 <TokenWeightList
                   bordered={true}
-                  selectedPosition={-1}
+                  selectedPosition={this.state.tokensWeightSelectedIndex}
                   maxHeight="200px"
                   data={this.state.tokensWeightList}
+                  onItemSelect={(model, pos) => this.setState({tokensWeightSelectedIndex: pos})}
                 />
               </div>
             </div>
@@ -396,10 +405,15 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           </div>
 
           <TokenWeightDialog
-            onOkClick={(tokenWeight: TokenWeight) => this.onTokenDialogOkClick(tokenWeight)}
+            onOkClick={(tokenWeight, oldModel) => this.onTokenDialogOkClick(tokenWeight, oldModel)}
             onCancel={() => this.setState({tokenDialogOpen: false})}
             openDialog={this.state.tokenDialogOpen}
             tokenWeights={this.state.tokenLatestWeights}
+            editTokenWeights={
+              this.state.tokensWeightSelectedIndex > -1
+                ? this.state.tokensWeightList[this.state.tokensWeightSelectedIndex]
+                : undefined
+            }
             maxWeight={10}
             minDateIndex={this.state.changeWeightMinDateIndex}
             tokenNames={Array.from(this.tokenManager.getPriceHistory().keys())}
@@ -439,23 +453,52 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       changeWeightMinDateIndex: minDateIndex + 1,
       tokenDialogOpen: true,
       tokenLatestWeights: latestTokensWeight,
+      tokensWeightSelectedIndex: -1,
     });
   }
 
   private onDeleteTokenWeightClick(): void {
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
 
-    list.pop();
+    list.splice(this.state.tokensWeightSelectedIndex, 1);
 
     this.setState({
       tokensWeightList: list,
+      tokensWeightSelectedIndex: -1,
     });
   }
 
-  private onTokenDialogOkClick(model: TokenWeight) {
+  private onEditTokenWeightClick(): void {
+    const latestTokensWeight: Map<string, number> = new Map();
+
+    this.state.tokensWeightList.forEach(value => {
+      value.tokens.toArray().forEach((value2: Token) => {
+        latestTokensWeight.set(value2.name, value2.weight);
+      });
+    });
+
+    this.state.proportionList.forEach(value => {
+      if (!latestTokensWeight.has(value.name)) {
+        latestTokensWeight.set(value.name, value.weight);
+      }
+    });
+
+    this.setState({
+      changeWeightMinDateIndex: this.state.tokensWeightList[this.state.tokensWeightSelectedIndex].index,
+      tokenDialogOpen: true,
+      tokenLatestWeights: latestTokensWeight,
+    });
+  }
+
+  private onTokenDialogOkClick(model: TokenWeight, oldModel: TokenWeight | undefined) {
     this.setState({tokenDialogOpen: false});
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
-    list.push(model);
+    if (oldModel === undefined) {
+      list.push(model);
+
+    } else {
+      list.splice(list.indexOf(oldModel), 1, model);
+    }
 
     this.setState({tokensWeightList: list});
   }
@@ -518,9 +561,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onFeeChange(value: number | string | undefined) {
-    const valueNumber = Math.max(0.01, Number(value));
+    const valueNumber = Math.max(0.01, Math.min(99.99, Number(value)));
 
-    console.log(valueNumber);
     if (valueNumber > 0) {
       this.setState({commissionPercents: valueNumber});
     }
