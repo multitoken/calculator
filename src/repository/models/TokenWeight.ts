@@ -15,4 +15,13 @@ export class TokenWeight {
     this.index = index;
   }
 
+  public equals(tokenWeight: TokenWeight | undefined): boolean {
+    return tokenWeight !== undefined && tokenWeight === this ||
+      tokenWeight !== undefined &&
+      tokenWeight.timestamp === this.timestamp &&
+      tokenWeight.index === this.index &&
+      tokenWeight.tokens.key === this.tokens.value &&
+      tokenWeight.tokens.value === this.tokens.value;
+  }
+
 }

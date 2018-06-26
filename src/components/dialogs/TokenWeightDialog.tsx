@@ -15,10 +15,11 @@ export interface Properties {
   minDateIndex: number;
   tokenNames: string[];
   tokenWeights: Map<string, number>;
+  editTokenWeights?: TokenWeight | undefined;
 
   onCancel(): void;
 
-  onOkClick(tokenWeight: TokenWeight): void;
+  onOkClick(tokenWeight: TokenWeight, oldModel: TokenWeight | undefined): void;
 }
 
 export interface State {
@@ -37,6 +38,8 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     const tokenNameFirst: string = this.props.tokenNames.length > 0 ? this.props.tokenNames[0] : '';
     const tokenNameSecond: string = this.props.tokenNames.length > 1 ? this.props.tokenNames[1] : '';
 
+    console.log('reload window dialog');
+
     this.state = {
       selectedDateIndex: this.props.minDateIndex,
       selectedTokenFirst: tokenNameFirst,
@@ -47,20 +50,35 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
   }
 
   public componentDidUpdate(prevProps: Readonly<Properties>, prevState: Readonly<State>, snapshot?: any): void {
-    const tokenNameFirst: string = this.props.tokenNames.length > 0 ? this.props.tokenNames[0] : '';
-    const tokenNameSecond: string = this.props.tokenNames.length > 1 ? this.props.tokenNames[1] : '';
-    const tokenWeightFirst: number = this.props.tokenWeights.get(tokenNameFirst) || 1;
-    const tokenWeightSecond: number = this.props.tokenWeights.get(tokenNameSecond) || 1;
+    let tokenNameFirst: string;
+    let tokenNameSecond: string;
+    let tokenWeightFirst: number;
+    let tokenWeightSecond: number;
 
-    const prevStateUpdated: boolean = (
-      prevState.selectedTokenFirst !== tokenNameFirst ||
-      prevState.selectedTokenSecond !== tokenNameSecond ||
-      prevState.selectedWeightFirst !== tokenWeightFirst ||
-      prevState.selectedWeightSecond !== tokenWeightSecond
-    );
+    let prevStateUpdated: boolean;
 
-    if (!prevProps.openDialog && prevStateUpdated) {
+    if (this.props.editTokenWeights !== undefined) {
+      tokenNameFirst = this.props.editTokenWeights.tokens.key.name;
+      tokenNameSecond = this.props.editTokenWeights.tokens.value.name;
+      tokenWeightFirst = this.props.editTokenWeights.tokens.key.weight;
+      tokenWeightSecond = this.props.editTokenWeights.tokens.value.weight;
+      prevStateUpdated = this.props.editTokenWeights.equals(prevProps.editTokenWeights);
 
+    } else {
+      tokenNameFirst = this.props.tokenNames.length > 0 ? this.props.tokenNames[0] : '';
+      tokenNameSecond = this.props.tokenNames.length > 1 ? this.props.tokenNames[1] : '';
+      tokenWeightFirst = this.props.tokenWeights.get(tokenNameFirst) || 1;
+      tokenWeightSecond = this.props.tokenWeights.get(tokenNameSecond) || 1;
+      prevStateUpdated = (
+        prevState.selectedTokenFirst !== tokenNameFirst ||
+        prevState.selectedTokenSecond !== tokenNameSecond ||
+        prevState.selectedWeightFirst !== tokenWeightFirst ||
+        prevState.selectedWeightSecond !== tokenWeightSecond
+      );
+    }
+
+    console.log(this.props.openDialog, !prevProps.openDialog, prevStateUpdated);
+    if (this.props.openDialog && !prevProps.openDialog && prevStateUpdated) {
       this.setState({
         selectedDateIndex: this.props.minDateIndex,
         selectedTokenFirst: tokenNameFirst,
@@ -78,6 +96,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           className="text-center"
           title="exchange token weight"
           visible={this.props.openDialog}
+          destroyOnClose={true}
           onOk={() => {
             const tokens: Token[] = [];
             this.props.tokenWeights.forEach((value, key) => {
@@ -86,15 +105,18 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
               }
             });
 
-            this.props.onOkClick(new TokenWeight(
-              new Pair(
-                new Token(this.state.selectedTokenFirst, this.state.selectedWeightFirst),
-                new Token(this.state.selectedTokenSecond, this.state.selectedWeightSecond)
+            this.props.onOkClick(
+              new TokenWeight(
+                new Pair(
+                  new Token(this.state.selectedTokenFirst, this.state.selectedWeightFirst),
+                  new Token(this.state.selectedTokenSecond, this.state.selectedWeightSecond)
+                ),
+                tokens,
+                this.props.dateList[this.state.selectedDateIndex],
+                this.state.selectedDateIndex
               ),
-              tokens,
-              this.props.dateList[this.state.selectedDateIndex],
-              this.state.selectedDateIndex
-            ));
+              this.props.editTokenWeights
+            );
           }}
           onCancel={() => this.props.onCancel()}
         >
@@ -189,6 +211,15 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
   }
 
   private prepareBlockChangeDate(): any {
+    if (this.props.editTokenWeights !== undefined) {
+      return (
+        <div>
+          <div>Date:</div>
+          <div>{DateUtils.toStringDate(this.props.editTokenWeights.timestamp, DateUtils.DATE_FORMAT_SHORT)}</div>
+        </div>
+      );
+    }
+
     return (
       <div>
         <div>Date:</div>
