@@ -114,7 +114,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         style={{
           background: '#f5f8fa',
           minHeight: '100vh',
-          minWidth: 1000,
         }}
       >
         <PageHeader/>
@@ -236,12 +235,12 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Result cap <b>without/with</b> arbitrage $:
                 </Col>
-                <Col span={2}>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
-                  {this.state.cap} /&nbsp;
-                  {this.state.arbiterCap}
+                  {this.state.cap.toFixed(4)} /&nbsp;
+                  {this.state.arbiterCap.toFixed(4)}
                   &nbsp;
-                  ({(this.state.arbiterCap - this.state.cap)})
+                  ({(this.state.arbiterCap - this.state.cap).toFixed(4)})
                 </span>
                 </Col>
               </Row>
@@ -250,7 +249,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                   {
                     Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
@@ -264,7 +263,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                  {
                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
@@ -278,11 +277,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                  {
-                   Math.max(0, (((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0))
-                     .toFixed(4)
+                   ((this.state.arbiterCap === 0)
+                     ? 0
+                     : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
+                   ).toFixed(4)
                  }%
                 </span>
                 </Col>
@@ -292,9 +293,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Arbitrage count:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
-                  ${this.getArbitrationListLen()}
+                  {this.getArbitrationListLen()}
                 </span>
                 </Col>
               </Row>
@@ -302,7 +303,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Total Arbiter transactions fee:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                   ${this.state.arbiterTotalTxFee}
                 </span>
@@ -312,7 +313,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Average Arbiter transactions fee:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                   ${this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)}
                 </span>
@@ -323,7 +324,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Total Arbiter profit:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                   ${this.state.arbiterProfit}
                 </span>
@@ -334,7 +335,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <Col className="CalculatorPage__result-name" span={8}>
                   Average Arbiter profit:&nbsp;
                 </Col>
-                <Col>
+                <Col span={14}>
                 <span className="CalculatorPage__result-value">
                   ${this.state.arbiterProfit / (this.getArbitrationListLen() || 1)}
                 </span>

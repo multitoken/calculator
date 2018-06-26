@@ -1,31 +1,11 @@
+@import './Fonts.less';
+
 .lnrGradient(@colorFirst, @colorSecond) {
   background-image: -webkit-linear-gradient(to top, @colorFirst, @colorSecond);
   background-image: -moz-linear-gradient(to top, @colorFirst, @colorSecond);
   background-image: -ms-linear-gradient(to top, @colorFirst, @colorSecond);
   background-image: -o-linear-gradient(to top, @colorFirst, @colorSecond);
   background-image: linear-gradient(to top, @colorFirst, @colorSecond);
-}
-
-@font-face {
-  font-family: 'Roboto', sans-serif;
-  src: url('../fonts/Roboto-Regular.ttf') format('truetype');
-  src: url('../fonts/Roboto-Regular.eot');
-  src: url('../fonts/Roboto-Regular.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Regular.woff') format('woff'),
-  url('../fonts/Roboto-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'RobotoLight', sans-serif;
-  src: url('../fonts/Roboto-Light.ttf') format('truetype');
-  src: url('../fonts/Roboto-Light.eot');
-  src: url('../fonts/Roboto-Light.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/Roboto-Light.woff') format('woff'),
-  url('../fonts/Roboto-Light.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 .ant-btn {
@@ -67,11 +47,7 @@
   }
 }
 
-.ant-checkbox {
-  margin-left: 65px;
-}
-
-.ant-checkbox + span {
+.ant-checkbox-group-item + span {
   font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 300;
