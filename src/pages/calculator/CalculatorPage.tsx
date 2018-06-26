@@ -50,10 +50,7 @@ interface State {
   tokenDialogOpen: boolean;
   tokenLatestWeights: Map<string, number>;
   changeWeightMinDateIndex: number;
-}
-
-function inputNumberParser(value: string) {
-  return Number(value.replace(/\$\s?|(,*)/g, ''));
+  commissionPercents: number;
 }
 
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
@@ -80,6 +77,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       calculateRangeDateIndex: [0, 1],
       cap: 0,
       changeWeightMinDateIndex: 1,
+      commissionPercents: 0.2,
       progressPercents: 0,
       proportionList: [],
       tokenDialogDateList: [],
@@ -127,9 +125,21 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               <div className="CalculatorPage__options-title">Amount of money:&nbsp;</div>
               <InputNumber
                 value={this.state.amount}
-                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={inputNumberParser}
+                formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
                 onChange={value => this.onAmountChange(value)}
+                style={{width: '100%'}}
+              />
+
+              <div className="CalculatorPage__options-title">Fee percents:&nbsp;</div>
+              <InputNumber
+                value={this.state.commissionPercents}
+                step={0.01}
+                formatter={value => `${value || '0'}%`}
+                parser={value => parseFloat((value || '0').replace('%', ''))}
+                max={100}
+                min={0}
+                onChange={value => this.onFeeChange(value)}
                 style={{width: '100%'}}
               />
 
@@ -232,112 +242,112 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           <div>
             <div>
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
-                  Result cap <b>without/with</b> arbitrage $:
+                <Col className="CalculatorPage__result-name">
+                  Result cap <b>without/with</b> arbitrage:
                 </Col>
-                <Col span={14}>
+                <Col>
                 <span className="CalculatorPage__result-value">
-                  {this.state.cap.toFixed(4)} /&nbsp;
-                  {this.state.arbiterCap.toFixed(4)}
+                  ${this.state.cap.toFixed(0)} /&nbsp;
+                  ${this.state.arbiterCap.toFixed(0)}
                   &nbsp;
-                  ({(this.state.arbiterCap - this.state.cap).toFixed(4)})
+                  (${(this.state.arbiterCap - this.state.cap).toFixed(0)})
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
                   {
                     Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
-                      .toFixed(4)
+                      .toFixed(0)
                   }%
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
                  {
                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
-                     .toFixed(4)
+                     .toFixed(0)
                  }%
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
                  {
                    ((this.state.arbiterCap === 0)
-                     ? 0
-                     : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
-                   ).toFixed(4)
+                       ? 0
+                       : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
+                   ).toFixed(0)
                  }%
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Arbitrage count:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
                   {this.getArbitrationListLen()}
                 </span>
                 </Col>
               </Row>
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Total Arbiter transactions fee:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
-                  ${this.state.arbiterTotalTxFee}
+                  ${this.state.arbiterTotalTxFee.toFixed(0)}
                 </span>
                 </Col>
               </Row>
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Average Arbiter transactions fee:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
-                  ${this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)}
+                  ${(this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)).toFixed(3)}
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Total Arbiter profit:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
-                  ${this.state.arbiterProfit}
+                  ${this.state.arbiterProfit.toFixed(0)}
                 </span>
                 </Col>
               </Row>
 
               <Row>
-                <Col className="CalculatorPage__result-name" span={8}>
+                <Col className="CalculatorPage__result-name">
                   Average Arbiter profit:&nbsp;
                 </Col>
-                <Col span={14}>
+                <Col span={5}>
                 <span className="CalculatorPage__result-value">
-                  ${this.state.arbiterProfit / (this.getArbitrationListLen() || 1)}
+                  ${(this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3)}
                 </span>
                 </Col>
               </Row>
@@ -507,6 +517,15 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     }
   }
 
+  private onFeeChange(value: number | string | undefined) {
+    const valueNumber = Math.max(0.01, Number(value));
+
+    console.log(valueNumber);
+    if (valueNumber > 0) {
+      this.setState({commissionPercents: valueNumber});
+    }
+  }
+
   private onCalculateClick() {
     const mapProportions: Map<string, number> = new Map();
 
@@ -517,6 +536,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     this.tokenManager.changeProportions(mapProportions);
 
     this.applyTimelineProportions();
+
+    this.tokenManager.setCommission(this.state.commissionPercents);
 
     this.tokenManager
       .calculateInitialAmounts(this.state.amount)

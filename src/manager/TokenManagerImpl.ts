@@ -22,6 +22,7 @@ export default class TokenManagerImpl implements TokenManager {
   private startCalculationIndex: number;
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
+  private commissionPercent: number;
   private listener?: ProgressListener;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
@@ -54,6 +55,10 @@ export default class TokenManagerImpl implements TokenManager {
     }
 
     return this.selectedTokensHistory;
+  }
+
+  public setCommission(commissionPercents: number): void {
+    this.commissionPercent = commissionPercents;
   }
 
   public changeProportions(proportions: Map<string, number>) {
@@ -408,7 +413,7 @@ export default class TokenManagerImpl implements TokenManager {
       .multipliedBy(fromWeight)
       .div(toWeight)
       .div(fromBalance.plus(amount))
-      .multipliedBy(0.998)
+      .multipliedBy(1 - (this.commissionPercent / 100))
       .toNumber();
     // console.log('from', fromAmounts.toNumber());
     // console.log('to', toAmounts.toNumber());

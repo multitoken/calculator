@@ -8,6 +8,8 @@ export interface TokenManager {
 
   setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
+  setCommission(commissionPercents: number): void;
+
   changeProportions(proportions: Map<string, number>): void;
 
   getExchangedWeights(): Map<number, Pair<Token, Token>>;
