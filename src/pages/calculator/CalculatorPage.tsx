@@ -114,7 +114,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         style={{
           background: '#f5f8fa',
           minHeight: '100vh',
-          minWidth: 1000,
         }}
       >
         <PageHeader/>
