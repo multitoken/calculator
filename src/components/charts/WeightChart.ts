@@ -43,7 +43,8 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
       value.otherTokens.forEach((value2: Token) => names.add(value2.name));
     });
 
-    return Array.from(names.keys());
+    return Array.from(names.keys())
+      .sort((a, b) => a.localeCompare(b));
   }
 
 }

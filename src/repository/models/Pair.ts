@@ -1,15 +1,15 @@
 export default class Pair<K, V> {
 
-  public key: K;
-  public value: V;
+  public first: K;
+  public second: V;
 
-  constructor(key: K, value: V) {
-    this.key = key;
-    this.value = value;
+  constructor(first: K, second: V) {
+    this.first = first;
+    this.second = second;
   }
 
   public toArray(): any[] {
-    return [this.key, this.value];
+    return [this.first, this.second];
   }
 
 }

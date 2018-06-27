@@ -11,7 +11,7 @@ import { ProgressListener } from './ProgressListener';
 import { TokenManager } from './TokenManager';
 
 @injectable()
-export default class TokenManagerImpl implements TokenManager {
+export default class TokenManagerImpl implements TokenManager, ProgressListener {
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
@@ -23,10 +23,11 @@ export default class TokenManagerImpl implements TokenManager {
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
   private commissionPercent: number;
-  private listener?: ProgressListener;
+  private listener: ProgressListener;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.cryptocurrencyRepository = cryptocurrencyRepository;
+    this.listener = this;
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
@@ -53,6 +54,14 @@ export default class TokenManagerImpl implements TokenManager {
         console.error(`error sync ${item}: ${e}`);
       }
     }
+
+    this.selectedTokensHistory.forEach((value, key) => {
+      if (value.length > this.maxCalculationIndex) {
+        const arr: TokenPriceHistory[] = value.slice((value.length - this.maxCalculationIndex), value.length);
+        this.selectedTokensHistory.set(key, arr);
+      }
+      console.log('actual min date', key, (this.selectedTokensHistory.get(key) || [0])[0]);
+    });
 
     return this.selectedTokensHistory;
   }
@@ -157,13 +166,15 @@ export default class TokenManagerImpl implements TokenManager {
   }
 
   public subscribeToProgress(listener?: ProgressListener): void {
-    this.listener = listener;
+    this.listener = listener || this;
   }
 
   public async calculateArbitration(): Promise<Arbitration[]> {
     const result: Arbitration[] = [];
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
+
+    this.listener.onProgress(1);
 
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 1000 === 0) {
@@ -283,10 +294,6 @@ export default class TokenManagerImpl implements TokenManager {
       console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
     }
 
-    if (this.listener) {
-      this.listener.onProgress(0);
-    }
-
     return result;
   }
 
@@ -297,6 +304,10 @@ export default class TokenManagerImpl implements TokenManager {
     });
 
     return await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
+  }
+
+  public onProgress(percents: number): void {
+    // only for implement null-object pattern
   }
 
   private applyCustomProportions(indexOfHistory: number) {

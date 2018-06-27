@@ -43,8 +43,10 @@ interface State {
   cap: number;
   progressPercents: number;
   proportionList: TokenProportion[];
+  showCalculationProgress: boolean;
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
+  historyChartRangeDateIndex: SliderValue;
   tokensWeightSelectedIndex: number;
   tokensWeightList: TokenWeight[];
   tokenDialogDateList: string[];
@@ -79,8 +81,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       cap: 0,
       changeWeightMinDateIndex: 1,
       commissionPercents: 0.2,
+      historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       proportionList: [],
+      showCalculationProgress: false,
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -93,6 +97,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   public onProgress(percents: number): void {
+    if (!this.state.showCalculationProgress) {
+      this.setState({showCalculationProgress: true});
+    }
+
     this.setState({progressPercents: percents});
   }
 
@@ -164,6 +172,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                     value={this.state.calculateRangeDateIndex}
                     onChange={value => this.setState({calculateRangeDateIndex: value})}
                     onAfterChange={(value: SliderValue) => {
+                      this.setState({historyChartRangeDateIndex: this.state.calculateRangeDateIndex});
                       this.tokenManager.changeCalculationDate(value[0], value[1]);
                     }}
                   />
@@ -211,13 +220,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                     size="small"
                     icon="edit"
                     disabled={this.state.tokensWeightSelectedIndex <= -1}
-                    onClick={() => this.onEditTokenWeightClick()}
+                    onClick={() => this.onChangeTokenExchangeWeightClick(true)}
                   />
                   <Button
                     type="primary"
                     size="small"
                     icon="plus"
-                    onClick={() => this.onAddTokenExchangeWeightClick()}
+                    onClick={() => this.onChangeTokenExchangeWeightClick(false)}
                   />
                 </div>
 
@@ -368,8 +377,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <HistoryChart
               data={this.state.tokensHistory}
               colors={this.COLORS}
-              start={this.state.calculateRangeDateIndex[0]}
-              end={this.state.calculateRangeDateIndex[1]}
+              start={this.state.historyChartRangeDateIndex[0]}
+              end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
               width={1000}
               height={200}
@@ -420,7 +429,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             dateList={this.state.tokensDate}
           />
           <ProgressDialog
-            openDialog={this.state.progressPercents > 0}
+            openDialog={this.state.showCalculationProgress}
             percentProgress={this.state.progressPercents}
           />
         </PageContent>
@@ -429,14 +438,16 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     );
   }
 
-  private onAddTokenExchangeWeightClick(): void {
+  private onChangeTokenExchangeWeightClick(edit: boolean): void {
     const latestTokensWeight: Map<string, number> = new Map();
+    const len: number = edit ? this.state.tokensWeightList.length - 1 : this.state.tokensWeightList.length;
 
-    this.state.tokensWeightList.forEach(value => {
-      value.tokens.toArray().forEach((value2: Token) => {
+    for (let i = 0; i < len; i++) {
+      const tokenPair = this.state.tokensWeightList[i].tokens;
+      tokenPair.toArray().forEach((value2: Token) => {
         latestTokensWeight.set(value2.name, value2.weight);
       });
-    });
+    }
 
     this.state.proportionList.forEach(value => {
       if (!latestTokensWeight.has(value.name)) {
@@ -449,12 +460,21 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       ? weightList[weightList.length - 1].index
       : this.state.calculateRangeDateIndex[0];
 
-    this.setState({
-      changeWeightMinDateIndex: minDateIndex + 1,
-      tokenDialogOpen: true,
-      tokenLatestWeights: latestTokensWeight,
-      tokensWeightSelectedIndex: -1,
-    });
+    if (edit) {
+      this.setState({
+        changeWeightMinDateIndex: this.state.tokensWeightList[this.state.tokensWeightSelectedIndex].index,
+        tokenDialogOpen: true,
+        tokenLatestWeights: latestTokensWeight,
+      });
+
+    } else {
+      this.setState({
+        changeWeightMinDateIndex: minDateIndex + 1,
+        tokenDialogOpen: true,
+        tokenLatestWeights: latestTokensWeight,
+        tokensWeightSelectedIndex: -1,
+      });
+    }
   }
 
   private onDeleteTokenWeightClick(): void {
@@ -468,28 +488,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     });
   }
 
-  private onEditTokenWeightClick(): void {
-    const latestTokensWeight: Map<string, number> = new Map();
-
-    this.state.tokensWeightList.forEach(value => {
-      value.tokens.toArray().forEach((value2: Token) => {
-        latestTokensWeight.set(value2.name, value2.weight);
-      });
-    });
-
-    this.state.proportionList.forEach(value => {
-      if (!latestTokensWeight.has(value.name)) {
-        latestTokensWeight.set(value.name, value.weight);
-      }
-    });
-
-    this.setState({
-      changeWeightMinDateIndex: this.state.tokensWeightList[this.state.tokensWeightSelectedIndex].index,
-      tokenDialogOpen: true,
-      tokenLatestWeights: latestTokensWeight,
-    });
-  }
-
   private onTokenDialogOkClick(model: TokenWeight, oldModel: TokenWeight | undefined) {
     this.setState({tokenDialogOpen: false});
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
@@ -499,6 +497,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     } else {
       list.splice(list.indexOf(oldModel), 1, model);
     }
+
+    list.sort((a, b) => a.timestamp - b.timestamp);
 
     this.setState({tokensWeightList: list});
   }
@@ -544,7 +544,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
     this.setState({
       calculateMaxDateIndex: maxIndex || 0,
-      calculateRangeDateIndex: [0, maxIndex || 0]
+      calculateRangeDateIndex: [0, maxIndex || 0],
+      historyChartRangeDateIndex: [0, maxIndex || 0]
     });
 
     this.setState({proportionList: proportions});
@@ -604,7 +605,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
         return this.tokenManager.calculateCap();
       })
-      .then(cap => this.setState({arbiterCap: cap}));
+      .then(cap => this.setState({
+        arbiterCap: cap,
+        showCalculationProgress: false,
+      }));
   }
 
   private applyTimelineProportions(): void {

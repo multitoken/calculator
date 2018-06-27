@@ -20,8 +20,8 @@ export class TokenWeight {
       tokenWeight !== undefined &&
       tokenWeight.timestamp === this.timestamp &&
       tokenWeight.index === this.index &&
-      tokenWeight.tokens.key === this.tokens.value &&
-      tokenWeight.tokens.value === this.tokens.value;
+      tokenWeight.tokens.first === this.tokens.second &&
+      tokenWeight.tokens.second === this.tokens.second;
   }
 
 }
