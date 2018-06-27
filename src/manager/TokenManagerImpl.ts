@@ -54,6 +54,14 @@ export default class TokenManagerImpl implements TokenManager {
       }
     }
 
+    this.selectedTokensHistory.forEach((value, key) => {
+      if (value.length > this.maxCalculationIndex) {
+        const arr: TokenPriceHistory[] = value.slice((value.length - this.maxCalculationIndex), value.length);
+        this.selectedTokensHistory.set(key, arr);
+      }
+      console.log('actual min date', key, (this.selectedTokensHistory.get(key) || [0])[0]);
+    });
+
     return this.selectedTokensHistory;
   }
 
