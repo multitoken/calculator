@@ -43,6 +43,7 @@ interface State {
   cap: number;
   progressPercents: number;
   proportionList: TokenProportion[];
+  showCalculationProgress: boolean;
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
   historyChartRangeDateIndex: SliderValue;
@@ -83,6 +84,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       proportionList: [],
+      showCalculationProgress: false,
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -95,6 +97,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   public onProgress(percents: number): void {
+    if (!this.state.showCalculationProgress) {
+      this.setState({showCalculationProgress: true});
+    }
+
     this.setState({progressPercents: percents});
   }
 
@@ -423,7 +429,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             dateList={this.state.tokensDate}
           />
           <ProgressDialog
-            openDialog={this.state.progressPercents > 0}
+            openDialog={this.state.showCalculationProgress}
             percentProgress={this.state.progressPercents}
           />
         </PageContent>
@@ -599,7 +605,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
         return this.tokenManager.calculateCap();
       })
-      .then(cap => this.setState({arbiterCap: cap}));
+      .then(cap => this.setState({
+        arbiterCap: cap,
+        showCalculationProgress: false,
+      }));
   }
 
   private applyTimelineProportions(): void {

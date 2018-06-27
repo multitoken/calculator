@@ -16,9 +16,26 @@ export class ProgressDialog extends React.Component<Properties, {}> {
         footer={null}
         visible={this.props.openDialog}
       >
-        <div className="mb-4"><b>Please wait until the end of the calculations</b></div>
-        <Progress type="circle" percent={this.props.percentProgress}/>
+        {this.prepareProgressMessage()}
       </Modal>
+    );
+  }
+
+  private prepareProgressMessage(): any {
+    if (this.props.percentProgress < 100) {
+      return (
+        <div>
+          <div className="mb-4"><b>Please wait until the end of the calculations</b></div>
+          <Progress type="circle" percent={this.props.percentProgress}/>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <h4>Please wait few seconds.</h4>
+        <p><b>We setup data in charts...</b></p>
+      </div>
     );
   }
 
