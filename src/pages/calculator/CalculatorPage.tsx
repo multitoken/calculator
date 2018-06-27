@@ -45,6 +45,7 @@ interface State {
   proportionList: TokenProportion[];
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
+  historyChartRangeDateIndex: SliderValue;
   tokensWeightSelectedIndex: number;
   tokensWeightList: TokenWeight[];
   tokenDialogDateList: string[];
@@ -79,6 +80,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       cap: 0,
       changeWeightMinDateIndex: 1,
       commissionPercents: 0.2,
+      historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       proportionList: [],
       tokenDialogDateList: [],
@@ -164,6 +166,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                     value={this.state.calculateRangeDateIndex}
                     onChange={value => this.setState({calculateRangeDateIndex: value})}
                     onAfterChange={(value: SliderValue) => {
+                      this.setState({historyChartRangeDateIndex: this.state.calculateRangeDateIndex});
                       this.tokenManager.changeCalculationDate(value[0], value[1]);
                     }}
                   />
@@ -368,8 +371,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <HistoryChart
               data={this.state.tokensHistory}
               colors={this.COLORS}
-              start={this.state.calculateRangeDateIndex[0]}
-              end={this.state.calculateRangeDateIndex[1]}
+              start={this.state.historyChartRangeDateIndex[0]}
+              end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
               width={1000}
               height={200}
@@ -535,7 +538,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
     this.setState({
       calculateMaxDateIndex: maxIndex || 0,
-      calculateRangeDateIndex: [0, maxIndex || 0]
+      calculateRangeDateIndex: [0, maxIndex || 0],
+      historyChartRangeDateIndex: [0, maxIndex || 0]
     });
 
     this.setState({proportionList: proportions});

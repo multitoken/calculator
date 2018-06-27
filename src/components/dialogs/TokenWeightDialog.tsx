@@ -38,8 +38,6 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     const tokenNameFirst: string = this.props.tokenNames.length > 0 ? this.props.tokenNames[0] : '';
     const tokenNameSecond: string = this.props.tokenNames.length > 1 ? this.props.tokenNames[1] : '';
 
-    console.log('reload window dialog');
-
     this.state = {
       selectedDateIndex: this.props.minDateIndex,
       selectedTokenFirst: tokenNameFirst,

@@ -44,8 +44,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
     this.isChangedData = this.props.data !== props.data;
 
-    return this.isChangedData || !this.props.showRange ||
-      (this.props.showRange && this.state.calculateRangeIndex !== state.calculateRangeIndex);
+    return this.isChangedData || (this.state.calculateRangeIndex !== state.calculateRangeIndex);
   }
 
   public render() {
@@ -122,7 +121,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     const min: number = (this.state.calculateRangeIndex as Range).min;
     const max: number = (this.state.calculateRangeIndex as Range).max;
 
-    return this.props.showRange ? this.data.slice(min, max) : this.data;
+    return min !== 0 && max !== 1 ? this.data.slice(min, max) : this.data;
   }
 
   private prepareRangeComponent(): any {
