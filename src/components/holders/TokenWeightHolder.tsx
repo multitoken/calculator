@@ -18,7 +18,7 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
     return (
       <List.Item
         style={{
-          background: this.props.selected ? '#1890ff' : 'white'
+          background: this.props.selected ? 'rgb(232, 244, 255)' : 'white'
         }}
       >
         <div style={{width: '100%', cursor: 'pointer'}} onClick={e => this.props.onClick(model)}>
