@@ -193,7 +193,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
       this.applyCustomProportions(i);
 
-      const txPrice: number = (Math.random() * 0.5 + 0.2); // max $0.5 min $0.2
+      const txPrice: number = parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10
       let profit: ArbiterProfit = ArbiterProfit.empty();
 
       for (const [cheap, cheapPrice] of historyPerHour) {
