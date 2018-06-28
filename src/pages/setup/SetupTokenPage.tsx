@@ -1,19 +1,20 @@
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import CheckButtonList from '../../components/lists/CheckButtonList';
-import PageContent from '../../components/page-content/PageContent';
+import { TokensNamesList } from '../../components/lists/TokensNamesList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
+import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { TokenManager } from '../../manager/TokenManager';
+import { TokensIconHelper } from '../../utils/TokensIconHelper';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  availableTokenNames: string[];
+  availableTokenNames: TokenItemEntity[];
   selectedTokenNames: string[];
   isTokenLoading: boolean;
 }
@@ -39,7 +40,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   public componentDidMount(): void {
     this.tokenManager
       .getAvailableTokens()
-      .then(this.onSyncTokens)
+      .then(result => this.onSyncTokens(result))
       .catch(reason => alert(reason.message));
   }
 
@@ -52,55 +53,54 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           minWidth: 320,
         }}
       >
-        <PageHeader />
+        <PageHeader/>
         <header className="SetupTokenPage__header">
           Select tokens to simulate multiToken(at least two)
         </header>
 
-        <PageContent>
-          <div className="SetupTokenPage">
+        <div className="SetupTokenPage">
 
-            <CheckButtonList
-              data={this.state.availableTokenNames}
-              onCheck={this.onCheckToken}
-              disabled={this.state.isTokenLoading}
-            />
+          <TokensNamesList
+            data={this.state.availableTokenNames}
+            onCheck={result => this.onCheckToken(result)}
+            disabled={this.state.isTokenLoading}
+          />
 
-            <Button
-              type="primary"
-              onClick={this.onNextClick}
-              disabled={!this.checkActiveNext()}
-              loading={this.state.isTokenLoading}
-              style={{
-                marginTop: 30
-              }}
-            >
-              Next
-            </Button>
-          </div>
-        </PageContent>
-        <PageFooter />
+          <Button
+            type="primary"
+            onClick={() => this.onNextClick()}
+            disabled={!this.checkActiveNext()}
+            loading={this.state.isTokenLoading}
+            style={{
+              marginTop: 30
+            }}
+          >
+            Next
+          </Button>
+        </div>
+        <PageFooter/>
       </Layout>
     );
   }
 
-  private onSyncTokens = (tokens: Map<string, string>) => {
+  private onSyncTokens(tokens: Map<string, string>) {
     this.availableTokensMap = tokens;
 
-    this.setState({
-      availableTokenNames: Array.from(tokens.keys()),
-    });
+    const entities: TokenItemEntity[] = Array.from(tokens.keys())
+      .map(value => new TokenItemEntity(TokensIconHelper.getIcon(value), value));
+
+    this.setState({availableTokenNames: entities});
   }
 
-  private onCheckToken = (checkedValue: string[]) => {
+  private onCheckToken(checkedValue: string[]) {
     this.setState({
       selectedTokenNames: checkedValue,
     });
   }
 
-  private onNextClick = () => {
-    this.setState({ isTokenLoading: true });
-    const { history } = this.props;
+  private onNextClick() {
+    this.setState({isTokenLoading: true});
+    const {history} = this.props;
 
     this.state.selectedTokenNames.sort();
 
@@ -109,7 +109,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       .catch(reason => {
         console.error(reason);
         alert('something went wrong');
-        this.setState({ isTokenLoading: false });
+        this.setState({isTokenLoading: false});
       });
   }
 

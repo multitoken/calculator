@@ -1,37 +1,30 @@
 @import './Fonts.less';
 
-.lnrGradient(@colorFirst, @colorSecond) {
-  background-image: -webkit-linear-gradient(to top, @colorFirst, @colorSecond);
-  background-image: -moz-linear-gradient(to top, @colorFirst, @colorSecond);
-  background-image: -ms-linear-gradient(to top, @colorFirst, @colorSecond);
-  background-image: -o-linear-gradient(to top, @colorFirst, @colorSecond);
-  background-image: linear-gradient(to top, @colorFirst, @colorSecond);
-}
-
 .ant-btn {
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 0 25px;
-  height: 30px;
+  height: 40px;
+  width: 130px;
   font-size: 16px;
   font-family: 'Roboto', sans-serif;
   font-weight: normal;
   font-style: normal;
   font-stretch: normal;
   line-height: normal;
-  letter-spacing: normal;
+  letter-spacing: 0;
   text-align: center;
-  .button-disabled();
+  box-shadow: 0 7px 10px 0 rgba(61, 137, 212, 0.3);
 }
 
 .ant-btn-primary,
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
-  .lnrGradient(#5457c1, #1fceed);
+  background-color: #3294e4;
 }
 
 .ant-btn-primary:active,
 .ant-btn-primary.active {
-  .lnrGradient(#1fceed, #5457c1);
+  box-shadow: none;
 }
 
 .button-disabled() {
@@ -45,17 +38,6 @@
       background: lightgrey;
     }
   }
-}
-
-.ant-checkbox-group-item + span {
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 300;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: #2d2f32;
 }
 
 .ant-slider-track,
@@ -76,24 +58,4 @@
 .ant-slider-handle:active {
   background-color: white;
   border: solid 5px #3b91d7 !important;
-}
-
-.scroll {
-  width: 200px;
-  height: 400px;
-  background: red;
-  overflow: scroll;
-}
-.scroll::-webkit-scrollbar {
-  width: 12px;
-}
-
-.scroll::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  border-radius: 10px;
-}
-
-.scroll::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import StepInteger from '../step-integer/StepInteger';
 import AbstractHolder, { AbstractProperties } from './AbstractHolder';
-import './TokenProportion.less';
+import './TokenProportionHolder.less';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
   disabled: boolean;

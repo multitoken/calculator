@@ -4,7 +4,7 @@ import { Token } from '../../repository/models/Token';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
 import AbstractHolder, { AbstractProperties } from './AbstractHolder';
-import './TokenWeight.less';
+import './TokenWeightHolder.less';
 
 export interface Properties extends AbstractProperties<TokenWeight> {
   selected: boolean;
