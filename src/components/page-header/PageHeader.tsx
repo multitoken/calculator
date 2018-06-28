@@ -10,10 +10,10 @@ export default class PageHeader extends React.Component {
   public render() {
     return (
       <Header className="PageHeader">
-        <a className="PageHeader__logo">
+        <span className="PageHeader__logo">
           <img className="PageHeader__logo-img" alt="logo" src={logoSvg}/>
           <Link to="/" className="PageHeader__logo-text">Arbitrator simulator</Link>
-        </a>
+        </span>
       </Header>
     );
   }
