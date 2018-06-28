@@ -29,7 +29,7 @@ export {
 };
 
 const cryptocurrencyRepository: CryptocurrencyRepository =
-  new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), 7500);
+  new CryptocurrencyTokensRepositoryImpl(Config.getStatic());
 
 kernel.bind<TokenManager>(Services.TOKEN_MANAGER)
   .toConstantValue(new TokenManagerImpl(cryptocurrencyRepository));

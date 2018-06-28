@@ -220,7 +220,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
           onChange={value =>
-            this.setState({selectedDateIndex: Math.max(this.props.minDateIndex, value as number)})
+            this.setState({selectedDateIndex: value as number})
           }
         />
       </div>
