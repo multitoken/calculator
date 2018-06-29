@@ -30,6 +30,6 @@ export interface TokenManager {
 
   calculateArbitration(): Promise<Arbitration[]>;
 
-  calculateCap(): Promise<number>;
+  calculateCap(origin: boolean): Promise<number>;
 
 }

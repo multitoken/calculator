@@ -17,6 +17,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensAmountFixed: Map<string, number> = new Map();
+  private readonly tokensWeightFixed: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
   private readonly tokensWeightTimeline: Map<number, Pair<Token, Token>> = new Map();
   private startCalculationIndex: number;
@@ -35,6 +36,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.tokensAmount.clear();
     this.tokensAmountFixed.clear();
     this.tokensWeight.clear();
+    this.tokensWeightFixed.clear();
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;
@@ -74,6 +76,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     proportions.forEach((value, key) => {
       console.log('set weight', key, value);
       this.tokensWeight.set(key, value);
+      this.tokensWeightFixed.set(key, value);
     });
   }
 
@@ -191,7 +194,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         timestamp = value[i].time;
       });
 
-      this.applyCustomProportions(i);
+      this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount);
+      this.applyCustomProportions(i, this.tokensWeightFixed, this.tokensAmountFixed);
 
       const txPrice: number = parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10
       let profit: ArbiterProfit = ArbiterProfit.empty();
@@ -297,64 +301,67 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     return result;
   }
 
-  public async calculateCap(): Promise<number> {
+  public async calculateCap(origin: boolean): Promise<number> {
     const historyPerHour: Map<string, number> = new Map();
     this.selectedTokensHistory.forEach((value, key) => {
       historyPerHour.set(key, value[this.endCalculationIndex].value);
     });
 
-    return await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
+    return await this.calculateCapByHistory(
+      origin ? this.tokensAmountFixed : this.tokensAmount, historyPerHour
+    );
   }
 
   public onProgress(percents: number): void {
     // only for implement null-object pattern
   }
 
-  private applyCustomProportions(indexOfHistory: number) {
+  private applyCustomProportions(indexOfHistory: number, weights: Map<string, number>, amounts: Map<string, number>) {
     const proportions: Pair<Token, Token> | undefined = this.getExchangedWeights().get(indexOfHistory);
     if (!proportions) {
       return;
     }
 
     proportions.toArray().forEach(token => {
-      const oldWeight: number = this.tokensWeight.get(token.name) || 0;
-      const amount: number = this.tokensAmount.get(token.name) || 0;
-      let reCalcAmount: number = 0;
+        const oldWeight: number = weights.get(token.name) || 0;
+        const amount: number = amounts.get(token.name) || 0;
 
-      try {
-        reCalcAmount = new BigNumber(amount)
-          .multipliedBy(token.weight)
-          .div(oldWeight)
-          .toNumber();
+        let reCalcAmount: number = 0;
+        try {
+          reCalcAmount = new BigNumber(amount)
+            .multipliedBy(token.weight)
+            .div(oldWeight)
+            .toNumber();
 
-        console.log(
-          `indexOfHistory: ${indexOfHistory} 
+          console.log(
+            `indexOfHistory: ${indexOfHistory} 
            name: ${token.name};
            oldWeight: ${oldWeight};
            newWeight: ${token.weight};
            amount: ${amount};
            newAmount: ${reCalcAmount}`
-        );
-      } catch (e) {
-        console.log(e);
-      }
+          );
+        } catch (e) {
+          console.log(e);
+        }
 
-      if (reCalcAmount > 0) {
-        this.tokensWeight.set(token.name, token.weight);
-        this.tokensAmount.set(token.name, reCalcAmount);
+        if (reCalcAmount > 0) {
+          weights.set(token.name, token.weight);
+          amounts.set(token.name, reCalcAmount);
 
-      } else {
-        throw new Error(
-          `invalid value of recalculate amount!
+        } else {
+          throw new Error(
+            `invalid value of recalculate amount!
                      indexOfHistory: ${indexOfHistory} 
                      name: ${token.name};
                      oldWeight: ${oldWeight};
                      newWeight: ${token.weight};
                      amount: ${amount};
                      newAmount: ${reCalcAmount}`
-        );
+          );
+        }
       }
-    });
+    );
   }
 
   private async calculateCapByHistory(tokensAmounts: Map<string, number>,
