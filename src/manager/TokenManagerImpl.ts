@@ -31,6 +31,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener = this;
   }
 
+  public async getBtcPrice(): Promise<TokenPriceHistory[]> {
+    return this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
+  }
+
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
     this.selectedTokensHistory.clear();
     this.tokensAmount.clear();
@@ -195,7 +199,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       });
 
       this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount);
-      this.applyCustomProportions(i, this.tokensWeightFixed, this.tokensAmountFixed);
+      this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed);
 
       const txPrice: number = parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10
       let profit: ArbiterProfit = ArbiterProfit.empty();
@@ -362,6 +366,48 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         }
       }
     );
+  }
+
+  private applyCustomProportionsFixed(indexOfHistory: number,
+                                      historyPrice: Map<string, number>,
+                                      weights: Map<string, number>,
+                                      amounts: Map<string, number>) {
+    const proportions: Pair<Token, Token> | undefined = this.getExchangedWeights().get(indexOfHistory);
+    if (!proportions) {
+      return;
+    }
+
+    let amount: number = 0;
+    let maxProportions: number = 0;
+
+    amounts.forEach((value, key) => amount += value * (historyPrice.get(key) || 0));
+    const actualAmount: BigNumber = new BigNumber(amount);
+
+    proportions.toArray().forEach(token => {
+      weights.set(token.name, token.weight);
+      maxProportions += token.weight;
+    });
+
+    historyPrice.forEach((value, key) => {
+      const weight: number = weights.get(key) || 0;
+
+      const amountPerCurrency: BigNumber = new BigNumber(weight)
+        .div(maxProportions)
+        .multipliedBy(actualAmount);
+
+      const count: number = amountPerCurrency.div(value).toNumber();
+
+      console.log(
+        'recalc weights, name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency.toNumber(),
+        count,
+        value,
+        new BigNumber(count)
+          .multipliedBy(value)
+          .toNumber()
+      );
+
+      amounts.set(key, count);
+    });
   }
 
   private async calculateCapByHistory(tokensAmounts: Map<string, number>,

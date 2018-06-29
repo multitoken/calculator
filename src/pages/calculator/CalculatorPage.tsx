@@ -40,6 +40,8 @@ interface State {
   arbiterProfit: number;
   arbiterTotalTxFee: number;
   amount: number;
+  btcUSDT: number;
+  btcCount: number;
   cap: number;
   progressPercents: number;
   proportionList: TokenProportion[];
@@ -76,6 +78,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       arbiterProfit: 0,
       arbiterTotalTxFee: 0,
       arbitrationList: [],
+      btcCount: 0,
+      btcUSDT: 0,
       calculateMaxDateIndex: 1,
       calculateRangeDateIndex: [0, 1],
       cap: 0,
@@ -272,7 +276,16 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 </span>
                 </Col>
               </Row>
-
+              <Row>
+                <Col className="CalculatorPage__result-name">
+                  Result <b>BTC</b>:
+                </Col>
+                <Col>
+                <span className="CalculatorPage__result-value">
+                  {this.state.btcCount} &nbsp; (${this.state.btcUSDT.toFixed(2)})
+                </span>
+                </Col>
+              </Row>
               <Row>
                 <Col className="CalculatorPage__result-name">
                   Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
@@ -570,6 +583,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onCalculateClick() {
+
     const mapProportions: Map<string, number> = new Map();
 
     this.state.proportionList.forEach(value => {
@@ -579,11 +593,22 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     this.tokenManager.changeProportions(mapProportions);
 
     this.applyTimelineProportions();
-
     this.tokenManager.setCommission(this.state.commissionPercents);
-
     this.tokenManager
-      .calculateInitialAmounts(this.state.amount)
+      .getBtcPrice()
+      .then(btcusdt => {
+        const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
+        const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
+        console.log(
+          this.state.historyChartRangeDateIndex[0],
+          this.state.historyChartRangeDateIndex[1],
+          btcusdt[this.state.historyChartRangeDateIndex[0]].value,
+          btcusdt[this.state.historyChartRangeDateIndex[1]].value
+        );
+        this.setState({btcCount: count, btcUSDT: btcUsdt});
+
+        return this.tokenManager.calculateInitialAmounts(this.state.amount);
+      })
       .then(() => this.tokenManager.calculateArbitration())
       .then(result => {
         this.setState({arbitrationList: result});

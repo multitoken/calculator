@@ -6,6 +6,8 @@ import { ProgressListener } from './ProgressListener';
 
 export interface TokenManager {
 
+  getBtcPrice(): Promise<TokenPriceHistory[]>;
+
   setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
   setCommission(commissionPercents: number): void;
