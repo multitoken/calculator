@@ -584,8 +584,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     this.tokenManager
       .calculateInitialAmounts(this.state.amount)
-      .then(() => this.tokenManager.calculateCap())
-      .then(cap => Promise.resolve(this.setState({cap})))
       .then(() => this.tokenManager.calculateArbitration())
       .then(result => {
         this.setState({arbitrationList: result});
@@ -603,12 +601,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           arbiterTotalTxFee: totalTxPrice,
         });
 
-        return this.tokenManager.calculateCap();
+        return this.tokenManager.calculateCap(false);
       })
       .then(cap => this.setState({
         arbiterCap: cap,
         showCalculationProgress: false,
-      }));
+      }))
+      .then(() => this.tokenManager.calculateCap(true))
+      .then(cap => Promise.resolve(this.setState({cap})));
   }
 
   private applyTimelineProportions(): void {
