@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { TokenWeight } from '../../repository/models/TokenWeight';
-import { TokenWeightEmptyHolder } from '../holders/TokenWeightEmptyHolder';
-import { TokenWeightHolder } from '../holders/TokenWeightHolder';
-import AbstractList, { AbstractProperties } from './AbstractList';
+import { TokenWeight } from '../../../repository/models/TokenWeight';
+import { TokenWeightEmptyHolder } from '../../holders/weight/TokenWeightEmptyHolder';
+import { TokenWeightHolder } from '../../holders/weight/TokenWeightHolder';
+import AbstractList, { AbstractProperties } from '../AbstractList';
 import './TokenWeightList.less';
 
 interface Properties extends AbstractProperties<TokenWeight> {

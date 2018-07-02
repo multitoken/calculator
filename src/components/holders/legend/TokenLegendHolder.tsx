@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TokenLegend } from '../../entities/TokenLegend';
-import AbstractHolder, { AbstractProperties } from './AbstractHolder';
+import { TokenLegend } from '../../../entities/TokenLegend';
+import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './TokenLegendHolder.less';
 
 export interface Properties extends AbstractProperties<TokenLegend> {

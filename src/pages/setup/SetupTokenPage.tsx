@@ -1,7 +1,7 @@
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { TokensNamesList } from '../../components/lists/TokensNamesList';
+import { TokensNamesList } from '../../components/lists/name/TokensNamesList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';

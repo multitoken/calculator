@@ -1,7 +1,7 @@
 import { Checkbox } from 'antd';
 import * as React from 'react';
-import { TokenItemEntity } from '../../entities/TokenItemEntity';
-import AbstractHolder, { AbstractProperties } from './AbstractHolder';
+import { TokenItemEntity } from '../../../entities/TokenItemEntity';
+import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './TokenNameHolder.less';
 
 export interface Properties extends AbstractProperties<TokenItemEntity> {

@@ -1,8 +1,8 @@
 import { ListGridType } from 'antd/lib/list';
 import * as React from 'react';
-import { TokenLegend } from '../../entities/TokenLegend';
-import { TokenLegendHolder } from '../holders/TokenLegendHolder';
-import AbstractList, { AbstractProperties } from './AbstractList';
+import { TokenLegend } from '../../../entities/TokenLegend';
+import { TokenLegendHolder } from '../../holders/legend/TokenLegendHolder';
+import AbstractList, { AbstractProperties } from '../AbstractList';
 import './TokensLegendList.less';
 
 interface Properties extends AbstractProperties<TokenLegend> {

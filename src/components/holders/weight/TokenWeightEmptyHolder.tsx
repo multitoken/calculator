@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TokenWeight } from '../../repository/models/TokenWeight';
+import { TokenWeight } from '../../../repository/models/TokenWeight';
 import './TokenWeightEmptyHolder.less';
 import { TokenWeightHolder } from './TokenWeightHolder';
 

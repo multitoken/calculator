@@ -1,8 +1,8 @@
 import { Col, Row } from 'antd';
 import * as React from 'react';
-import { TokenProportion } from '../../repository/models/TokenProportion';
-import StepInteger from '../step-integer/StepInteger';
-import AbstractHolder, { AbstractProperties } from './AbstractHolder';
+import { TokenProportion } from '../../../repository/models/TokenProportion';
+import StepInteger from '../../step-integer/StepInteger';
+import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './TokenProportionHolder.less';
 
 export interface Properties extends AbstractProperties<TokenProportion> {

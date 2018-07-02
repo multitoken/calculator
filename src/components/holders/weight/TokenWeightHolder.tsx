@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Token } from '../../repository/models/Token';
-import { TokenWeight } from '../../repository/models/TokenWeight';
-import IcoDelete from '../../res/icons/ico_delete.svg';
-import IcoEdit from '../../res/icons/ico_edit.svg';
-import { DateUtils } from '../../utils/DateUtils';
-import AbstractHolder, { AbstractProperties } from './AbstractHolder';
+import { Token } from '../../../repository/models/Token';
+import { TokenWeight } from '../../../repository/models/TokenWeight';
+import IcoDelete from '../../../res/icons/ico_delete.svg';
+import IcoEdit from '../../../res/icons/ico_edit.svg';
+import { DateUtils } from '../../../utils/DateUtils';
+import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './TokenWeightHolder.less';
 
 export interface Properties extends AbstractProperties<TokenWeight> {
