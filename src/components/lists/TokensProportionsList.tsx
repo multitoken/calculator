@@ -2,6 +2,7 @@ import * as React from 'react';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenProportionHolder } from '../holders/TokenProportionHolder';
 import AbstractList, { AbstractProperties } from './AbstractList';
+import './TokensProportionsList.less';
 
 interface Properties extends AbstractProperties<TokenProportion> {
   disabled: boolean;

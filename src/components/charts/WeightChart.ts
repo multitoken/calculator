@@ -11,7 +11,17 @@ interface Properties extends AbstractProperties<TokenWeight[]> {
 
 export class WeightChart extends AbstractChart<Properties, AbstractState, TokenWeight[], any> {
 
+  public shouldComponentUpdate(props: Readonly<Properties>, state: Readonly<AbstractState>, data2: any): boolean {
+    this.isChangedData = this.props.data !== props.data ||
+      this.props.initialState !== props.initialState ||
+      this.props.initialDate !== props.initialDate ||
+      this.props.finishDate !== props.finishDate;
+
+    return this.isChangedData;
+  }
+
   public parseData(data: TokenWeight[]): any[] {
+    console.log('WeightChart');
     const result: any[] = [{date: DateUtils.toStringDate(this.props.initialDate, DateUtils.DATE_FORMAT_SHORT)}];
 
     this.props.initialState.map(value => result[0][value.name] = value.weight);
@@ -30,21 +40,22 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
       result.push(dataResult);
     });
 
-    result.push(Object.assign({} , result[result.length - 1]));
+    result.push(Object.assign({}, result[result.length - 1]));
     result[result.length - 1].date = DateUtils.toStringDate(this.props.finishDate, DateUtils.DATE_FORMAT_SHORT);
 
     return result;
   }
 
   public getNames(): string[] {
-    const names: Set<string> = new Set();
-    this.props.data.forEach((value: TokenWeight) => {
-      value.tokens.toArray().forEach((value2: Token) => names.add(value2.name));
-      value.otherTokens.forEach((value2: Token) => names.add(value2.name));
-    });
-
-    return Array.from(names.keys())
+    return this.props.initialState.map((value: Token) => value.name)
       .sort((a, b) => a.localeCompare(b));
+  }
+
+  protected prepareData(): any[] {
+    this.data = this.parseData(this.props.data);
+    this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});
+
+    return this.data;
   }
 
 }

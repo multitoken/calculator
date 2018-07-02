@@ -4,11 +4,15 @@ import './PageContent.less';
 
 const {Content} = Layout;
 
-export default class PageContent extends React.Component {
+export interface Props {
+  className?: any;
+}
+
+export default class PageContent extends React.Component<Props> {
   public render() {
     return (
-      <Content className="PageContent">
-        <div className="PageContent-content">
+      <Content className={`PageContent`}>
+        <div className={`PageContent-content ${this.props.className || ''}`}>
           {this.props.children}
         </div>
       </Content>

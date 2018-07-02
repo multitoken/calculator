@@ -8,6 +8,10 @@ export interface TokenManager {
 
   getBtcPrice(): Promise<TokenPriceHistory[]>;
 
+  setAmount(amount: number): void;
+
+  getAmount(): number;
+
   setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
   setCommission(commissionPercents: number): void;
@@ -26,7 +30,7 @@ export interface TokenManager {
 
   getAvailableTokens(): Promise<Map<string, string>>;
 
-  calculateInitialAmounts(amount: number): Promise<Map<string, number>>;
+  calculateInitialAmounts(): Promise<Map<string, number>>;
 
   subscribeToProgress(listener?: ProgressListener): void;
 

@@ -1,38 +1,65 @@
 import * as React from 'react';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { TokenWeightEmptyHolder } from '../holders/TokenWeightEmptyHolder';
 import { TokenWeightHolder } from '../holders/TokenWeightHolder';
 import AbstractList, { AbstractProperties } from './AbstractList';
+import './TokenWeightList.less';
 
 interface Properties extends AbstractProperties<TokenWeight> {
-  selectedPosition: number;
-  onItemSelect?(model: TokenWeight, position: number): void;
+  onEditClick(model: TokenWeight, position: number): void;
+
+  onDeleteClick(model: TokenWeight, position: number): void;
+
+  onAddClick(): void;
 }
 
-interface State {
-  selectedPosition: number;
-}
+export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
 
-export class TokenWeightList extends AbstractList<Properties, TokenWeight, State> {
+  protected getData(): TokenWeight[] {
+    const data: TokenWeight[] = this.props.data;
+    const lastModel: TokenWeight | undefined = data.length > 0
+      ? data[data.length - 1]
+      : undefined;
 
-  constructor(props: Properties) {
-    super(props);
+    const list: TokenWeight[] = data.length > 0
+      ? data.slice(0, data.length)
+      : [];
+
+    if (lastModel === undefined || lastModel.index !== -1) {
+      list.push(TokenWeight.EMPTY);
+    }
+
+    return list;
+  }
+
+  protected getItemLayout(): string | undefined {
+    return 'horizontal';
   }
 
   public bindHolder(dataItem: TokenWeight, position: number): object {
+    if (dataItem.isEmpty()) {
+      return (
+        <TokenWeightEmptyHolder
+          onItemClick={(model, id) => this.props.onAddClick()}
+          model={dataItem}
+          key={position}
+        />
+      );
+    }
+
     return (
       <TokenWeightHolder
         model={dataItem}
-        onClick={e => this.onItemClick(e, position)}
-        selected={this.props.selectedPosition === position}
+        onItemClick={(model, id) => {
+          if (id === TokenWeightHolder.HOLDER_ACTION_ID_DELETE) {
+            this.props.onDeleteClick(model, position);
+          } else if (id === TokenWeightHolder.HOLDER_ACTION_ID_EDIT) {
+            this.props.onEditClick(model, position);
+          }
+        }}
         key={position}
       />
     );
-  }
-
-  private onItemClick(model: TokenWeight, position: number) {
-    if (this.props.onItemSelect) {
-      this.props.onItemSelect(model, position);
-    }
   }
 
 }

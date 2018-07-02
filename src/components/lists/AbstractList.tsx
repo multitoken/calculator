@@ -14,13 +14,17 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
   public render() {
     return (
       <div
-        className={this.props.bordered ? 'AbstractList__content-bordered' : 'AbstractList__content'}
+        className={
+          this.props.bordered
+            ? `AbstractList__content-bordered ${this.constructor.name}__content`
+            : `AbstractList__content ${this.constructor.name}__content`
+        }
         style={{maxHeight: this.props.maxHeight}}
       >
         <div>
           <List
             grid={this.getGridType()}
-            dataSource={this.props.data}
+            dataSource={this.getData()}
             renderItem={(item: M, index: number) => {
               return (
                 <List.Item>
@@ -34,8 +38,16 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
     );
   }
 
+  protected getData(): M[] {
+    return this.props.data;
+  }
+
   protected getGridType(): ListGridType | undefined {
     return undefined;
+  }
+
+  protected getItemLayout(): string | undefined {
+    return 'vertical';
   }
 
   protected abstract bindHolder(dataItem: M, position: number): object;

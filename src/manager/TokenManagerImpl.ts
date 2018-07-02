@@ -25,6 +25,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private maxCalculationIndex: number;
   private commissionPercent: number;
   private listener: ProgressListener;
+  private amount: number;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.cryptocurrencyRepository = cryptocurrencyRepository;
@@ -33,6 +34,14 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public async getBtcPrice(): Promise<TokenPriceHistory[]> {
     return this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
+  }
+
+  public setAmount(amount: number): void {
+    this.amount = amount;
+  }
+
+  public getAmount(): number {
+    return this.amount;
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
@@ -121,7 +130,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     return this.cryptocurrencyRepository.getAvailableCurrencies();
   }
 
-  public async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
+  public async calculateInitialAmounts(): Promise<Map<string, number>> {
     const result: Map<string, number> = new Map();
     let maxProportions: number = 0;
 
@@ -129,7 +138,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       maxProportions += value;
     });
 
-    const actualAmount: BigNumber = new BigNumber(amount);
+    const actualAmount: BigNumber = new BigNumber(this.amount);
 
     this.selectedTokensHistory
       .forEach((value, key) => {

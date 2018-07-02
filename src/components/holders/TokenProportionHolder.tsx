@@ -26,7 +26,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, State, Tok
 
   public bindModel(model: TokenProportion): object {
     return (
-      <div>
+      <div style={{width: '100%'}}>
         <div>
           <Row>
             <Col className="TokenProportion__title" span={12}>{model.name} weight:</Col>
