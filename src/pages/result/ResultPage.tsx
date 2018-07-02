@@ -6,6 +6,7 @@ import { ArbiterChart } from '../../components/charts/ArbiterChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { TokensCapChart } from '../../components/charts/TokensCapChart';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
+import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
@@ -115,7 +116,6 @@ export default class ResultPage extends React.Component<Props, State> implements
     return (
       <Layout
         style={{
-          background: '#f5f8fa',
           minHeight: '100vh',
         }}
       >
@@ -123,7 +123,8 @@ export default class ResultPage extends React.Component<Props, State> implements
         <header className="ResultPage__header">
           Result
         </header>
-        <div className="ResultPage__content">
+        <PageContent className="ResultPage__content">
+
           <div>
             <Row>
               <Col className="ResultPage__result-name">
@@ -245,43 +246,43 @@ export default class ResultPage extends React.Component<Props, State> implements
               </Col>
             </Row>
           </div>
-        </div>
 
-        <div className="ResultPage__result-chart mt-5">
-          <b>Tokens history price $</b>
-          <HistoryChart
-            data={this.state.tokensHistory}
-            colors={this.COLORS}
-            start={this.state.historyChartRangeDateIndex[0]}
-            end={this.state.historyChartRangeDateIndex[1]}
-            showRange={false}
-          />
-        </div>
+          <div className="ResultPage__result-chart mt-5">
+            <b>Tokens history price $</b>
+            <HistoryChart
+              data={this.state.tokensHistory}
+              colors={this.COLORS}
+              start={this.state.historyChartRangeDateIndex[0]}
+              end={this.state.historyChartRangeDateIndex[1]}
+              showRange={false}
+            />
+          </div>
 
-        <div className="ResultPage__result-chart">
-          <b>
-            Manipulation by the arbitrators (cap)$<br/>
-            (Operations count: {this.getArbitrationListLen()})
-          </b>
-          <ArbiterChart
-            data={this.state.arbitrationList}
-            colors={this.COLORS}
-            showRange={false}
-          />
-        </div>
+          <div className="ResultPage__result-chart">
+            <b>
+              Manipulation by the arbitrators (cap)$<br/>
+              (Operations count: {this.getArbitrationListLen()})
+            </b>
+            <ArbiterChart
+              data={this.state.arbitrationList}
+              colors={this.COLORS}
+              showRange={false}
+            />
+          </div>
 
-        <div className="ResultPage__result-chart">
-          <b>
-            Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
-            (Operations count:{this.getArbitrationListLen()})
-          </b>
-          <TokensCapChart
-            data={this.state.arbitrationList}
-            colors={this.COLORS}
-            showRange={false}
-          />
-        </div>
+          <div className="ResultPage__result-chart">
+            <b>
+              Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
+              (Operations count:{this.getArbitrationListLen()})
+            </b>
+            <TokensCapChart
+              data={this.state.arbitrationList}
+              colors={this.COLORS}
+              showRange={false}
+            />
+          </div>
 
+        </PageContent>
         <ProgressDialog
           openDialog={this.state.showCalculationProgress}
           percentProgress={this.state.progressPercents}
@@ -334,46 +335,46 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private processCalculate() {
-    this.tokenManager
-      .getBtcPrice()
-      .then(btcusdt => {
-        const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
-        const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
-        console.log(
-          this.state.historyChartRangeDateIndex[0],
-          this.state.historyChartRangeDateIndex[1],
-          btcusdt[this.state.historyChartRangeDateIndex[0]].value,
-          btcusdt[this.state.historyChartRangeDateIndex[1]].value
-        );
-        this.setState({btcCount: count, btcUSDT: btcUsdt});
-
-        return this.tokenManager.calculateInitialAmounts();
-      })
-      .then(() => this.tokenManager.calculateArbitration())
-      .then(result => {
-        this.setState({arbitrationList: result});
-        console.log(result);
-        let profit: number = 0;
-        let totalTxPrice: number = 0;
-
-        result.forEach(value => {
-          profit += value.arbiterProfit;
-          totalTxPrice += value.txPrice;
-        });
-
-        this.setState({
-          arbiterProfit: profit,
-          arbiterTotalTxFee: totalTxPrice,
-        });
-
-        return this.tokenManager.calculateCap(false);
-      })
-      .then(cap => this.setState({
-        arbiterCap: cap,
-        showCalculationProgress: false,
-      }))
-      .then(() => this.tokenManager.calculateCap(true))
-      .then(cap => Promise.resolve(this.setState({cap})));
+    // this.tokenManager
+    //   .getBtcPrice()
+    //   .then(btcusdt => {
+    //     const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
+    //     const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
+    //     console.log(
+    //       this.state.historyChartRangeDateIndex[0],
+    //       this.state.historyChartRangeDateIndex[1],
+    //       btcusdt[this.state.historyChartRangeDateIndex[0]].value,
+    //       btcusdt[this.state.historyChartRangeDateIndex[1]].value
+    //     );
+    //     this.setState({btcCount: count, btcUSDT: btcUsdt});
+    //
+    //     return this.tokenManager.calculateInitialAmounts();
+    //   })
+    //   .then(() => this.tokenManager.calculateArbitration())
+    //   .then(result => {
+    //     this.setState({arbitrationList: result});
+    //     console.log(result);
+    //     let profit: number = 0;
+    //     let totalTxPrice: number = 0;
+    //
+    //     result.forEach(value => {
+    //       profit += value.arbiterProfit;
+    //       totalTxPrice += value.txPrice;
+    //     });
+    //
+    //     this.setState({
+    //       arbiterProfit: profit,
+    //       arbiterTotalTxFee: totalTxPrice,
+    //     });
+    //
+    //     return this.tokenManager.calculateCap(false);
+    //   })
+    //   .then(cap => this.setState({
+    //     arbiterCap: cap,
+    //     showCalculationProgress: false,
+    //   }))
+    //   .then(() => this.tokenManager.calculateCap(true))
+    //   .then(cap => Promise.resolve(this.setState({cap})));
   }
 
 }

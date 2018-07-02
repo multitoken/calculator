@@ -1,10 +1,12 @@
+@import "../../../res/styles/Colors";
+
 .TokenWeight__content {
   border-radius: 8px;
-  background-color: #ffffff;
-  border: solid 1px #c4d4e7;
+  background-color: @content-color;
+  border: solid 1.2px @border-dark;
   width: 160px;
   height: 70px;
-  padding: 3px 5px 3px 5px;
+  padding: 3px 4px 0 7px;
   margin-right: 20px;
 }
 
@@ -26,17 +28,16 @@
   font-stretch: normal;
   line-height: normal;
   letter-spacing: 0;
-  color: #90a8bc;
+  color: @text-color-dark;
 }
 
 .TokenWeight__item-key {
   .TokenWeight__item-date;
   font-weight: lighter;
-  color: #2d2f32;
+  color: @text-color-light;
 }
 
 .TokenWeight__item-value {
   .TokenWeight__item-key;
-  color: #2d2f32;
   float: right;
 }

@@ -48,7 +48,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     return (
       <Layout
         style={{
-          background: '#f5f8fa',
           minHeight: '100vh',
           minWidth: 320,
         }}

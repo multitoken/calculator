@@ -57,7 +57,7 @@ interface State {
 
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
   private readonly COLORS: string[] = [
-    '#FFD484', '#FF7658', '#3294E4', '#50E3C2', '#8B572A', '#D7CB37', '#A749FA', '#3DD33E', '#4455E8',
+    '#3294E4', '#50E3C2', '#FFD484', '#FF7658', '#8B572A', '#D7CB37', '#A749FA', '#3DD33E', '#4455E8',
     '#DF8519', '#F44A8B', '#E53737', '#A227BB', '#2D9D5C', '#D2FF84',
   ];
 
@@ -122,7 +122,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     return (
       <Layout
         style={{
-          background: '#f5f8fa',
           minHeight: '100vh',
         }}
       >

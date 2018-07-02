@@ -1,9 +1,11 @@
+@import '../../../res/styles/Colors';
+
 .TokenNameHolder__content {
   height: 60px;
   max-width: 495px;
   min-width: 190px;
   border-radius: 5px;
-  background-color: #ffffff;
+  background-color: @content-color;
   line-height: 60px;
   padding: 0 20px 0 14px;
   cursor: pointer;
@@ -22,7 +24,12 @@
   font-stretch: normal;
   line-height: normal;
   letter-spacing: 0;
-  color: #2d2f32;
+  color: @text-color-dark;
+}
+
+.TokenNameHolder__name__checked {
+  .TokenNameHolder__name;
+  color: @text-color-light;
 }
 
 .TokenNameHolder__checkbox {

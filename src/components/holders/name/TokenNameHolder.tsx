@@ -16,7 +16,9 @@ export class TokenNameHolder extends AbstractHolder<Properties, {}, TokenItemEnt
     return (
       <div className="TokenNameHolder__content" onClick={e => this.props.onItemClick(model)}>
         <img className="TokenNameHolder__icon" src={model.icon} alt={model.name}/>
-        <span className="TokenNameHolder__name">{model.name}</span>
+        <span className={this.props.checked ? 'TokenNameHolder__name__checked' : 'TokenNameHolder__name'}>
+          {model.name}
+        </span>
         <Checkbox className="TokenNameHolder__checkbox" checked={this.props.checked}/>
       </div>
     );
