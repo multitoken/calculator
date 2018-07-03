@@ -4,6 +4,7 @@ import Pair from '../../repository/models/Pair';
 import { Token } from '../../repository/models/Token';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
+import './TokenWeightDialog.less';
 
 const Option = Select.Option;
 const ButtonGroup = Button.Group;
@@ -90,7 +91,6 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     return (
       <div>
         <Modal
-          className="text-center"
           title="exchange token weight"
           visible={this.props.openDialog}
           destroyOnClose={true}
@@ -117,51 +117,53 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           }}
           onCancel={() => this.props.onCancel()}
         >
-          <Row gutter={8}>
-            <Col span={12}>
-              <div>
-                <div>Token name:</div>
+          <div className="TokenWeightDialog__content">
+            <Row gutter={8} type="flex" justify="space-around" align="middle">
+              <Col span={8}>
+                <div>
+                  <div className="TokenWeightDialog__content-text">Token name:</div>
+                  <Select
+                    onChange={value => this.onFirstTokenChange(value.toString())}
+                    value={this.state.selectedTokenFirst}
+                  >
+                    {this.prepareTokenNames()}
+                  </Select>
+
+                </div>
+                <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightFirst}</div>
+              </Col>
+
+              <Col span={8}>
+                <ButtonGroup>
+                  <Button
+                    type="primary"
+                    icon="left"
+                    size="small"
+                    onClick={() => this.onExchangeFromSecond()}
+                  />
+                  <Button
+                    type="primary"
+                    icon="right"
+                    size="small"
+                    onClick={() => this.onExchangeFromFirst()}
+                  />
+                </ButtonGroup>
+              </Col>
+              <Col span={8}>
+                <div className="TokenWeightDialog__content-text">Token name:</div>
                 <Select
-                  onChange={value => this.onFirstTokenChange(value.toString())}
-                  value={this.state.selectedTokenFirst}
-                  style={{width: 120}}
+                  onChange={value => this.onSecondTokenChange(value.toString())}
+                  value={this.state.selectedTokenSecond}
                 >
                   {this.prepareTokenNames()}
                 </Select>
 
-              </div>
-              <div>Weight:<b>{this.state.selectedWeightFirst}</b></div>
+                <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightSecond}</div>
+              </Col>
+            </Row>
 
-            </Col>
-
-            <Col span={12}>
-              <div>Token name:</div>
-              <Select
-                onChange={value => this.onSecondTokenChange(value.toString())}
-                value={this.state.selectedTokenSecond}
-                style={{width: 120}}
-              >
-                {this.prepareTokenNames()}
-              </Select>
-
-              <div>Weight:<b>{this.state.selectedWeightSecond}</b></div>
-            </Col>
-          </Row>
-
-          <ButtonGroup className="pb-4">
-            <Button
-              type="primary"
-              icon="left"
-              onClick={() => this.onExchangeFromSecond()}
-            />
-            <Button
-              type="primary"
-              icon="right"
-              onClick={() => this.onExchangeFromFirst()}
-            />
-          </ButtonGroup>
-
-          {this.prepareBlockChangeDate()}
+            {this.prepareBlockChangeDate()}
+          </div>
         </Modal>
       </div>
     );
@@ -214,9 +216,16 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
   private prepareBlockChangeDate(): any {
     return (
       <div>
-        <div>Date:</div>
+        <div>
+          <span className="TokenWeightDialog__content-text-date">Date:</span>
+          <span className="TokenWeightDialog__content-text-date-value">
+            {DateUtils.toStringDate(this.props.dateList[this.state.selectedDateIndex], DateUtils.DATE_FORMAT_SHORT)}
+          </span>
+        </div>
         <Slider
+          className="TokenWeightDialog__content-date-slider"
           max={this.props.dateList.length}
+          min={this.props.minDateIndex}
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
           onChange={value =>

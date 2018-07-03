@@ -6,7 +6,101 @@
   color: @text-color-light;
 }
 
-.ant-btn {
+.ant-modal-content {
+  background-color: @content-color;
+  color: @text-color-dark;
+
+  .ant-modal-close-x {
+    color: @text-color-light;
+  }
+
+  .ant-modal-header {
+    background-color: @content-color;
+    border: none;
+
+    .ant-modal-title {
+      font-family: 'Roboto', sans-serif;
+      font-size: 20px;
+      font-weight: normal;
+      font-style: normal;
+      font-stretch: normal;
+      line-height: normal;
+      letter-spacing: 0;
+      text-align: center;
+      color: @text-color-light;
+    }
+  }
+
+  .ant-modal-footer {
+    border: none;
+    text-align: center;
+    padding-bottom: 30px;
+  }
+
+}
+
+.ant-select-dropdown-menu-item {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  text-align: center;
+  color: @text-color-dark;
+  background-color: @background;
+}
+
+.ant-select-selection {
+  border: solid 1.1px @border-dark;
+}
+
+.ant-select-dropdown-menu-item-selected,
+.ant-select-dropdown-menu-item-selected:hover {
+  color: @text-color-light !important;
+}
+
+.ant-select-dropdown-menu-item:hover {
+  .ant-select-dropdown-menu-item;
+  background-color: @background;
+  color: @text-color-light;
+}
+
+.ant-select,
+.ant-select-selection {
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  text-align: center;
+  color: @text-color-light;
+
+  height: 50px;
+  background-color: @background;
+
+  .ant-select-selection__rendered {
+    line-height: 50px;
+  }
+
+  .ant-select-arrow {
+    color: @text-color-dark;
+  }
+}
+
+.ant-progress-circle {
+  .ant-progress-text {
+    color: @text-color-dark;
+  }
+}
+
+.ant-btn,
+.ant-btn:hover,
+.ant-btn:focus {
   border-radius: 20px;
   padding: 0 25px;
   height: 40px;
@@ -19,14 +113,23 @@
   line-height: normal;
   letter-spacing: 0;
   text-align: center;
-  color: @text-color-light;
-  box-shadow: 0 7px 10px 0 rgba(61, 137, 212, 0.3);
+  color: @btn-text-color;
+  background-color: @content-color;
+  border: solid 1px @btn-text-color;
+
+  .button-disabled();
+}
+
+.ant-btn-sm {
+  width: 70px !important;
+  height: 40px !important;
 }
 
 .ant-btn-primary,
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
-  background-color: #3294e4;
+  color: @btn-text-primary-color;
+  background-color: @btn-text-color;
 }
 
 .ant-btn-primary:active,
@@ -42,7 +145,9 @@
     &:focus,
     &:active,
     &.active {
-      background: lightgrey;
+      background-color: @light-gray;
+      color: @text-color-light;
+      border: none;
     }
   }
 }

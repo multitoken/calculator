@@ -6,6 +6,7 @@ import { ChartType } from '../../components/charts/AbstractChart';
 import { ProportionChart } from '../../components/charts/ProportionChart';
 import { WeightChart } from '../../components/charts/WeightChart';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
+import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
 import { TokensLegendList } from '../../components/lists/legend/TokensLegendList';
 import { TokensProportionsList } from '../../components/lists/proportion/TokensProportionsList';
 import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
@@ -13,15 +14,13 @@ import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
-import { ProgressListener } from '../../manager/ProgressListener';
 import { TokenManager } from '../../manager/TokenManager';
-import { Arbitration } from '../../repository/models/Arbitration';
-import Pair from '../../repository/models/Pair';
 import { Token } from '../../repository/models/Token';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
+import { TokensHelper } from '../../utils/TokensHelper';
 import './CalculatorPage.less';
 
 interface Props extends RouteComponentProps<{}> {
@@ -32,17 +31,8 @@ interface State {
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensLegend: TokenLegend[];
   tokensDate: number[];
-  arbitrationList: Arbitration[];
-  arbiterCap: number;
-  arbiterProfit: number;
-  arbiterTotalTxFee: number;
   amount: number;
-  btcUSDT: number;
-  btcCount: number;
-  cap: number;
-  progressPercents: number;
   proportionList: TokenProportion[];
-  showCalculationProgress: boolean;
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
   historyChartRangeDateIndex: SliderValue;
@@ -55,11 +45,7 @@ interface State {
   commissionPercents: number;
 }
 
-export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
-  private readonly COLORS: string[] = [
-    '#3294E4', '#50E3C2', '#FFD484', '#FF7658', '#8B572A', '#D7CB37', '#A749FA', '#3DD33E', '#4455E8',
-    '#DF8519', '#F44A8B', '#E53737', '#A227BB', '#2D9D5C', '#D2FF84',
-  ];
+export default class CalculatorPage extends React.Component<Props, State> {
 
   @lazyInject(Services.TOKEN_MANAGER)
   private tokenManager: TokenManager;
@@ -67,25 +53,15 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   constructor(props: Props) {
     super(props);
 
-    this.tokenManager.subscribeToProgress(this);
-
+    console.log(this.tokenManager.getCalculationDate());
     this.state = {
-      amount: 10000,
-      arbiterCap: 0,
-      arbiterProfit: 0,
-      arbiterTotalTxFee: 0,
-      arbitrationList: [],
-      btcCount: 0,
-      btcUSDT: 0,
-      calculateMaxDateIndex: 1,
-      calculateRangeDateIndex: [0, 1],
-      cap: 0,
-      changeWeightMinDateIndex: 1,
-      commissionPercents: 0.2,
-      historyChartRangeDateIndex: [0, 1],
-      progressPercents: 0,
-      proportionList: [],
-      showCalculationProgress: false,
+      amount: this.tokenManager.getAmount(),
+      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex(),
+      calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
+      changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
+      commissionPercents: this.tokenManager.getCommission(),
+      historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
+      proportionList: this.tokenManager.getProportions(),
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -94,16 +70,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokensHistory: new Map(),
       tokensLegend: [],
       tokensWeightEditItem: undefined,
-      tokensWeightList: [],
+      tokensWeightList: this.tokenManager.getExchangedWeights(),
     };
-  }
-
-  public onProgress(percents: number): void {
-    if (!this.state.showCalculationProgress) {
-      this.setState({showCalculationProgress: true});
-    }
-
-    this.setState({progressPercents: percents});
   }
 
   public componentDidMount(): void {
@@ -204,11 +172,12 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 type={ChartType.PIPE}
                 aspect={1}
                 data={this.state.proportionList}
-                colors={this.COLORS}
+                colors={TokensHelper.COLORS}
               />
             </div>
             <div style={{float: 'left', width: '200px'}}>
               <TokensLegendList
+                columnCount={2}
                 data={this.state.tokensLegend}
               />
             </div>
@@ -220,7 +189,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 <WeightChart
                   applyScale={false}
                   data={this.state.tokensWeightList}
-                  colors={this.COLORS}
+                  colors={TokensHelper.COLORS}
                   initialDate={this.state.tokensDate[this.state.calculateRangeDateIndex[0]]}
                   initialState={this.state.proportionList}
                   finishDate={this.state.tokensDate[this.state.calculateRangeDateIndex[1]]}
@@ -228,7 +197,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                   type={ChartType.BAR}
                 />
               </div>
-              <div style={{marginLeft: '20px', marginTop: '40px'}}>
+              <div style={{margin: '20px 20px'}}>
+                <TokensLegendList
+                  style={LegendStyle.LINE}
+                  columnCount={4}
+                  data={this.state.tokensLegend}
+                />
+              </div>
+              <div style={{marginLeft: '20px', marginTop: '20px'}}>
                 <TokenWeightList
                   maxHeight="200px"
                   onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
@@ -284,13 +260,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       }
     });
 
-    const weightList: TokenWeight[] = this.state.tokensWeightList;
-    const minDateIndex: number = weightList.length > 0
-      ? weightList[weightList.length - 1].index
-      : this.state.calculateRangeDateIndex[0];
-
     this.setState({
-      changeWeightMinDateIndex: model ? model.index : minDateIndex + 1,
+      changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
       tokenDialogOpen: true,
       tokenLatestWeights: latestTokensWeight,
       tokensWeightEditItem: model,
@@ -336,30 +307,35 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
   private onSyncTokens(tokens: Map<string, string>) {
     const tokenItems: Map<string, boolean> = new Map();
-    const proportions: TokenProportion[] = [];
+    let proportions: TokenProportion[] = [];
 
     tokens.forEach((value, key) => tokenItems.set(key, false));
 
-    this.tokenManager.getPriceHistory().forEach((value, key) => {
-      proportions.push(new TokenProportion(key, 10, 1, 10));
-    });
+    if (this.tokenManager.getProportions().length === 0) {
+      this.tokenManager.getPriceHistory().forEach((value, key) => {
+        proportions.push(new TokenProportion(key, 10, 1, 10));
+      });
+    } else {
+      proportions = this.tokenManager.getProportions();
+    }
+
     const firstTokenName: string = Array.from(this.tokenManager.getPriceHistory().keys())[0];
     const history: TokenPriceHistory[] = this.tokenManager.getPriceHistory().get(firstTokenName) || [];
 
     this.setState({tokensDate: history.map(value => value.time)});
 
-    const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
-    this.setState({
-      calculateMaxDateIndex: maxIndex || 0,
-      calculateRangeDateIndex: [0, maxIndex || 0],
-      historyChartRangeDateIndex: [0, maxIndex || 0]
-    });
+    // const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
+    // this.setState({
+    //   calculateMaxDateIndex: maxIndex || 0,
+    //   calculateRangeDateIndex: [0, maxIndex || 0],
+    //   historyChartRangeDateIndex: [0, maxIndex || 0]
+    // });
 
     this.setState({
       proportionList: proportions,
       tokenNames: tokenItems,
       tokensHistory: this.tokenManager.getPriceHistory(),
-      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, this.COLORS[i])),
+      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, TokensHelper.getColor(i))),
     });
   }
 
@@ -380,29 +356,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onCalculateClick() {
-    const mapProportions: Map<string, number> = new Map();
+    console.log(this.state.proportionList);
+    this.tokenManager.changeProportions(this.state.proportionList);
 
-    this.state.proportionList.forEach(value => {
-      mapProportions.set(value.name, value.weight);
-    });
-
-    this.tokenManager.changeProportions(mapProportions);
-
-    this.applyTimelineProportions();
+    this.tokenManager.setExchangeWeights(this.state.tokensWeightList);
     this.tokenManager.setCommission(this.state.commissionPercents);
     this.tokenManager.setAmount(this.state.amount);
     const {history} = this.props;
     history.push('calculator/result');
-  }
-
-  private applyTimelineProportions(): void {
-    const result: Map<number, Pair<Token, Token>> = new Map();
-
-    this.state.tokensWeightList.forEach(weights => {
-      result.set(weights.index, weights.tokens);
-    });
-
-    this.tokenManager.setExchangeWeights(result);
   }
 
 }

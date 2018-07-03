@@ -1,4 +1,3 @@
-import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
 import {
@@ -38,7 +37,6 @@ export interface AbstractState {
 export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
   extends React.Component<P, any> {
 
-  public static SCALE: any = scaleLog().base(Math.E);
   public data: any[];
   public isChangedData: boolean = false;
 
@@ -113,8 +111,11 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           zIndex: 1,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3"/>
-        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
+        <YAxis
+          allowDecimals={true}
+          scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}
+        />
         <Tooltip/>
         {this.prepareLines()}
       </LineChart>
@@ -129,8 +130,8 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           zIndex: 1,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3"/>
-        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
+        <YAxis scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}/>
         <Tooltip/>
         {type === ChartType.BAR ? this.prepareBars() : this.prepareBarsStacked()}
       </BarChart>
@@ -189,6 +190,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
       .map((value, index) => {
         return (
           <Line
+            strokeWidth={2}
             type="monotone"
             key={value}
             dataKey={value}

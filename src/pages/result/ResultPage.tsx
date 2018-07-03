@@ -1,4 +1,4 @@
-import { Col, Layout, Row } from 'antd';
+import { Button, Col, Layout, Row } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -6,6 +6,8 @@ import { ArbiterChart } from '../../components/charts/ArbiterChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { TokensCapChart } from '../../components/charts/TokensCapChart';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
+import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
+import { TokensLegendList } from '../../components/lists/legend/TokensLegendList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenLegend } from '../../entities/TokenLegend';
@@ -16,6 +18,7 @@ import { Arbitration } from '../../repository/models/Arbitration';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+
 import './ResultPage.less';
 
 interface Props extends RouteComponentProps<{}> {
@@ -64,8 +67,8 @@ export default class ResultPage extends React.Component<Props, State> implements
     this.tokenManager.subscribeToProgress(this);
 
     this.state = {
-      amount: 10000,
-      arbiterCap: 0,
+      amount: this.tokenManager.getAmount(),
+      arbiterCap: this.tokenManager.getAmount(),
       arbiterProfit: 0,
       arbiterTotalTxFee: 0,
       arbitrationList: [],
@@ -73,7 +76,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       btcUSDT: 0,
       calculateMaxDateIndex: 1,
       calculateRangeDateIndex: [0, 1],
-      cap: 0,
+      cap: this.tokenManager.getAmount(),
       changeWeightMinDateIndex: 1,
       commissionPercents: 0.2,
       historyChartRangeDateIndex: [0, 1],
@@ -125,130 +128,262 @@ export default class ResultPage extends React.Component<Props, State> implements
         </header>
         <PageContent className="ResultPage__content">
 
-          <div>
+          <div className="ResultPage__content-block-profit">
             <Row>
-              <Col className="ResultPage__result-name">
-                Result cap <b>without/with</b> arbitrage:
+              <Col span={8} className="ResultPage__content-text-title">
+                Result cap with arbitrage:
               </Col>
-              <Col>
-                <span className="ResultPage__result-value">
-                  ${this.state.cap.toFixed(0)} /&nbsp;
-                  ${this.state.arbiterCap.toFixed(0)}
-                  &nbsp;
-                  (${(this.state.arbiterCap - this.state.cap).toFixed(0)})
-                </span>
+              <Col span={8} className="ResultPage__content-text-title">
+                Profit with arbitrage:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Annual percentage:
               </Col>
             </Row>
             <Row>
-              <Col className="ResultPage__result-name">
-                Result <b>BTC</b>:
+              <Col span={8} className={'ResultPage__content-text-result_big'}>
+                ${this.state.arbiterCap.toFixed(0)}
               </Col>
-              <Col>
-                <span className="ResultPage__result-value">
-                  {this.state.btcCount} &nbsp; (${this.state.btcUSDT.toFixed(2)})
-                </span>
+              <Col
+                span={8}
+                className={
+                  'ResultPage__content-text-result_big' +
+                  this.getModif((this.state.arbiterCap - this.state.amount).toFixed(0))
+                }
+              >
+                ${(this.state.arbiterCap - this.state.amount).toFixed(0)}
               </Col>
-            </Row>
-            <Row>
-              <Col className="ResultPage__result-name">
-                Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  {
-                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
-                      .toFixed(0)
-                  }%
-                </span>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className="ResultPage__result-name">
-                Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                 {
-                   Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
-                     .toFixed(0)
-                 }%
-                </span>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className="ResultPage__result-name">
-                Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                 {
-                   ((this.state.arbiterCap === 0)
-                       ? 0
-                       : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
-                   ).toFixed(0)
-                 }%
-                </span>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className="ResultPage__result-name">
-                Arbitrage count:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  {this.getArbitrationListLen()}
-                </span>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="ResultPage__result-name">
-                Total Arbiter transactions fee:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  ${this.state.arbiterTotalTxFee.toFixed(0)}
-                </span>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="ResultPage__result-name">
-                Average Arbiter transactions fee:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  ${(this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)).toFixed(3)}
-                </span>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className="ResultPage__result-name">
-                Total Arbiter profit:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  ${this.state.arbiterProfit.toFixed(0)}
-                </span>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className="ResultPage__result-name">
-                Average Arbiter profit:&nbsp;
-              </Col>
-              <Col span={5}>
-                <span className="ResultPage__result-value">
-                  ${(this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3)}
-                </span>
+              <Col
+                span={8}
+                className={
+                  'ResultPage__content-text-result_big' +
+                  this.getModif(
+                    (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100 / 12) || 0).toFixed(0)
+                  )
+                }>
+                {(((this.state.arbiterCap - this.state.amount) / this.state.amount * 100 / 12) || 0).toFixed(0)}%
               </Col>
             </Row>
           </div>
 
-          <div className="ResultPage__result-chart mt-5">
-            <b>Tokens history price $</b>
+          {/*------------------*/}
+
+          <div className="ResultPage__content-block">
+            <Row>
+              <Col span={8} className="ResultPage__content-text-title">
+                Result cap without arbitrage:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Profit without arbitrage:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Annual percentage:
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8} className="ResultPage__content-text-result">
+                ${this.state.cap.toFixed(0)}
+              </Col>
+              <Col
+                span={8}
+                className={
+                  'ResultPage__content-text-result' +
+                  this.getModif((this.state.cap - this.state.amount).toFixed(0))
+                }
+              >
+                ${(this.state.cap - this.state.amount).toFixed(0)}
+              </Col>
+              <Col
+                span={8}
+                className={
+                  'ResultPage__content-text-result' +
+                  this.getModif(
+                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100 / 12) || 0))
+                    .toFixed(0)
+                  )
+                }
+              >
+                {Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100 / 12) || 0))
+                  .toFixed(0)}%
+              </Col>
+            </Row>
+          </div>
+
+          {/*----------------------*/}
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:
+                </div>
+                <div
+                  className={
+                    'ResultPage__content-text-result' +
+                    this.getModif(Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
+                      .toFixed(0))
+                  }
+                >
+                  {
+                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
+                      .toFixed(0)
+                  }%
+                </div>
+              </div>
+            </Col>
+
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:
+                </div>
+                <div
+                  className={
+                    'ResultPage__content-text-result' +
+                    this.getModif(
+                      Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
+                        .toFixed(0)
+                    )
+                  }
+                >
+                  {
+                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
+                      .toFixed(0)
+                  }%
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*----------------------*/}
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
+                </div>
+                <div className="ResultPage__content-text-result">
+                  {
+                    ((this.state.arbiterCap === 0)
+                        ? 0
+                        : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
+                    ).toFixed(0)
+                  }%
+                </div>
+              </div>
+            </Col>
+
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Arbitrage count:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  {this.getArbitrationListLen()}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*-----------------------*/}
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Total Arbiter transactions fee:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  ${this.state.arbiterTotalTxFee.toFixed(0)}
+                </div>
+              </div>
+            </Col>
+
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Average Arbiter transactions fee:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  ${(this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)).toFixed(3)}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*-----------------------*/}
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Total Arbiter profit:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  ${this.state.arbiterProfit.toFixed(0)}
+                </div>
+              </div>
+            </Col>
+
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Average Arbiter profit:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  ${(this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3)}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*-----------------------*/}
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  BTC count:
+                </div>
+                <div className="ResultPage__content-text-result">
+                  {this.state.btcCount}
+                </div>
+              </div>
+            </Col>
+
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  BTC CAP
+                </div>
+                <div className="ResultPage__content-text-result">
+                  ${this.state.btcUSDT.toFixed(2)}
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*-----------------------*/}
+
+          <div style={{textAlign: 'center'}}>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => {
+                const {history} = this.props;
+                history.goBack();
+              }}
+            >
+              Edit options
+            </Button>
+          </div>
+
+        </PageContent>
+
+        <PageContent className="ResultPage__content">
+          <div className="ResultPage__result-chart">
+            <span className="ResultPage__result-chart-title">Tokens history price $</span>
             <HistoryChart
               data={this.state.tokensHistory}
               colors={this.COLORS}
@@ -256,33 +391,58 @@ export default class ResultPage extends React.Component<Props, State> implements
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
             />
+            <div className="ResultPage__result-legend">
+              <TokensLegendList
+                style={LegendStyle.LINE}
+                columnCount={4}
+                data={this.state.tokensLegend}
+              />
+            </div>
           </div>
+        </PageContent>
 
+        <PageContent className="ResultPage__content">
           <div className="ResultPage__result-chart">
-            <b>
+            <span className="ResultPage__result-chart-title">
               Manipulation by the arbitrators (cap)$<br/>
               (Operations count: {this.getArbitrationListLen()})
-            </b>
+            </span>
             <ArbiterChart
               data={this.state.arbitrationList}
               colors={this.COLORS}
               showRange={false}
             />
+            <div className="ResultPage__result-legend">
+              <TokensLegendList
+                style={LegendStyle.LINE}
+                columnCount={4}
+                data={this.state.tokensLegend}
+              />
+            </div>
           </div>
+        </PageContent>
 
+        <PageContent className="ResultPage__content">
           <div className="ResultPage__result-chart">
-            <b>
+            <span className="ResultPage__result-chart-title">
               Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
               (Operations count:{this.getArbitrationListLen()})
-            </b>
+            </span>
             <TokensCapChart
               data={this.state.arbitrationList}
               colors={this.COLORS}
               showRange={false}
             />
+            <div className="ResultPage__result-legend">
+              <TokensLegendList
+                style={LegendStyle.LINE}
+                columnCount={4}
+                data={this.state.tokensLegend}
+              />
+            </div>
           </div>
-
         </PageContent>
+
         <ProgressDialog
           openDialog={this.state.showCalculationProgress}
           percentProgress={this.state.progressPercents}
@@ -290,6 +450,17 @@ export default class ResultPage extends React.Component<Props, State> implements
 
       </Layout>
     );
+  }
+
+  private getModif(value: string): string {
+    if (parseFloat(value) > 0) {
+      return '_success';
+
+    } else if (parseFloat(value) === 0) {
+      return '';
+    }
+
+    return '_warn';
   }
 
   private calcCountDays(): number {
@@ -374,7 +545,7 @@ export default class ResultPage extends React.Component<Props, State> implements
     //     showCalculationProgress: false,
     //   }))
     //   .then(() => this.tokenManager.calculateCap(true))
-    //   .then(cap => Promise.resolve(this.setState({cap})));
+    //   .then(resultCap => Promise.resolve(this.setState({cap: resultCap})));
   }
 
 }

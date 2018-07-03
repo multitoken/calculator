@@ -7,7 +7,7 @@ import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { TokenManager } from '../../manager/TokenManager';
-import { TokensIconHelper } from '../../utils/TokensIconHelper';
+import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
@@ -86,7 +86,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.availableTokensMap = tokens;
 
     const entities: TokenItemEntity[] = Array.from(tokens.keys())
-      .map(value => new TokenItemEntity(TokensIconHelper.getIcon(value), value));
+      .map(value => new TokenItemEntity(TokensHelper.getIcon(value), value));
 
     this.setState({availableTokenNames: entities});
   }

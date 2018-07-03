@@ -1,22 +1,25 @@
-import { ListGridType } from 'antd/lib/list';
+import { ColumnCount, ListGridType } from 'antd/lib/list';
 import * as React from 'react';
 import { TokenLegend } from '../../../entities/TokenLegend';
-import { TokenLegendHolder } from '../../holders/legend/TokenLegendHolder';
+import { LegendStyle, TokenLegendHolder } from '../../holders/legend/TokenLegendHolder';
 import AbstractList, { AbstractProperties } from '../AbstractList';
 import './TokensLegendList.less';
 
 interface Properties extends AbstractProperties<TokenLegend> {
+  columnCount: ColumnCount;
+  style?: LegendStyle;
 }
 
 export class TokensLegendList extends AbstractList<Properties, TokenLegend, {}> {
 
   protected getGridType(): ListGridType | undefined {
-    return {gutter: 1, column: 2};
+    return {gutter: 1, column: this.props.columnCount};
   }
 
   public bindHolder(dataItem: TokenLegend, position: number): object {
     return (
       <TokenLegendHolder
+        style={this.props.style}
         model={dataItem}
         key={position}
       />

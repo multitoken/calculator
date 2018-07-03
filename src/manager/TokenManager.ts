@@ -1,7 +1,7 @@
 import { Arbitration } from '../repository/models/Arbitration';
-import Pair from '../repository/models/Pair';
-import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../repository/models/TokenProportion';
+import { TokenWeight } from '../repository/models/TokenWeight';
 import { ProgressListener } from './ProgressListener';
 
 export interface TokenManager {
@@ -16,13 +16,19 @@ export interface TokenManager {
 
   setCommission(commissionPercents: number): void;
 
-  changeProportions(proportions: Map<string, number>): void;
+  getCommission(): number;
 
-  getExchangedWeights(): Map<number, Pair<Token, Token>>;
+  changeProportions(proportions: TokenProportion[]): void;
 
-  setExchangeWeights(tokenWeights: Map<number, Pair<Token, Token>>): void;
+  getProportions(): TokenProportion[];
+
+  getExchangedWeights(): TokenWeight[];
+
+  setExchangeWeights(tokenWeights: TokenWeight[]): void;
 
   changeCalculationDate(indexStart: number, indexEnd: number): void;
+
+  getCalculationDate(): number | [number, number];
 
   getMaxCalculationIndex(): number;
 
