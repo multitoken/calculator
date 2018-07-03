@@ -12,6 +12,10 @@ interface Properties extends AbstractProperties<TokenProportion> {
 
 export class TokensProportionsList extends AbstractList<Properties, TokenProportion, {}> {
 
+  protected getListName(): string {
+    return 'TokensProportionsList';
+  }
+
   public bindHolder(dataItem: TokenProportion, position: number): object {
     return (
       <TokenProportionHolder

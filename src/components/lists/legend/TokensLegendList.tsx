@@ -16,6 +16,10 @@ export class TokensLegendList extends AbstractList<Properties, TokenLegend, {}> 
     return {gutter: 1, column: this.props.columnCount};
   }
 
+  protected getListName(): string {
+    return 'TokenLegendHolder';
+  }
+
   public bindHolder(dataItem: TokenLegend, position: number): object {
     return (
       <TokenLegendHolder
