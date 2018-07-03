@@ -106,7 +106,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       // Redirect to root
-      // window.location.replace('/arbitrator-simulator');
+      window.location.replace('/arbitrator-simulator');
     }
 
     this.tokenManager
@@ -506,46 +506,46 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private processCalculate() {
-    // this.tokenManager
-    //   .getBtcPrice()
-    //   .then(btcusdt => {
-    //     const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
-    //     const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
-    //     console.log(
-    //       this.state.historyChartRangeDateIndex[0],
-    //       this.state.historyChartRangeDateIndex[1],
-    //       btcusdt[this.state.historyChartRangeDateIndex[0]].value,
-    //       btcusdt[this.state.historyChartRangeDateIndex[1]].value
-    //     );
-    //     this.setState({btcCount: count, btcUSDT: btcUsdt});
-    //
-    //     return this.tokenManager.calculateInitialAmounts();
-    //   })
-    //   .then(() => this.tokenManager.calculateArbitration())
-    //   .then(result => {
-    //     this.setState({arbitrationList: result});
-    //     console.log(result);
-    //     let profit: number = 0;
-    //     let totalTxPrice: number = 0;
-    //
-    //     result.forEach(value => {
-    //       profit += value.arbiterProfit;
-    //       totalTxPrice += value.txPrice;
-    //     });
-    //
-    //     this.setState({
-    //       arbiterProfit: profit,
-    //       arbiterTotalTxFee: totalTxPrice,
-    //     });
-    //
-    //     return this.tokenManager.calculateCap(false);
-    //   })
-    //   .then(cap => this.setState({
-    //     arbiterCap: cap,
-    //     showCalculationProgress: false,
-    //   }))
-    //   .then(() => this.tokenManager.calculateCap(true))
-    //   .then(resultCap => Promise.resolve(this.setState({cap: resultCap})));
+    this.tokenManager
+      .getBtcPrice()
+      .then(btcusdt => {
+        const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
+        const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
+        console.log(
+          this.state.historyChartRangeDateIndex[0],
+          this.state.historyChartRangeDateIndex[1],
+          btcusdt[this.state.historyChartRangeDateIndex[0]].value,
+          btcusdt[this.state.historyChartRangeDateIndex[1]].value
+        );
+        this.setState({btcCount: count, btcUSDT: btcUsdt});
+
+        return this.tokenManager.calculateInitialAmounts();
+      })
+      .then(() => this.tokenManager.calculateArbitration())
+      .then(result => {
+        this.setState({arbitrationList: result});
+        console.log(result);
+        let profit: number = 0;
+        let totalTxPrice: number = 0;
+
+        result.forEach(value => {
+          profit += value.arbiterProfit;
+          totalTxPrice += value.txPrice;
+        });
+
+        this.setState({
+          arbiterProfit: profit,
+          arbiterTotalTxFee: totalTxPrice,
+        });
+
+        return this.tokenManager.calculateCap(false);
+      })
+      .then(cap => this.setState({
+        arbiterCap: cap,
+        showCalculationProgress: false,
+      }))
+      .then(() => this.tokenManager.calculateCap(true))
+      .then(resultCap => Promise.resolve(this.setState({cap: resultCap})));
   }
 
 }
