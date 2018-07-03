@@ -1,0 +1,48 @@
+@import '../../../res/styles/Colors';
+
+.TokenNameHolder__content {
+  height: 60px;
+  max-width: 495px;
+  min-width: 190px;
+  border-radius: 5px;
+  background-color: @content-color;
+  border: solid 1px @border;
+  line-height: 60px;
+  padding: 0 20px 0 14px;
+  cursor: pointer;
+}
+
+.TokenNameHolder__icon {
+  width: 36px;
+  height: 36px;
+}
+
+.TokenNameHolder__name {
+  margin-left: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: lighter;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-dark;
+}
+
+.TokenNameHolder__name__checked {
+  .TokenNameHolder__name;
+  color: @text-color-light;
+}
+
+.TokenNameHolder__checkbox {
+  float: right;
+}
+
+.ant-checkbox-inner {
+  width: 14px;
+  height: 14px;
+}
+
+.ant-checkbox-inner:after {
+  left: 3.57142857px;
+  top: 0.9px;
+}

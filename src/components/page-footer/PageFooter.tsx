@@ -10,9 +10,7 @@ export default class PageFooter extends React.Component {
     const versionText = version || 'undefined';
     const versionLink = `https://github.com/MultiTKN/arbitrator-simulator/tree/v${version}`;
     return (
-      <Footer
-        style={{textAlign: 'center', background: '#f5f8fa'}}
-      >
+      <Footer className="PageFooter__content">
         MultiTKN&nbsp;©2018&nbsp;
         <code className="PageFooter-version">
           {version ?

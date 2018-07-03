@@ -1,4 +1,5 @@
 import { List } from 'antd';
+import { ListGridType } from 'antd/lib/list';
 import * as React from 'react';
 import './AbstractList.less';
 
@@ -13,24 +14,42 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
   public render() {
     return (
       <div
-        className={this.props.bordered ? 'AbstractList__content-bordered' : ''}
+        className={
+          this.props.bordered
+            ? `AbstractList__content-bordered ${this.constructor.name}__content`
+            : `AbstractList__content ${this.constructor.name}__content`
+        }
         style={{maxHeight: this.props.maxHeight}}
       >
         <div>
           <List
-            itemLayout="horizontal"
-            dataSource={this.props.data}
-            renderItem={(item: M, index: number) => this.bindHolder(item, index)}
+            grid={this.getGridType()}
+            dataSource={this.getData()}
+            renderItem={(item: M, index: number) => {
+              return (
+                <List.Item>
+                  {this.bindHolder(item, index)}
+                </List.Item>
+              );
+            }}
           />
         </div>
       </div>
     );
   }
 
-  protected prepareEmptyList() {
-    return <div className="">List is empty</div>;
+  protected getData(): M[] {
+    return this.props.data;
   }
 
-  public abstract bindHolder(dataItem: M, position: number): object;
+  protected getGridType(): ListGridType | undefined {
+    return undefined;
+  }
+
+  protected getItemLayout(): string | undefined {
+    return 'vertical';
+  }
+
+  protected abstract bindHolder(dataItem: M, position: number): object;
 
 }

@@ -7,6 +7,8 @@ import { Arbitration } from '../repository/models/Arbitration';
 import Pair from '../repository/models/Pair';
 import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../repository/models/TokenProportion';
+import { TokenWeight } from '../repository/models/TokenWeight';
 import { ProgressListener } from './ProgressListener';
 import { TokenManager } from './TokenManager';
 
@@ -25,14 +27,32 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private maxCalculationIndex: number;
   private commissionPercent: number;
   private listener: ProgressListener;
+  private amount: number;
+  private proportions: TokenProportion[];
+  private tokenWeights: TokenWeight[];
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
+    this.amount = 10000;
+    this.commissionPercent = 0.20;
+    this.proportions = [];
+    this.tokenWeights = [];
+    this.startCalculationIndex = 0;
+    this.endCalculationIndex = 0;
+    this.maxCalculationIndex = 0;
     this.cryptocurrencyRepository = cryptocurrencyRepository;
     this.listener = this;
   }
 
   public async getBtcPrice(): Promise<TokenPriceHistory[]> {
     return this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
+  }
+
+  public setAmount(amount: number): void {
+    this.amount = amount;
+  }
+
+  public getAmount(): number {
+    return this.amount;
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
@@ -76,22 +96,33 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.commissionPercent = commissionPercents;
   }
 
-  public changeProportions(proportions: Map<string, number>) {
-    proportions.forEach((value, key) => {
-      console.log('set weight', key, value);
-      this.tokensWeight.set(key, value);
-      this.tokensWeightFixed.set(key, value);
+  public getCommission(): number {
+    return this.commissionPercent;
+  }
+
+  public changeProportions(proportions: TokenProportion[]) {
+    proportions.forEach((token) => {
+      console.log('set weight', token.name, token.weight);
+      this.tokensWeight.set(token.name, token.weight);
+      this.tokensWeightFixed.set(token.name, token.weight);
+      this.proportions = proportions;
     });
   }
 
-  public getExchangedWeights(): Map<number, Pair<Token, Token>> {
-    return this.tokensWeightTimeline;
+  public getProportions(): TokenProportion[] {
+    return this.proportions;
   }
 
-  public setExchangeWeights(tokenWeights: Map<number, Pair<Token, Token>>): void {
+  public getExchangedWeights(): TokenWeight[] {
+    return this.tokenWeights;
+  }
+
+  public setExchangeWeights(tokenWeights: TokenWeight[]): void {
     this.tokensWeightTimeline.clear();
-    tokenWeights.forEach((value, key) => {
-      this.tokensWeightTimeline.set(key, value);
+    this.tokenWeights = tokenWeights;
+
+    tokenWeights.forEach((weights) => {
+      this.tokensWeightTimeline.set(weights.index, weights.tokens);
     });
   }
 
@@ -109,6 +140,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     }
   }
 
+  public getCalculationDate(): number | [number, number] {
+    return [this.startCalculationIndex, this.endCalculationIndex];
+  }
+
   public getMaxCalculationIndex(): number {
     return this.maxCalculationIndex;
   }
@@ -121,7 +156,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     return this.cryptocurrencyRepository.getAvailableCurrencies();
   }
 
-  public async calculateInitialAmounts(amount: number): Promise<Map<string, number>> {
+  public async calculateInitialAmounts(): Promise<Map<string, number>> {
     const result: Map<string, number> = new Map();
     let maxProportions: number = 0;
 
@@ -129,7 +164,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       maxProportions += value;
     });
 
-    const actualAmount: BigNumber = new BigNumber(amount);
+    const actualAmount: BigNumber = new BigNumber(this.amount);
 
     this.selectedTokensHistory
       .forEach((value, key) => {
@@ -321,7 +356,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   }
 
   private applyCustomProportions(indexOfHistory: number, weights: Map<string, number>, amounts: Map<string, number>) {
-    const proportions: Pair<Token, Token> | undefined = this.getExchangedWeights().get(indexOfHistory);
+    const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeline.get(indexOfHistory);
     if (!proportions) {
       return;
     }
@@ -372,7 +407,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
                                       historyPrice: Map<string, number>,
                                       weights: Map<string, number>,
                                       amounts: Map<string, number>) {
-    const proportions: Pair<Token, Token> | undefined = this.getExchangedWeights().get(indexOfHistory);
+    const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeline.get(indexOfHistory);
     if (!proportions) {
       return;
     }

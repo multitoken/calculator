@@ -1,0 +1,128 @@
+@import "../../res/styles/Colors";
+
+.ResultPage__header {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.ResultPage__content {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 40px 40px 20px;
+}
+
+.ResultPage__content-block {
+  height: 70px;
+  border-radius: 8px;
+  background-color: @content-color;
+  border: solid 1.1px @border-dark;
+  padding: 3px 11px;
+  margin-bottom: 20px;
+}
+
+.ResultPage__content-block-profit {
+  .ResultPage__content-block;
+  height: 140px;
+}
+
+.ResultPage__content-text-title {
+  font-family: 'Roboto',  sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-dark;
+}
+
+.ResultPage__content-text-result {
+  .ResultPage__content-text-title;
+  font-size: 24px;
+  font-weight: 300;
+  color: @text-color-light;
+  margin-top: 10px;
+}
+
+.ResultPage__content-text-result_success {
+  .ResultPage__content-text-result;
+  color: @text-color-success;
+}
+
+.ResultPage__content-text-result_warn {
+  .ResultPage__content-text-result;
+  color: @text-color-warn;
+}
+
+.ResultPage__content-text-result_big {
+  .ResultPage__content-text-result;
+  font-size: 48px;
+  margin-top: 20px;
+}
+
+.ResultPage__content-text-result_big_success {
+  .ResultPage__content-text-result_big;
+  color: @text-color-success;
+}
+
+.ResultPage__content-text-result_big_warn {
+  .ResultPage__content-text-result_big;
+  color: @text-color-warn;
+}
+
+.ResultPage__result-legend {
+  margin: 40px 65px 20px;
+}
+
+
+.ResultPage__result-name {
+  .ResultPage__header;
+  font-size: 18px;
+  font-weight: 300;
+  margin-top: 0;
+  text-align: left;
+  float: left;
+  min-width: 400px;
+}
+
+.ResultPage__result-value {
+  .ResultPage__header;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: lighter;
+  color: #8e9eb2;
+  margin-top: 0;
+}
+
+.ResultPage__options-title {
+  .ResultPage__header;
+  text-align: left;
+  font-size: 18px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.ResultPage__chart-title {
+  .ResultPage__header;
+  font-size: 18px;
+  font-weight: 300;
+  margin-top: 0;
+}
+
+.ResultPage__result-chart {
+  .ResultPage__header;
+  margin-top: 0;
+  text-align: left;
+  font-size: 18px;
+}
+.ResultPage__result-chart-title {
+  display: block;
+  margin-bottom: 10px;
+}

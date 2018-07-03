@@ -1,22 +1,33 @@
-import { scaleLog } from 'd3-scale';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis
+} from 'recharts';
 
 export enum ChartType {
   LINES,
   BAR,
-  BAR_STACKED
+  BAR_STACKED,
+  PIPE,
 }
 
 export interface AbstractProperties<M> {
   data: M;
   applyScale?: boolean;
   colors: string[];
-  width: number;
-  height: number;
-  showRange: boolean;
+  showRange?: boolean;
   type?: ChartType;
+  aspect?: number;
 }
 
 export interface AbstractState {
@@ -26,7 +37,6 @@ export interface AbstractState {
 export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
   extends React.Component<P, any> {
 
-  public static SCALE: any = scaleLog().base(Math.E);
   public data: any[];
   public isChangedData: boolean = false;
 
@@ -50,7 +60,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public render() {
     return (
       <div>
-        <ResponsiveContainer aspect={5}>
+        <ResponsiveContainer aspect={this.props.aspect === undefined ? 5 : this.props.aspect}>
           {this.prepareChart()}
         </ResponsiveContainer>
         {this.prepareRangeComponent()}
@@ -62,6 +72,20 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   public abstract getNames(): string[];
 
+  protected prepareData(): any[] {
+    if (this.isChangedData) {
+      this.data = this.parseData(this.props.data);
+      this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});
+
+      return [];
+    }
+
+    const min: number = (this.state.calculateRangeIndex as Range).min;
+    const max: number = (this.state.calculateRangeIndex as Range).max;
+
+    return min !== 0 && max !== 1 ? this.data.slice(min, max) : this.data;
+  }
+
   private prepareChart() {
     switch (this.props.type) {
       case ChartType.LINES:
@@ -70,6 +94,9 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
       case ChartType.BAR_STACKED:
       case ChartType.BAR:
         return this.prepareBarChart(this.props.type);
+
+      case ChartType.PIPE:
+        return this.preparePipeChart();
 
       default:
         return this.prepareLineChart();
@@ -84,9 +111,11 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           zIndex: 1,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3"/>
-        <XAxis dataKey="date"/>
-        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
+        <YAxis
+          allowDecimals={true}
+          scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}
+        />
         <Tooltip/>
         {this.prepareLines()}
       </LineChart>
@@ -101,27 +130,32 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           zIndex: 1,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3"/>
-        <XAxis dataKey="date"/>
-        <YAxis scale={this.props.applyScale === false ? undefined : AbstractChart.SCALE} domain={['auto', 'auto']}/>
+        <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
+        <YAxis scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}/>
         <Tooltip/>
         {type === ChartType.BAR ? this.prepareBars() : this.prepareBarsStacked()}
       </BarChart>
     );
   }
 
-  private prepareData(): any[] {
-    if (this.isChangedData) {
-      this.data = this.parseData(this.props.data);
-      this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});
-
-      return [];
-    }
-
-    const min: number = (this.state.calculateRangeIndex as Range).min;
-    const max: number = (this.state.calculateRangeIndex as Range).max;
-
-    return min !== 0 && max !== 1 ? this.data.slice(min, max) : this.data;
+  private preparePipeChart(): any {
+    const data: any[] = this.prepareData();
+    return (
+      <PieChart
+        style={{
+          zIndex: 1,
+        }}
+      >
+        <Pie
+          dataKey="value"
+          data={data}
+          innerRadius={60}
+          outerRadius={85}
+        >
+          {data.map((entry, index) => <Cell key={index} fill={this.props.colors[index]}/>)}
+        </Pie>
+      </PieChart>
+    );
   }
 
   private prepareRangeComponent(): any {
@@ -129,7 +163,6 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
       ? (
         <div style={{
           padding: '25px 50px 50px',
-          width: this.props.width,
         }}
         >
           <InputRange
@@ -157,6 +190,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
       .map((value, index) => {
         return (
           <Line
+            strokeWidth={2}
             type="monotone"
             key={value}
             dataKey={value}

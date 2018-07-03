@@ -1,0 +1,43 @@
+@import "../../../res/styles/Colors";
+
+.TokenWeight__content {
+  border-radius: 8px;
+  background-color: @content-color;
+  border: solid 1.2px @border-dark;
+  width: 160px;
+  height: 70px;
+  padding: 3px 4px 0 7px;
+  margin-right: 20px;
+}
+
+.TokenWeight__content-data {
+  float: left;
+  width: 130px;
+}
+
+.TokenWeight__content-actions {
+  float: right;
+  margin-top: -3px;
+}
+
+.TokenWeight__item-date {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-dark;
+}
+
+.TokenWeight__item-key {
+  .TokenWeight__item-date;
+  font-weight: lighter;
+  color: @text-color-light;
+}
+
+.TokenWeight__item-value {
+  .TokenWeight__item-key;
+  float: right;
+}

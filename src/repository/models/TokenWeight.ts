@@ -3,6 +3,8 @@ import { Token } from './Token';
 
 export class TokenWeight {
 
+  public static readonly EMPTY: TokenWeight = new TokenWeight(new Pair(Token.EMPTY, Token.EMPTY), [], -1, -1);
+
   public tokens: Pair<Token, Token>;
   public otherTokens: Token[];
   public timestamp: number;
@@ -22,6 +24,15 @@ export class TokenWeight {
       tokenWeight.index === this.index &&
       tokenWeight.tokens.first === this.tokens.second &&
       tokenWeight.tokens.second === this.tokens.second;
+  }
+
+  public isEmpty(): boolean {
+    const tokensEmpty: boolean = this.tokens
+      .toArray()
+      .map(value => value.isEmpty())
+      .indexOf(false) === -1;
+
+    return tokensEmpty && this.otherTokens.length <= 0 && this.index <= -1 && this.timestamp <= 0;
   }
 
 }

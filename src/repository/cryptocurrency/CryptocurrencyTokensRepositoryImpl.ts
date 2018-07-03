@@ -5,12 +5,12 @@ import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyRepository {
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
-    ['USD', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
+    ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
     ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX']
   ]);
 
   private readonly BTC_VALUES: Map<string, any> = new Map([
-    ['Bitcoin', 'btcusd'], ['USD', 'usdbtc'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
+    ['Bitcoin', 'btcusd'], ['USDT', 'usdbtc'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
     ['VeChain', 'venbtc'], ['Binance', 'bnbbtc'], ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'],
     ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
   ]);

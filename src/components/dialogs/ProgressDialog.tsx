@@ -33,7 +33,7 @@ export class ProgressDialog extends React.Component<Properties, {}> {
 
     return (
       <div>
-        <h4>Please wait few seconds.</h4>
+        <p style={{fontSize: '25px'}}>Please wait few seconds.</p>
         <p><b>We setup data in charts...</b></p>
       </div>
     );

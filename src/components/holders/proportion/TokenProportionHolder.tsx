@@ -1,9 +1,9 @@
 import { Col, Row } from 'antd';
 import * as React from 'react';
-import { TokenProportion } from '../../repository/models/TokenProportion';
-import StepInteger from '../step-integer/StepInteger';
-import AbstractHolder, { AbstractProperties } from './AbstractHolder';
-import './TokenProportion.less';
+import { TokenProportion } from '../../../repository/models/TokenProportion';
+import StepInteger from '../../step-integer/StepInteger';
+import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
+import './TokenProportionHolder.less';
 
 export interface Properties extends AbstractProperties<TokenProportion> {
   disabled: boolean;
@@ -26,7 +26,7 @@ export class TokenProportionHolder extends AbstractHolder<Properties, State, Tok
 
   public bindModel(model: TokenProportion): object {
     return (
-      <div>
+      <div style={{width: '100%'}}>
         <div>
           <Row>
             <Col className="TokenProportion__title" span={12}>{model.name} weight:</Col>

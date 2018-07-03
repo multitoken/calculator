@@ -1,18 +1,22 @@
+@import '../../res/styles/Colors.less';
+
 .PageHeader {
-  color: #000000;
+  color: @text-color-light;
   height: 80px;
   line-height: 75px;
-  background-color: #ffffff;
-  box-shadow: 0.3px 5px 10px 0 rgba(203, 230, 244, 0.2);
+  background-color: @content-color;
   padding: 0 20px;
+  display: flow-root;
+  white-space: nowrap;
 }
 
 .PageHeader__logo {
-  margin-left: 4%;
+  margin-left: 30px;
 }
 
 .PageHeader__logo-img {
-  width: 52px;
+  width: 42px;
+  height: 40px;
   margin-right: 10px;
 }
 
@@ -21,12 +25,12 @@
 .PageHeader__logo-text:focus,
 .PageHeader__logo-text:active {
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: normal;
   font-style: normal;
   font-stretch: normal;
   line-height: normal;
-  letter-spacing: normal;
-  color: #000000;
+  letter-spacing: 0;
+  color: @text-color-light;
   text-decoration: none;
 }
