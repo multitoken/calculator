@@ -29,6 +29,10 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
     return {gutter: 1, column: 2};
   }
 
+  protected getListName(): string {
+    return 'TokensNamesList';
+  }
+
   protected bindHolder(dataItem: TokenItemEntity, position: number): object {
     return (
       <TokenNameHolder

@@ -16,8 +16,8 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
       <div
         className={
           this.props.bordered
-            ? `AbstractList__content-bordered ${this.constructor.name}__content`
-            : `AbstractList__content ${this.constructor.name}__content`
+            ? `AbstractList__content-bordered ${this.getListName()}__content`
+            : `AbstractList__content ${this.getListName()}__content`
         }
         style={{maxHeight: this.props.maxHeight}}
       >
@@ -49,6 +49,8 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
   protected getItemLayout(): string | undefined {
     return 'vertical';
   }
+
+  protected abstract getListName(): string;
 
   protected abstract bindHolder(dataItem: M, position: number): object;
 

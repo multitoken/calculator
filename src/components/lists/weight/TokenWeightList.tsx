@@ -36,6 +36,10 @@ export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
     return 'horizontal';
   }
 
+  protected getListName(): string {
+    return 'TokenWeightList';
+  }
+
   public bindHolder(dataItem: TokenWeight, position: number): object {
     if (dataItem.isEmpty()) {
       return (
