@@ -61,7 +61,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
       commissionPercents: this.tokenManager.getCommission(),
       historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
-      proportionList: this.tokenManager.getProportions(),
+      proportionList: [],
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -77,7 +77,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
   public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       // Redirect to root
-      // window.location.replace('/arbitrator-simulator');
+      window.location.replace('/arbitrator-simulator');
     }
 
     this.tokenManager
@@ -324,13 +324,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
     this.setState({tokensDate: history.map(value => value.time)});
 
-    // const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
-    // this.setState({
-    //   calculateMaxDateIndex: maxIndex || 0,
-    //   calculateRangeDateIndex: [0, maxIndex || 0],
-    //   historyChartRangeDateIndex: [0, maxIndex || 0]
-    // });
-
     this.setState({
       proportionList: proportions,
       tokenNames: tokenItems,
@@ -356,7 +349,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
   }
 
   private onCalculateClick() {
-    console.log(this.state.proportionList);
     this.tokenManager.changeProportions(this.state.proportionList);
 
     this.tokenManager.setExchangeWeights(this.state.tokensWeightList);
