@@ -1,8 +1,8 @@
 {
-  "main.css": "static/css/main.d5f3ac5b.css",
-  "main.css.map": "static/css/main.d5f3ac5b.css.map",
-  "main.js": "static/js/main.0c65ba13.js",
-  "main.js.map": "static/js/main.0c65ba13.js.map",
+  "main.css": "static/css/main.4f2b2480.css",
+  "main.css.map": "static/css/main.4f2b2480.css.map",
+  "main.js": "static/js/main.44050d88.js",
+  "main.js.map": "static/js/main.44050d88.js.map",
   "static\\media\\Roboto-Bold.eot": "static/media/Roboto-Bold.470488ec.eot",
   "static\\media\\Roboto-Bold.ttf": "static/media/Roboto-Bold.ee7b96fa.ttf",
   "static\\media\\Roboto-Bold.woff": "static/media/Roboto-Bold.5ed48907.woff",
@@ -12,5 +12,19 @@
   "static\\media\\Roboto-Regular.eot": "static/media/Roboto-Regular.947d4eb3.eot",
   "static\\media\\Roboto-Regular.ttf": "static/media/Roboto-Regular.3e1af3ef.ttf",
   "static\\media\\Roboto-Regular.woff": "static/media/Roboto-Regular.99433f7d.woff",
-  "static\\media\\logo-mtkn.svg": "static/media/logo-mtkn.f0f35a8b.svg"
+  "static\\media\\ae.svg": "static/media/ae.6da0e477.svg",
+  "static\\media\\bnb.svg": "static/media/bnb.12b439ab.svg",
+  "static\\media\\btc.svg": "static/media/btc.e0adcf1a.svg",
+  "static\\media\\eos.svg": "static/media/eos.1db93971.svg",
+  "static\\media\\eth.svg": "static/media/eth.892f3f34.svg",
+  "static\\media\\ico_delete.svg": "static/media/ico_delete.d4c6ecee.svg",
+  "static\\media\\ico_edit.svg": "static/media/ico_edit.c110cfe4.svg",
+  "static\\media\\icx.svg": "static/media/icx.f6dc6a0c.svg",
+  "static\\media\\logo.svg": "static/media/logo.2391e00e.svg",
+  "static\\media\\omg.svg": "static/media/omg.c6a8dc69.svg",
+  "static\\media\\trx.svg": "static/media/trx.3dd1e58d.svg",
+  "static\\media\\usdt.svg": "static/media/usdt.a1a30773.svg",
+  "static\\media\\ven.svg": "static/media/ven.7507efda.svg",
+  "static\\media\\zil.svg": "static/media/zil.ece8b591.svg",
+  "static\\media\\zrx.svg": "static/media/zrx.d36e0038.svg"
 }
