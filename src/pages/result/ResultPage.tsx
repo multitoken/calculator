@@ -1,6 +1,7 @@
-import { Button, Col, Layout, Row } from 'antd';
+import { BackTop, Button, Col, Layout, Row, Switch } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
 import { ArbiterChart } from '../../components/charts/ArbiterChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
@@ -39,6 +40,7 @@ interface State {
   cap: number;
   progressPercents: number;
   proportionList: TokenProportion[];
+  showCharts: boolean;
   showCalculationProgress: boolean;
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
@@ -58,6 +60,8 @@ export default class ResultPage extends React.Component<Props, State> implements
     '#DF8519', '#F44A8B', '#E53737', '#A227BB', '#2D9D5C', '#D2FF84',
   ];
 
+  private refsElements: { chart?: HTMLDivElement | null; } = {};
+
   @lazyInject(Services.TOKEN_MANAGER)
   private tokenManager: TokenManager;
 
@@ -73,7 +77,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       arbiterTotalTxFee: 0,
       arbitrationList: [],
       btcCount: 0,
-      btcUSDT: 0,
+      btcUSDT: this.tokenManager.getAmount(),
       calculateMaxDateIndex: 1,
       calculateRangeDateIndex: [0, 1],
       cap: this.tokenManager.getAmount(),
@@ -82,7 +86,8 @@ export default class ResultPage extends React.Component<Props, State> implements
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       proportionList: [],
-      showCalculationProgress: false,
+      showCalculationProgress: true,
+      showCharts: false,
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -124,164 +129,163 @@ export default class ResultPage extends React.Component<Props, State> implements
       >
         <PageHeader/>
         <PageContent className="ResultPage__content">
-
+          <div className="ResultPage__content-text-caption">The results of the portfolio with auto rebalancing</div>
           <div className="ResultPage__content-block-profit">
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
-                Result cap with arbitrage:
+                Portfolio capitalization:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Profit with arbitrage:
+                Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Annual percentage:
+                Profit for the {this.calcCountDays()} days / annual:
               </Col>
             </Row>
             <Row>
-              <Col span={8} className={'ResultPage__content-text-result_big'}>
-                ${this.state.arbiterCap.toFixed(0)}
-              </Col>
               <Col
                 span={8}
-                className={
-                  'ResultPage__content-text-result_big' +
-                  this.getModif((this.state.arbiterCap - this.state.amount).toFixed(0))
-                }
+                className={'ResultPage__content-text-result_big' + this.getModif(this.profitWithRebalance())}
               >
-                ${(this.state.arbiterCap - this.state.amount).toFixed(0)}
+                ${this.capWithRebalance()}
               </Col>
               <Col
                 span={8}
-                className={
-                  'ResultPage__content-text-result_big' +
-                  this.getModif(
-                    (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100 / 12) || 0).toFixed(0)
-                  )
-                }>
-                {(((this.state.arbiterCap - this.state.amount) / this.state.amount * 100 / 12) || 0).toFixed(0)}%
+                className={'ResultPage__content-text-result_big' + this.getModif(this.profitWithRebalance())}
+              >
+                ${this.profitWithRebalance()}
+              </Col>
+              <Col
+                span={8}
+                className={'ResultPage__content-text-result_big' + this.getModif(this.profitPercentWithRebalance())}>
+                {this.profitPercentWithRebalance()}% / {this.profitPercentYearWithRebalance()}%
               </Col>
             </Row>
           </div>
 
-          {/*------------------*/}
+          {/*---------2---------*/}
+          <div className="ResultPage__content-text-caption">The difference in the percentage with</div>
+          <Row gutter={16}>
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  The portfolio without auto rebalancing:
+                </div>
+                <div className={'ResultPage__content-text-result' + this.profitPercentsWithoutRebalance()}>
+                  {this.profitPercentsWithoutRebalance()}%
+                </div>
+              </div>
+            </Col>
 
+            <Col span={12}>
+              <div className="ResultPage__content-block">
+                <div className="ResultPage__content-text-title">
+                  Portfolio from bitcoin only:
+                </div>
+                <div className={'ResultPage__content-text-result' + this.profitPercentBitcoin()}>
+                  {this.profitPercentBitcoin()}%
+                </div>
+              </div>
+            </Col>
+          </Row>
+
+          {/*----------3------------*/}
+
+          <div className="ResultPage__content-text-caption">The results of the portfolio without auto rebalancing</div>
           <div className="ResultPage__content-block">
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
-                Result cap without arbitrage:
+                Portfolio capitalization:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Profit without arbitrage:
+                Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Annual percentage:
+                Profit for the {this.calcCountDays()} days / annual:
+              </Col>
+            </Row>
+            <Row>
+              <Col
+                span={8}
+                className={'ResultPage__content-text-result' + this.getModif(this.profitWithoutRebalance())}
+              >
+                ${this.capWithoutRebalance()}
+              </Col>
+              <Col
+                span={8}
+                className={'ResultPage__content-text-result' + this.getModif(this.profitWithoutRebalance())}
+              >
+                ${this.profitWithoutRebalance()}
+              </Col>
+              <Col
+                span={8}
+                className={'ResultPage__content-text-result' + this.getModif(this.profitPercentWithoutRebalance())}
+              >
+                {this.profitPercentWithoutRebalance()}% / {this.profitPercentYearWithoutRebalance()}%
+              </Col>
+            </Row>
+          </div>
+
+          {/*----------4------------*/}
+
+          <div className="ResultPage__content-text-caption">Portfolio from bitcoin only</div>
+          <div className="ResultPage__content-block">
+            <Row>
+              <Col span={8} className="ResultPage__content-text-title">
+                Portfolio capitalization:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Profit for the period:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Profit for the {this.calcCountDays()} days / annual:
               </Col>
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                ${this.state.cap.toFixed(0)}
+                ${this.capBtc()}
               </Col>
               <Col
                 span={8}
-                className={
-                  'ResultPage__content-text-result' +
-                  this.getModif((this.state.cap - this.state.amount).toFixed(0))
-                }
+                className={'ResultPage__content-text-result' + this.getModif(this.profitBtc())}
               >
-                ${(this.state.cap - this.state.amount).toFixed(0)}
+                ${this.profitBtc()}
               </Col>
               <Col
                 span={8}
-                className={
-                  'ResultPage__content-text-result' +
-                  this.getModif(
-                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100 / 12) || 0))
-                      .toFixed(0)
-                  )
-                }
+                className={'ResultPage__content-text-result' + this.getModif(this.profitPercentBtc())}
               >
-                {Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100 / 12) || 0))
-                  .toFixed(0)}%
+                {this.profitPercentBtc()}% / {this.profitPercentYearBtc()}%
               </Col>
             </Row>
           </div>
 
-          {/*----------------------*/}
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Profit percent. in {this.calcCountDays()} days <b>without</b> arbitrage:
-                </div>
-                <div
-                  className={
-                    'ResultPage__content-text-result' +
-                    this.getModif(Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
-                      .toFixed(0))
-                  }
-                >
-                  {
-                    Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100) || 0))
-                      .toFixed(0)
-                  }%
-                </div>
-              </div>
-            </Col>
-
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Profit percent. in {this.calcCountDays()} days <b>with</b> arbitrage:
-                </div>
-                <div
-                  className={
-                    'ResultPage__content-text-result' +
-                    this.getModif(
-                      Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
-                        .toFixed(0)
-                    )
-                  }
-                >
-                  {
-                    Math.max(0, (((this.state.arbiterCap - this.state.amount) / this.state.amount * 100) || 0))
-                      .toFixed(0)
-                  }%
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          {/*----------------------*/}
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Profit <b>diff</b> percent. in {this.calcCountDays()} days <b>with</b> arbitrage:&nbsp;
-                </div>
-                <div className="ResultPage__content-text-result">
-                  {
-                    ((this.state.arbiterCap === 0)
-                        ? 0
-                        : ((this.state.arbiterCap - this.state.cap) / this.state.cap * 100) || 0
-                    ).toFixed(0)
-                  }%
-                </div>
-              </div>
-            </Col>
-
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Arbitrage count:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  {this.getArbitrationListLen()}
-                </div>
-              </div>
-            </Col>
-          </Row>
+          {/*------------5-----------*/}
+          <div className="ResultPage__content-text-caption">Arbitrage transactions</div>
+          <div className="ResultPage__content-block">
+            <Row>
+              <Col span={8} className="ResultPage__content-text-title">
+                Transactions count:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Total Ethereum fee:
+              </Col>
+              <Col span={8} className="ResultPage__content-text-title">
+                Average Ethereum fee:
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8} className="ResultPage__content-text-result">
+                {this.state.arbitrationList.length}
+              </Col>
+              <Col span={8} className="ResultPage__content-text-result">
+                ${this.totalEthFee()}
+              </Col>
+              <Col span={8} className="ResultPage__content-text-result">
+                ${this.avgEthFee()}
+              </Col>
+            </Row>
+          </div>
 
           {/*-----------------------*/}
 
@@ -289,33 +293,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <Col span={12}>
               <div className="ResultPage__content-block">
                 <div className="ResultPage__content-text-title">
-                  Total Arbiter transactions fee:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  ${this.state.arbiterTotalTxFee.toFixed(0)}
-                </div>
-              </div>
-            </Col>
-
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Average Arbiter transactions fee:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  ${(this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1)).toFixed(3)}
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          {/*-----------------------*/}
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Total Arbiter profit:
+                  Total arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
                   ${this.state.arbiterProfit.toFixed(0)}
@@ -326,7 +304,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <Col span={12}>
               <div className="ResultPage__content-block">
                 <div className="ResultPage__content-text-title">
-                  Average Arbiter profit:
+                  The average arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
                   ${(this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3)}
@@ -337,33 +315,23 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*-----------------------*/}
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  BTC count:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  {this.state.btcCount}
-                </div>
-              </div>
-            </Col>
+          <div style={{textAlign: 'center', margin: '20px'}}>
+            <div className="ResultPage__content-switch-block">
+              <Switch
+                checkedChildren="Show charts"
+                unCheckedChildren="Hide charts"
+                onChange={checked => {
+                  this.setState({showCharts: checked});
+                  const div: HTMLDivElement = this.refsElements.chart ? this.refsElements.chart : new HTMLDivElement();
+                  const chart = ReactDOM.findDOMNode(div);
 
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  BTC CAP
-                </div>
-                <div className="ResultPage__content-text-result">
-                  ${this.state.btcUSDT.toFixed(2)}
-                </div>
-              </div>
-            </Col>
-          </Row>
+                  if (chart !== null && checked) {
+                    (chart as HTMLDivElement).scrollIntoView({block: 'start', behavior: 'smooth'});
+                  }
+                }}
+              />
+            </div>
 
-          {/*-----------------------*/}
-
-          <div style={{textAlign: 'center'}}>
             <Button
               type="primary"
               size="large"
@@ -388,8 +356,8 @@ export default class ResultPage extends React.Component<Props, State> implements
 
         </PageContent>
 
-        <PageContent className="ResultPage__content">
-          <div className="ResultPage__result-chart">
+        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
+          <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">Tokens history price $</span>
             <HistoryChart
               data={this.state.tokensHistory}
@@ -408,7 +376,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
         </PageContent>
 
-        <PageContent className="ResultPage__content">
+        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
           <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
               Manipulation by the arbitrators (cap)$<br/>
@@ -429,7 +397,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
         </PageContent>
 
-        <PageContent className="ResultPage__content">
+        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
           <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
               Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
@@ -455,15 +423,95 @@ export default class ResultPage extends React.Component<Props, State> implements
           percentProgress={this.state.progressPercents}
         />
 
+        <div>
+          <BackTop>
+            <div className="ant-back-top-inner">UP</div>
+          </BackTop>
+          Scroll down to see the bottom-right
+          <strong style={{color: '#1088e9'}}> blue </strong>
+          button.
+        </div>
       </Layout>
     );
   }
 
+  private capWithRebalance(): string {
+    return this.formatCurrency(this.state.arbiterCap.toFixed(0));
+  }
+
+  private profitWithRebalance(): string {
+    return this.formatCurrency((this.state.arbiterCap - this.state.amount).toFixed(0));
+  }
+
+  private profitPercentWithRebalance(): string {
+    return ((this.state.arbiterCap - this.state.amount) / this.state.amount * 100).toFixed(0);
+  }
+
+  private profitPercentYearWithRebalance(): string {
+    const diff: number = this.state.arbiterCap / this.state.amount;
+    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+  }
+
+  private profitPercentsWithoutRebalance(): string {
+    return ((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(0);
+  }
+
+  private profitPercentBitcoin(): string {
+    return ((this.state.btcUSDT - this.state.amount) / this.state.amount * 100).toFixed(0);
+  }
+
+  private capWithoutRebalance(): string {
+    return this.formatCurrency(this.state.cap.toFixed(0));
+  }
+
+  private profitWithoutRebalance(): string {
+    return this.formatCurrency((this.state.cap - this.state.amount).toFixed(0));
+  }
+
+  private profitPercentWithoutRebalance(): string {
+    return ((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(0);
+  }
+
+  private profitPercentYearWithoutRebalance(): string {
+    const diff: number = this.state.cap / this.state.amount;
+    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+  }
+
+  private totalEthFee(): string {
+    return this.formatCurrency(this.state.arbiterTotalTxFee.toFixed(0));
+  }
+
+  private avgEthFee(): string {
+    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1))).toFixed(3));
+  }
+
+  private capBtc(): string {
+    return this.formatCurrency(this.state.btcUSDT.toFixed(0));
+  }
+
+  private profitBtc(): string {
+    return this.formatCurrency((this.state.btcUSDT - this.state.amount).toFixed(0));
+  }
+
+  private profitPercentBtc(): string {
+    return ((this.state.btcUSDT - this.state.amount) / this.state.amount * 100).toFixed(0);
+  }
+
+  private profitPercentYearBtc(): string {
+    const diff: number = this.state.btcUSDT / this.state.amount;
+    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+  }
+
+  private formatCurrency(value: string): string {
+    return parseFloat(value).toLocaleString();
+  }
+
   private getModif(value: string): string {
-    if (parseFloat(value) > 0) {
+    const numb: number = parseFloat(value.replace(' ', ''));
+    if (numb > 0) {
       return '_success';
 
-    } else if (parseFloat(value) === 0) {
+    } else if (numb === 0) {
       return '';
     }
 

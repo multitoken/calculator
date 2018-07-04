@@ -152,7 +152,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
             />
           </PageContent>
           <PageContent className="CalculatorPage__content-right-top">
-            <div className="CalculatorPage__options-title">Tokens weight:</div>
+            <div className="CalculatorPage__options-title">Change token weight:</div>
             <div className="CalculatorPage__result-chart">
               <div style={{margin: '0px 20px 0px -20px'}}>
                 <WeightChart

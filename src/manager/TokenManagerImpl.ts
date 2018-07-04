@@ -216,7 +216,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 1000 === 0) {
         if (this.listener) {
-          this.listener.onProgress(Math.round(i / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100));
+          this.listener.onProgress(Math.round(
+            (i - this.startCalculationIndex) / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100
+            ));
         }
         await this.wait();
       }
