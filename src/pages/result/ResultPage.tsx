@@ -111,7 +111,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       // Redirect to root
-      window.location.replace('/arbitrator-simulator');
+      window.location.replace('/simulator');
     }
 
     this.tokenManager
@@ -344,7 +344,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               type="primary"
               size="large"
               onClick={() => {
-                window.location.replace('/arbitrator-simulator');
+                window.location.replace('/simulator');
               }}
             >
               Reset tokens
