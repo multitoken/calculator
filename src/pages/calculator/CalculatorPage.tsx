@@ -76,7 +76,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
   public componentDidMount(): void {
     if (this.tokenManager.getPriceHistory().size === 0) {
       // Redirect to root
-      window.location.replace('/arbitrator-simulator');
+      window.location.replace('/simulator');
     }
 
     this.tokenManager
