@@ -347,7 +347,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 window.location.replace('/simulator');
               }}
             >
-              Reset tokens
+              Start new
             </Button>
           </div>
 
@@ -471,7 +471,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearWithRebalance(): string {
     const diff: number = this.state.arbiterCap / this.state.amount;
-    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
   }
 
   private profitPercentsWithoutRebalance(): string {
@@ -496,7 +496,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearWithoutRebalance(): string {
     const diff: number = this.state.cap / this.state.amount;
-    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
   }
 
   private totalEthFee(): string {
@@ -521,7 +521,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearBtc(): string {
     const diff: number = this.state.btcUSDT / this.state.amount;
-    return Math.pow(diff, 365 / this.calcCountDays()).toFixed(0);
+    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
   }
 
   private formatCurrency(value: string): string {
