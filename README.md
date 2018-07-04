@@ -1,4 +1,4 @@
-# arbitrator-simulator
+# simulator
 Start project in project dir:
 ```sh
 $ npm install
