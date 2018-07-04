@@ -22,7 +22,6 @@ export class DateUtils {
   public static toFormat(value: number | object, format ?: DateTimeFormatOptions): string {
     const date: any = typeof value === 'number' ? new Date(value) : value;
 
-    console.log(date, value);
     if (typeof date !== 'object') {
       return '';
     }

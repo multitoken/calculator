@@ -48,7 +48,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     super(props);
 
     this.data = [];
-    this.isChangedData = false;
+    this.isChangedData = true;
 
     this.state = {
       calculateRangeIndex: {min: 0, max: 1}

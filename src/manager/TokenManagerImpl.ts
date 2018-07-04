@@ -17,6 +17,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
+  private btcHistoryPrice: TokenPriceHistory[] = [];
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensAmountFixed: Map<string, number> = new Map();
   private readonly tokensWeightFixed: Map<string, number> = new Map();
@@ -37,8 +38,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener = this;
   }
 
-  public async getBtcPrice(): Promise<TokenPriceHistory[]> {
-    return this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
+  public getBtcPrice(): TokenPriceHistory[] {
+    return this.btcHistoryPrice;
   }
 
   public setAmount(amount: number): void {
@@ -59,6 +60,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;
     this.resetDefaultValues();
+
+    this.btcHistoryPrice = await this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
 
     for (const item of tokenSymbols) {
       try {
@@ -210,6 +213,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const result: Arbitration[] = [];
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
+    const btcCount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
 
     this.listener.onProgress(1);
 
@@ -218,7 +222,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         if (this.listener) {
           this.listener.onProgress(Math.round(
             (i - this.startCalculationIndex) / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100
-            ));
+          ));
         }
         await this.wait();
       }
@@ -282,6 +286,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
         // console.log(profit.cheapTokenName, cheapPrice * profit.cheapTokensCount, cheapValue);
         // console.log(profit.expensiveTokenName, expensivePrice * profit.expensiveTokensCount, expValue);
+        const bitcoinCap: number = btcCount * this.btcHistoryPrice[i].value;
 
         const arb: Arbitration = new Arbitration(
           txPrice,
@@ -293,6 +298,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
           profit.profit,
           0,
           await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
+          bitcoinCap,
           new Map(),
           await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
           timestamp
@@ -324,6 +330,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       0,
       await this.calculateCapByHistory(this.tokensAmount, historyPerHour),
       await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
+      btcCount * this.btcHistoryPrice[this.endCalculationIndex].value,
       await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour),
       await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
       timestamp

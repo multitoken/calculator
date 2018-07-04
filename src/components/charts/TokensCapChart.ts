@@ -12,10 +12,10 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arb
       dataResult.date = value.timestamp;
 
       value.arbiterTokensCap.forEach((value2, key) => {
-        dataResult['arbiter' + key] = value2;
+        dataResult['arbiter' + key] = parseFloat(value2.toFixed(0));
       });
       value.originTokensCap.forEach((value2, key) => {
-        dataResult['origin' + key] = value2;
+        dataResult['origin' + key] = parseFloat(value2.toFixed(0));
       });
 
       return dataResult;

@@ -10,13 +10,15 @@ export class ArbiterChart extends AbstractChart<Properties, AbstractState, Arbit
     return data.map(value => {
       const copy: any = Object.assign({}, value);
       copy.date = value.timestamp;
-
+      copy.arbiterCap = parseFloat(copy.arbiterCap.toFixed(0));
+      copy.originCap = parseFloat(copy.originCap.toFixed(0));
+      copy['only Bitcoin'] = parseFloat(copy.bitcoinCap.toFixed(0));
       return copy;
     });
   }
 
   public getNames(): string[] {
-    return ['arbiterCap', 'originCap'];
+    return ['arbiterCap', 'originCap', 'only Bitcoin'];
   }
 
 }

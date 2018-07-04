@@ -322,11 +322,8 @@ export default class ResultPage extends React.Component<Props, State> implements
                 unCheckedChildren="Hide charts"
                 onChange={checked => {
                   this.setState({showCharts: checked});
-                  const div: HTMLDivElement = this.refsElements.chart ? this.refsElements.chart : new HTMLDivElement();
-                  const chart = ReactDOM.findDOMNode(div);
-
-                  if (chart !== null && checked) {
-                    (chart as HTMLDivElement).scrollIntoView({block: 'start', behavior: 'smooth'});
+                  if (checked) {
+                    this.scrollToCharts();
                   }
                 }}
               />
@@ -356,9 +353,32 @@ export default class ResultPage extends React.Component<Props, State> implements
 
         </PageContent>
 
-        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
+        {this.prepareChartsComponents()}
+        <ProgressDialog
+          openDialog={this.state.showCalculationProgress}
+          percentProgress={this.state.progressPercents}
+        />
+
+        <div>
+          <BackTop>
+            <div className="ant-back-top-inner">UP</div>
+          </BackTop>
+        </div>
+      </Layout>
+    );
+  }
+
+  private prepareChartsComponents(): any {
+    return (
+      <div
+        style={{
+          display: (this.state.showCharts || this.state.showCalculationProgress) ? 'block' : 'none',
+          zIndex: this.state.showCalculationProgress ? -1 : 0,
+        }}
+      >
+        <PageContent className="ResultPage__content">
           <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
-            <span className="ResultPage__result-chart-title">Tokens history price $</span>
+            <span className="ResultPage__result-chart-title">Currency price history $:</span>
             <HistoryChart
               data={this.state.tokensHistory}
               colors={this.COLORS}
@@ -376,11 +396,10 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
         </PageContent>
 
-        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
+        <PageContent className="ResultPage__content">
           <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
-              Manipulation by the arbitrators (cap)$<br/>
-              (Operations count: {this.getArbitrationListLen()})
+              Portfolio capitalization:
             </span>
             <ArbiterChart
               data={this.state.arbitrationList}
@@ -397,11 +416,10 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
         </PageContent>
 
-        <PageContent className="ResultPage__content" visibility={this.state.showCharts}>
+        <PageContent className="ResultPage__content">
           <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
-              Tokens history price when manipulation by the arbitrators (cap per token)$<br/>
-              (Operations count:{this.getArbitrationListLen()})
+              Capitalization of each token in the portfolio with and without arbitrage:
             </span>
             <TokensCapChart
               data={this.state.arbitrationList}
@@ -417,22 +435,26 @@ export default class ResultPage extends React.Component<Props, State> implements
             </div>
           </div>
         </PageContent>
-
-        <ProgressDialog
-          openDialog={this.state.showCalculationProgress}
-          percentProgress={this.state.progressPercents}
-        />
-
-        <div>
-          <BackTop>
-            <div className="ant-back-top-inner">UP</div>
-          </BackTop>
-          Scroll down to see the bottom-right
-          <strong style={{color: '#1088e9'}}> blue </strong>
-          button.
-        </div>
-      </Layout>
+      </div>
     );
+  }
+
+  private scrollToCharts() {
+    setTimeout(
+      () => {
+        if (this.refsElements.chart) {
+          const chart = ReactDOM.findDOMNode(this.refsElements.chart);
+
+          if (chart !== null) {
+            (chart as HTMLDivElement).scrollIntoView({block: 'center', behavior: 'smooth'});
+          }
+        } else {
+          this.scrollToCharts();
+        }
+      }
+      ,
+      200);
+
   }
 
   private capWithRebalance(): string {
@@ -550,10 +572,16 @@ export default class ResultPage extends React.Component<Props, State> implements
       historyChartRangeDateIndex: [0, maxIndex || 0]
     });
 
+    const historyMap: Map<string, TokenPriceHistory[]> = new Map();
+    this.tokenManager.getPriceHistory().forEach((value, key) => historyMap.set(key, value));
+
+    historyMap.set('Bitcoin', this.tokenManager.getBtcPrice()
+      .slice(this.state.historyChartRangeDateIndex[0], this.state.historyChartRangeDateIndex[1]));
+
     this.setState({
       proportionList: proportions,
       tokenNames: tokenItems,
-      tokensHistory: this.tokenManager.getPriceHistory(),
+      tokensHistory: historyMap,
       tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, this.COLORS[i])),
     });
 
@@ -561,21 +589,13 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private processCalculate() {
-    this.tokenManager
-      .getBtcPrice()
-      .then(btcusdt => {
-        const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
-        const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
-        console.log(
-          this.state.historyChartRangeDateIndex[0],
-          this.state.historyChartRangeDateIndex[1],
-          btcusdt[this.state.historyChartRangeDateIndex[0]].value,
-          btcusdt[this.state.historyChartRangeDateIndex[1]].value
-        );
-        this.setState({btcCount: count, btcUSDT: btcUsdt});
+    const btcusdt: TokenPriceHistory[] = this.tokenManager.getBtcPrice();
+    const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
+    const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
 
-        return this.tokenManager.calculateInitialAmounts();
-      })
+    this.setState({btcCount: count, btcUSDT: btcUsdt});
+
+    this.tokenManager.calculateInitialAmounts()
       .then(() => this.tokenManager.calculateArbitration())
       .then(result => {
         this.setState({arbitrationList: result});

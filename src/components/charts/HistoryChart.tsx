@@ -35,7 +35,7 @@ export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<s
       const dataResult: any = {data: ''};
       data.forEach((value, key) => {
         dataResult.date = value[i].time;
-        dataResult[key] = value[i].value;
+        dataResult[key] = parseFloat(value[i].value.toFixed(6));
       });
 
       result.push(dataResult);
