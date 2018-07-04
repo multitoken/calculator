@@ -1,6 +1,5 @@
 import { Token } from '../../repository/models/Token';
 import { TokenWeight } from '../../repository/models/TokenWeight';
-import { DateUtils } from '../../utils/DateUtils';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
 interface Properties extends AbstractProperties<TokenWeight[]> {
@@ -21,14 +20,13 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
   }
 
   public parseData(data: TokenWeight[]): any[] {
-    console.log('WeightChart');
-    const result: any[] = [{date: DateUtils.toStringDate(this.props.initialDate, DateUtils.DATE_FORMAT_SHORT)}];
+    const result: any[] = [{date: this.props.initialDate}];
 
     this.props.initialState.map(value => result[0][value.name] = value.weight);
 
     this.props.data.forEach(value => {
       const dataResult: any = {data: ''};
-      dataResult.date = DateUtils.toStringDate(value.timestamp, DateUtils.DATE_FORMAT_SHORT);
+      dataResult.date = value.timestamp;
       value.tokens.toArray().forEach((value2: Token) => {
         dataResult[value2.name] = value2.weight;
       });
@@ -41,7 +39,7 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
     });
 
     result.push(Object.assign({}, result[result.length - 1]));
-    result[result.length - 1].date = DateUtils.toStringDate(this.props.finishDate, DateUtils.DATE_FORMAT_SHORT);
+    result[result.length - 1].date = this.props.finishDate;
 
     return result;
   }

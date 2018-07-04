@@ -32,13 +32,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private tokenWeights: TokenWeight[];
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
-    this.amount = 10000;
-    this.commissionPercent = 0.20;
-    this.proportions = [];
-    this.tokenWeights = [];
-    this.startCalculationIndex = 0;
-    this.endCalculationIndex = 0;
-    this.maxCalculationIndex = 0;
+    this.resetDefaultValues();
     this.cryptocurrencyRepository = cryptocurrencyRepository;
     this.listener = this;
   }
@@ -64,6 +58,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;
+    this.resetDefaultValues();
 
     for (const item of tokenSymbols) {
       try {
@@ -353,6 +348,16 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public onProgress(percents: number): void {
     // only for implement null-object pattern
+  }
+
+  private resetDefaultValues(): void {
+    this.amount = 10000;
+    this.commissionPercent = 0.20;
+    this.proportions = [];
+    this.tokenWeights = [];
+    this.startCalculationIndex = 0;
+    this.endCalculationIndex = 0;
+    this.maxCalculationIndex = 0;
   }
 
   private applyCustomProportions(indexOfHistory: number, weights: Map<string, number>, amounts: Map<string, number>) {

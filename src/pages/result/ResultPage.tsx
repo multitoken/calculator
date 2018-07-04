@@ -123,9 +123,6 @@ export default class ResultPage extends React.Component<Props, State> implements
         }}
       >
         <PageHeader/>
-        <header className="ResultPage__header">
-          Result
-        </header>
         <PageContent className="ResultPage__content">
 
           <div className="ResultPage__content-block-profit">
@@ -199,7 +196,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                   'ResultPage__content-text-result' +
                   this.getModif(
                     Math.max(0, (((this.state.cap - this.state.amount) / this.state.amount * 100 / 12) || 0))
-                    .toFixed(0)
+                      .toFixed(0)
                   )
                 }
               >
@@ -376,6 +373,16 @@ export default class ResultPage extends React.Component<Props, State> implements
               }}
             >
               Edit options
+            </Button>
+            <span className="m-2"/>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => {
+                window.location.replace('/arbitrator-simulator');
+              }}
+            >
+              Reset tokens
             </Button>
           </div>
 

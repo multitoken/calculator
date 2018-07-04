@@ -1,5 +1,4 @@
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
-import { DateUtils } from '../../utils/DateUtils';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
 interface Properties extends AbstractProperties<Map<string, TokenPriceHistory[]>> {
@@ -35,7 +34,7 @@ export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<s
 
       const dataResult: any = {data: ''};
       data.forEach((value, key) => {
-        dataResult.date = DateUtils.toStringDate(value[i].time, DateUtils.DATE_FORMAT_SHORT);
+        dataResult.date = value[i].time;
         dataResult[key] = value[i].value;
       });
 

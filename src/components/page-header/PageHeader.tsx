@@ -12,7 +12,7 @@ export default class PageHeader extends React.Component {
       <Header className="PageHeader">
         <span className="PageHeader__logo">
           <img className="PageHeader__logo-img" alt="logo" src={Logo}/>
-          <Link to="/" className="PageHeader__logo-text">Automatic Rebalancing Simulator</Link>
+          <Link to="/" className="PageHeader__logo-text">Simulator</Link>
         </span>
       </Header>
     );
