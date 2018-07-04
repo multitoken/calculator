@@ -1,9 +1,8 @@
-import { Button, Col, InputNumber, Layout, Row, Slider } from 'antd';
+import { Button, InputNumber, Layout, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { ChartType } from '../../components/charts/AbstractChart';
-import { ProportionChart } from '../../components/charts/ProportionChart';
 import { WeightChart } from '../../components/charts/WeightChart';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
 import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
@@ -56,7 +55,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
     console.log(this.tokenManager.getCalculationDate());
     this.state = {
       amount: this.tokenManager.getAmount(),
-      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex(),
+      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex() - 1,
       calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
       changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
       commissionPercents: this.tokenManager.getCommission(),
@@ -94,9 +93,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
         }}
       >
         <PageHeader/>
-        <header className="CalculatorPage__header">
-          Options
-        </header>
         <div className="CalculatorPage__content">
           <PageContent className="CalculatorPage__content-left">
             <div className="CalculatorPage__options-title">Amount of money:&nbsp;</div>
@@ -126,7 +122,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
               </div>
               <div
                 style={{
-                  marginBottom: '30px',
+                  marginBottom: '10px',
                   width: '100%',
                 }}
               >
@@ -156,36 +152,9 @@ export default class CalculatorPage extends React.Component<Props, State> {
             />
           </PageContent>
           <PageContent className="CalculatorPage__content-right-top">
-            <div className="CalculatorPage__options-title">Token weights:</div>
-            <div className="CalculatorPage__content-left-chart">
-              <Row
-                className="CalculatorPage__content-left-chart-text"
-                type="flex"
-                justify="space-around"
-                align="middle"
-              >
-                <Col>
-                  Multitoken
-                </Col>
-              </Row>
-              <ProportionChart
-                type={ChartType.PIPE}
-                aspect={1}
-                data={this.state.proportionList}
-                colors={TokensHelper.COLORS}
-              />
-            </div>
-            <div style={{float: 'left', width: '200px'}}>
-              <TokensLegendList
-                columnCount={2}
-                data={this.state.tokensLegend}
-              />
-            </div>
-          </PageContent>
-          <PageContent className="CalculatorPage__content-right-bottom">
-            <div className="CalculatorPage__options-title">Tokens weight:</div>
+            <div className="CalculatorPage__options-title">Change token weight:</div>
             <div className="CalculatorPage__result-chart">
-              <div style={{marginLeft: '-43px'}}>
+              <div style={{margin: '0px 20px 0px -20px'}}>
                 <WeightChart
                   applyScale={false}
                   data={this.state.tokensWeightList}
@@ -197,14 +166,14 @@ export default class CalculatorPage extends React.Component<Props, State> {
                   type={ChartType.BAR}
                 />
               </div>
-              <div style={{margin: '20px 20px'}}>
+              <div style={{margin: '10px 20px 0px 45px'}}>
                 <TokensLegendList
                   style={LegendStyle.LINE}
                   columnCount={4}
                   data={this.state.tokensLegend}
                 />
               </div>
-              <div style={{marginLeft: '20px', marginTop: '20px'}}>
+              <div style={{margin: '0 20px 0px 45px'}}>
                 <TokenWeightList
                   maxHeight="200px"
                   onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
@@ -214,17 +183,16 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 />
               </div>
             </div>
+            <div className="CalculatorPage__content-calculate">
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => this.onCalculateClick()}
+              >
+                Calculate
+              </Button>
+            </div>
           </PageContent>
-
-          <div className="CalculatorPage__content-calculate">
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => this.onCalculateClick()}
-            >
-              Calculate
-            </Button>
-          </div>
         </div>
 
         <TokenWeightDialog
@@ -293,7 +261,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
   private inputRangeTrackValue(value: number): string {
     if (value > -1 && value <= this.state.tokensDate.length - 1) {
-      return DateUtils.toStringDate(this.state.tokensDate[value], DateUtils.DATE_FORMAT_SHORT);
+      return DateUtils.toFormat(this.state.tokensDate[value], DateUtils.DATE_FORMAT_SHORT);
     } else {
       return 'wrong date';
     }

@@ -1,5 +1,4 @@
 import { Arbitration } from '../../repository/models/Arbitration';
-import { DateUtils } from '../../utils/DateUtils';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
 interface Properties extends AbstractProperties<Arbitration[]> {
@@ -10,13 +9,13 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arb
   public parseData(data: Arbitration[]): any[] {
     return data.map(value => {
       const dataResult: any = {};
-      dataResult.date = DateUtils.toStringDate(value.timestamp, DateUtils.DATE_FORMAT_SHORT);
+      dataResult.date = value.timestamp;
 
       value.arbiterTokensCap.forEach((value2, key) => {
-        dataResult['arbiter' + key] = value2;
+        dataResult['arbiter' + key] = parseFloat(value2.toFixed(0));
       });
       value.originTokensCap.forEach((value2, key) => {
-        dataResult['origin' + key] = value2;
+        dataResult['origin' + key] = parseFloat(value2.toFixed(0));
       });
 
       return dataResult;

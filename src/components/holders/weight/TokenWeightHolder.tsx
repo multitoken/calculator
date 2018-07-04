@@ -21,7 +21,7 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
       <div className="TokenWeight__content">
         <div className="TokenWeight__content-data">
         <span className="TokenWeight__item-date">
-          {DateUtils.toStringDate(model.timestamp, DateUtils.DATE_FORMAT_SHORT)}
+          {DateUtils.toFormat(model.timestamp, DateUtils.DATE_FORMAT_SHORT)}
           </span>
           {this.prepareTokens(model)}
         </div>

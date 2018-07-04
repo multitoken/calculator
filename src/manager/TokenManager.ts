@@ -6,7 +6,7 @@ import { ProgressListener } from './ProgressListener';
 
 export interface TokenManager {
 
-  getBtcPrice(): Promise<TokenPriceHistory[]>;
+  getBtcPrice(): TokenPriceHistory[];
 
   setAmount(amount: number): void;
 

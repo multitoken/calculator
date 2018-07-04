@@ -219,12 +219,12 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
         <div>
           <span className="TokenWeightDialog__content-text-date">Date:</span>
           <span className="TokenWeightDialog__content-text-date-value">
-            {DateUtils.toStringDate(this.props.dateList[this.state.selectedDateIndex], DateUtils.DATE_FORMAT_SHORT)}
+            {DateUtils.toFormat(this.props.dateList[this.state.selectedDateIndex], DateUtils.DATE_FORMAT_SHORT)}
           </span>
         </div>
         <Slider
           className="TokenWeightDialog__content-date-slider"
-          max={this.props.dateList.length}
+          max={this.props.dateList.length - 1}
           min={this.props.minDateIndex}
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
@@ -237,7 +237,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
   }
 
   private formatter(value: number): string {
-    return DateUtils.toStringDate(this.props.dateList[value]);
+    return DateUtils.toFormat(this.props.dateList[value]);
   }
 
   private prepareTokenNames(): any {

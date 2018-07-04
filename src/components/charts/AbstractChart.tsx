@@ -11,8 +11,12 @@ import {
   PieChart,
   ResponsiveContainer,
   Tooltip,
+  XAxis,
   YAxis
 } from 'recharts';
+import { DateUtils } from '../../utils/DateUtils';
+import { XAxisDate } from './XAxisDate';
+import { YAxisValue } from './YAxisValue';
 
 export enum ChartType {
   LINES,
@@ -44,7 +48,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     super(props);
 
     this.data = [];
-    this.isChangedData = false;
+    this.isChangedData = true;
 
     this.state = {
       calculateRangeIndex: {min: 0, max: 1}
@@ -112,11 +116,21 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         }}
       >
         <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
+        <XAxis
+          dataKey="date"
+          tick={<XAxisDate/>}
+        />
         <YAxis
+          tick={<YAxisValue/>}
           allowDecimals={true}
+          minTickGap={1}
+          interval={'preserveStartEnd'}
           scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}
         />
-        <Tooltip/>
+        <Tooltip
+          label={'date'}
+          labelFormatter={value => DateUtils.toFormat(parseInt(value.toString(), 10), DateUtils.DATE_FORMAT_SHORT)}
+        />
         {this.prepareLines()}
       </LineChart>
     );
@@ -131,8 +145,20 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         }}
       >
         <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
-        <YAxis scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}/>
-        <Tooltip/>
+        <XAxis
+          dataKey="date"
+          tick={<XAxisDate/>}
+          tickCount={1}
+        />
+        <YAxis
+          minTickGap={1}
+          tick={<YAxisValue/>}
+          scale={this.props.applyScale === false ? undefined : 'log'}
+          domain={['auto', 'auto']}
+        />
+        <Tooltip
+          labelFormatter={value => DateUtils.toFormat(parseInt(value.toString(), 10), DateUtils.DATE_FORMAT_SHORT)}
+        />
         {type === ChartType.BAR ? this.prepareBars() : this.prepareBarsStacked()}
       </BarChart>
     );
