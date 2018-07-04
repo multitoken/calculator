@@ -8,7 +8,7 @@ import ResultPage from './pages/result/ResultPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
 import './res/styles/Theme.less';
 
-// const GH_PAGES_PREFIX_URL = 'arbitrator-simulator';
+// const GH_PAGES_PREFIX_URL = 'simulator';
 
 ReactDOM.render(
   <Router>
