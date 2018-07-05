@@ -565,23 +565,16 @@ export default class ResultPage extends React.Component<Props, State> implements
 
     this.setState({tokensDate: history.map(value => value.time)});
 
-    const maxIndex: number = this.tokenManager.getMaxCalculationIndex() - 1;
     this.setState({
-      calculateMaxDateIndex: maxIndex || 0,
-      calculateRangeDateIndex: [0, maxIndex || 0],
-      historyChartRangeDateIndex: [0, maxIndex || 0]
+      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex(),
+      calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
+      historyChartRangeDateIndex: this.tokenManager.getCalculationDate()
     });
-
-    const historyMap: Map<string, TokenPriceHistory[]> = new Map();
-    this.tokenManager.getPriceHistory().forEach((value, key) => historyMap.set(key, value));
-
-    historyMap.set('Bitcoin', this.tokenManager.getBtcPrice()
-      .slice(this.state.historyChartRangeDateIndex[0], this.state.historyChartRangeDateIndex[1]));
 
     this.setState({
       proportionList: proportions,
       tokenNames: tokenItems,
-      tokensHistory: historyMap,
+      tokensHistory: this.tokenManager.getPriceHistory(),
       tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, TokensHelper.COLORS[i])),
     });
 
