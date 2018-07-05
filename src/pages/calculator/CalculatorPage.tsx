@@ -3,6 +3,7 @@ import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { ChartType } from '../../components/charts/AbstractChart';
+import { HistoryChart } from '../../components/charts/HistoryChart';
 import { WeightChart } from '../../components/charts/WeightChart';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
 import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
@@ -192,6 +193,15 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 Calculate
               </Button>
             </div>
+          </PageContent>
+          <PageContent className="CalculatorPage__content-bottom">
+            <HistoryChart
+              data={this.state.tokensHistory}
+              colors={TokensHelper.COLORS}
+              start={this.state.historyChartRangeDateIndex[0]}
+              end={this.state.historyChartRangeDateIndex[1]}
+              showRange={false}
+            />
           </PageContent>
         </div>
 

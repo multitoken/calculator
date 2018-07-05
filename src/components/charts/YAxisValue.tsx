@@ -5,9 +5,7 @@ export class YAxisValue extends React.Component<any, {}> {
 
   public render() {
     const {x, y, payload} = this.props;
-    console.log(this.props);
     return (
-
       <text
         className="YAxisValue__text"
         x={x}
@@ -16,7 +14,7 @@ export class YAxisValue extends React.Component<any, {}> {
         fill={'#90a8bc'}
         textAnchor="end"
       >
-        {payload.value}
+        {parseFloat(parseFloat(payload.value).toFixed(6)).toLocaleString() }
       </text>
     );
   }

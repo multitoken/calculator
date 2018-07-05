@@ -19,6 +19,7 @@ import { Arbitration } from '../../repository/models/Arbitration';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { TokensHelper } from '../../utils/TokensHelper';
 
 import './ResultPage.less';
 
@@ -55,10 +56,6 @@ interface State {
 }
 
 export default class ResultPage extends React.Component<Props, State> implements ProgressListener {
-  private readonly COLORS: string[] = [
-    '#FFD484', '#FF7658', '#3294E4', '#50E3C2', '#8B572A', '#D7CB37', '#A749FA', '#3DD33E', '#4455E8',
-    '#DF8519', '#F44A8B', '#E53737', '#A227BB', '#2D9D5C', '#D2FF84',
-  ];
 
   private refsElements: { chart?: HTMLDivElement | null; } = {};
 
@@ -381,7 +378,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <span className="ResultPage__result-chart-title">Currency price history $:</span>
             <HistoryChart
               data={this.state.tokensHistory}
-              colors={this.COLORS}
+              colors={TokensHelper.COLORS}
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
@@ -403,7 +400,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </span>
             <ArbiterChart
               data={this.state.arbitrationList}
-              colors={this.COLORS}
+              colors={TokensHelper.COLORS}
               showRange={false}
             />
             <div className="ResultPage__result-legend">
@@ -423,7 +420,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </span>
             <TokensCapChart
               data={this.state.arbitrationList}
-              colors={this.COLORS}
+              colors={TokensHelper.COLORS}
               showRange={false}
             />
             <div className="ResultPage__result-legend">
@@ -582,7 +579,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       proportionList: proportions,
       tokenNames: tokenItems,
       tokensHistory: historyMap,
-      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, this.COLORS[i])),
+      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, TokensHelper.COLORS[i])),
     });
 
     this.processCalculate();

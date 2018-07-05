@@ -7,7 +7,6 @@ export class XAxisDate extends React.Component<any, {}> {
   public render() {
     const {x, y, payload} = this.props;
     const date: object = new Date(payload.value);
-
     return (
       <text
         className="XAxisDate__text"
