@@ -196,10 +196,12 @@ export default class CalculatorPage extends React.Component<Props, State> {
           </PageContent>
           <PageContent className="CalculatorPage__content-bottom">
             <HistoryChart
+              timeStep={this.tokenManager.getStepSec()}
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
+              applyScale={!this.tokenManager.isFakeMode()}
               showRange={false}
             />
           </PageContent>

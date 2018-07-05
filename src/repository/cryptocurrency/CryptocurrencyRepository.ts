@@ -8,4 +8,6 @@ export interface CryptocurrencyRepository {
 
   getMinDate(names: string[]): Promise<number>;
 
+  getStepSec(): number;
+
 }

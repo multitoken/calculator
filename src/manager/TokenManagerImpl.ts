@@ -16,6 +16,7 @@ import { TokenManager } from './TokenManager';
 export default class TokenManagerImpl implements TokenManager, ProgressListener {
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
+  private isFakeModeEnabled: boolean = false;
   private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
   private btcHistoryPrice: TokenPriceHistory[] = [];
   private readonly tokensAmount: Map<string, number> = new Map();
@@ -357,6 +358,19 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public onProgress(percents: number): void {
     // only for implement null-object pattern
+  }
+
+  public getStepSec(): number {
+    return this.cryptocurrencyRepository.getStepSec();
+  }
+
+  public isFakeMode(): boolean {
+    return this.isFakeModeEnabled;
+  }
+
+  public setupRepository(repo: CryptocurrencyRepository, isFake: boolean): void {
+    this.cryptocurrencyRepository = repo;
+    this.isFakeModeEnabled = isFake;
   }
 
   private resetDefaultValues(): void {

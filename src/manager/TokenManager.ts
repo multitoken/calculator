@@ -1,3 +1,4 @@
+import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
 import { Arbitration } from '../repository/models/Arbitration';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
@@ -43,5 +44,11 @@ export interface TokenManager {
   calculateArbitration(): Promise<Arbitration[]>;
 
   calculateCap(origin: boolean): Promise<number>;
+
+  getStepSec(): number;
+
+  isFakeMode(): boolean;
+
+  setupRepository(repo: CryptocurrencyRepository, isFake: boolean): void;
 
 }

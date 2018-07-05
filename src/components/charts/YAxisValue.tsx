@@ -14,7 +14,7 @@ export class YAxisValue extends React.Component<any, {}> {
         fill={'#90a8bc'}
         textAnchor="end"
       >
-        {parseFloat(parseFloat(payload.value).toFixed(6)).toLocaleString() }
+        {parseFloat(parseFloat(payload.value).toFixed(6)).toLocaleString()}
       </text>
     );
   }

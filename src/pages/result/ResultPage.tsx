@@ -315,8 +315,8 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div style={{textAlign: 'center', margin: '20px'}}>
             <div className="ResultPage__content-switch-block">
               <Switch
-                checkedChildren="Show charts"
-                unCheckedChildren="Hide charts"
+                checkedChildren="shown charts"
+                unCheckedChildren="hidden charts"
                 onChange={checked => {
                   this.setState({showCharts: checked});
                   if (checked) {
@@ -379,6 +379,8 @@ export default class ResultPage extends React.Component<Props, State> implements
             <HistoryChart
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
+              timeStep={this.tokenManager.getStepSec()}
+              isDebugMode={this.tokenManager.isFakeMode()}
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
@@ -399,6 +401,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               Portfolio capitalization:
             </span>
             <ArbiterChart
+              isDebugMode={this.tokenManager.isFakeMode()}
               data={this.state.arbitrationList}
               colors={TokensHelper.COLORS}
               showRange={false}
@@ -419,6 +422,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               Capitalization of each token in the portfolio with and without arbitrage:
             </span>
             <TokensCapChart
+              isDebugMode={this.tokenManager.isFakeMode()}
               data={this.state.arbitrationList}
               colors={TokensHelper.COLORS}
               showRange={false}
@@ -451,7 +455,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       }
       ,
       200);
-
   }
 
   private capWithRebalance(): string {
@@ -541,7 +544,7 @@ export default class ResultPage extends React.Component<Props, State> implements
     const min: number = this.state.calculateRangeDateIndex[0];
     const max: number = this.state.calculateRangeDateIndex[1];
 
-    return Math.floor((max - min) / 60 / 24);
+    return Math.floor(((max - min) / (60 / this.tokenManager.getStepSec())) / 60 / 24);
   }
 
   private getArbitrationListLen(): number {

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TokenPriceHistory } from '../models/TokenPriceHistory';
 import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 
-export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyRepository {
+export class CryptocurrencyFakeTokensRepositoryImpl implements CryptocurrencyRepository {
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
     ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
@@ -10,19 +10,17 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   ]);
 
   private readonly BTC_VALUES: Map<string, any> = new Map([
-    ['Bitcoin', 'btcusd'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
-    ['VeChain', 'venbtc'], ['Binance', 'bnbbtc'], ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'],
-    ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
+    ['Bitcoin', 'btc'], ['Eth', 'eth'], ['EOS', 'eos'], ['Tron', 'trx'], ['VeChain', 'ven'],
+    ['Binance', 'bnb'], ['OmiseGO', 'omg'], ['Icon', 'icx'], ['Zilliqa', 'zil'],
+    ['Aeternity', 'ae'], ['0x', 'zrx'],
   ]);
 
-  private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
+  private readonly HISTORY_FAKE_API_PATH: string = './data/fake/{file}.json';
 
   private host: string;
-  private btcUsdPrice: TokenPriceHistory[];
 
   constructor(host: string) {
     this.host = host;
-    this.btcUsdPrice = [];
   }
 
   public async getAvailableCurrencies(): Promise<Map<string, string>> {
@@ -32,11 +30,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   public async getHistoryPrice(name: string,
                                convertTo: string,
                                hours: number): Promise<TokenPriceHistory[]> {
-    if (this.btcUsdPrice.length === 0) {
-      this.btcUsdPrice = await this.getPrices('Bitcoin');
-    }
-
-    return await this.getPrices(name, name === 'Bitcoin' ? [] : this.btcUsdPrice);
+    return await this.getPrices(name);
   }
 
   public async getMinDate(names: string[]): Promise<number> {
@@ -44,7 +38,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
 
     let timestamp: number;
     for (const name of names) {
-      timestamp = (await this.getHistoryPrice(name, 'usd', 0))[0].time;
+      timestamp = (await this.getHistoryPrice(name, '', 0))[0].time;
       if (timestamp > result) {
         result = timestamp;
       }
@@ -53,26 +47,21 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   }
 
   public getStepSec(): number {
-    return 60;
+    return 5;
   }
 
-  private async getPrices(name: string, increaseHistory?: TokenPriceHistory[]): Promise<TokenPriceHistory[]> {
+  private async getPrices(name: string): Promise<TokenPriceHistory[]> {
     const result: TokenPriceHistory[] = [];
 
     try {
-      const response = await axios.get(this.host + this.HISTORY_BY_HOUR_API_PATH
+      const response = await axios.get(this.host + this.HISTORY_FAKE_API_PATH
         .replace('{file}', this.BTC_VALUES.get(name) || '')
       );
 
       const data: number[] = response.data;
-      let increase: number = 0;
 
       for (let i = 0; i < data.length; i += 2) {
-        increase = (increaseHistory !== undefined && i / 2 < increaseHistory.length)
-          ? increaseHistory[i / 2].value
-          : 1;
-
-        result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1] * increase)));
+        result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1])));
       }
 
     } catch (e) {

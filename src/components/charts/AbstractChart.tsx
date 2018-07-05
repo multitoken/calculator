@@ -32,6 +32,7 @@ export interface AbstractProperties<M> {
   showRange?: boolean;
   type?: ChartType;
   aspect?: number;
+  isDebugMode?: boolean;
 }
 
 export interface AbstractState {
@@ -77,6 +78,10 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public abstract getNames(): string[];
 
   protected prepareData(): any[] {
+    if (this.props.isDebugMode) {
+      return [];
+    }
+
     if (this.isChangedData) {
       this.data = this.parseData(this.props.data);
       this.setState({calculateRangeIndex: {min: 0, max: (this.data.length - 1) || 1}});
@@ -121,11 +126,12 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           tick={<XAxisDate/>}
         />
         <YAxis
+          allowDataOverflow={true}
           tick={<YAxisValue/>}
           allowDecimals={true}
-          minTickGap={1}
           interval={'preserveStartEnd'}
-          scale={this.props.applyScale === false ? undefined : 'log'} domain={['auto', 'auto']}
+          scale={this.props.applyScale === false ? undefined : 'log'}
+          domain={['auto', 'auto']}
         />
         <Tooltip
           label={'date'}

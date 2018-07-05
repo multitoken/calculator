@@ -52,7 +52,6 @@ export class CryptocurrencyCoinsRepositoryImpl implements CryptocurrencyReposito
     let result: number = 0;
     const currentDate: number = Math.round(new Date().getTime() / 1000);
 
-    console.log(currentDate, currentDate - 3600, (currentDate - 3600).toString());
     for (const name of names) {
       const response = await axios.get(this.host + this.HISTORY_BY_HOUR_API_PATH
         .replace('{coin}', name)
@@ -67,6 +66,10 @@ export class CryptocurrencyCoinsRepositoryImpl implements CryptocurrencyReposito
     }
 
     return result;
+  }
+
+  public getStepSec(): number {
+    return 15;
   }
 
 }
