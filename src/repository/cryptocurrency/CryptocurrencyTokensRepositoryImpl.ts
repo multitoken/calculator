@@ -5,12 +5,12 @@ import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyRepository {
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
-    ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
+    ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
     ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX']
   ]);
 
   private readonly BTC_VALUES: Map<string, any> = new Map([
-    ['Bitcoin', 'btcusd'], ['USDT', 'usdbtc'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
+    ['Bitcoin', 'btcusd'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
     ['VeChain', 'venbtc'], ['Binance', 'bnbbtc'], ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'],
     ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
   ]);
@@ -52,6 +52,10 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     return result;
   }
 
+  public getStepSec(): number {
+    return 60;
+  }
+
   private async getPrices(name: string, increaseHistory?: TokenPriceHistory[]): Promise<TokenPriceHistory[]> {
     const result: TokenPriceHistory[] = [];
 
@@ -62,8 +66,6 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
 
       const data: number[] = response.data;
       let increase: number = 0;
-
-      console.log('increaseHistory', increaseHistory ? increaseHistory.length : -1, data.length / 2);
 
       for (let i = 0; i < data.length; i += 2) {
         increase = (increaseHistory !== undefined && i / 2 < increaseHistory.length)
