@@ -1,6 +1,6 @@
 {
   "name": "simulator",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "homepage": "./",
   "dependencies": {
     "antd": "^3.6.2",
