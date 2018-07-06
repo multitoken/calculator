@@ -92,8 +92,24 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       this.selectedTokensHistory.set(key, arr);
 
       console.log('end len', arr.length);
+    });
 
-      // console.log('actual min date', key, (this.selectedTokensHistory.get(key) || [0])[0]);
+    this.maxCalculationIndex = 0;
+
+    this.selectedTokensHistory.forEach((value, key) => {
+      if (this.maxCalculationIndex <= 0 || this.maxCalculationIndex > value.length) {
+        this.maxCalculationIndex = value.length;
+        console.log('this.maxCalculationIndex second', this.maxCalculationIndex);
+        this.endCalculationIndex = this.maxCalculationIndex - 1;
+      }
+    });
+
+    this.selectedTokensHistory.forEach((value, key) => {
+      if (value.length > this.maxCalculationIndex) {
+        const arr: TokenPriceHistory[] = value.slice((value.length - this.maxCalculationIndex), value.length);
+        this.selectedTokensHistory.set(key, arr);
+      }
+      console.log('this.maxCalculationIndex cut', (this.selectedTokensHistory.get(key) || []).length);
     });
 
     this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
