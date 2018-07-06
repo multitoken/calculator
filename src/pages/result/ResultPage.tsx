@@ -114,7 +114,10 @@ export default class ResultPage extends React.Component<Props, State> implements
     this.tokenManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
-      .catch(reason => alert(reason.message));
+      .catch(reason => {
+        console.log(reason);
+        alert(reason.message);
+      });
   }
 
   public render() {
@@ -286,30 +289,27 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*-----------------------*/}
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
+          <div className="ResultPage__content-block" style={{marginLeft: '33.333333%'}}>
+            <Row>
+              <Col span={12}>
                 <div className="ResultPage__content-text-title">
                   Total arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
-                  ${this.state.arbiterProfit.toFixed(0)}
+                  ${this.totalArbiterProfit()}
                 </div>
-              </div>
-            </Col>
+              </Col>
 
-            <Col span={12}>
-              <div className="ResultPage__content-block">
+              <Col span={12}>
                 <div className="ResultPage__content-text-title">
                   The average arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
-                  ${(this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3)}
+                  ${this.avgArbiterProfit()}
                 </div>
-              </div>
-            </Col>
-          </Row>
-
+              </Col>
+            </Row>
+          </div>
           {/*-----------------------*/}
 
           <div style={{textAlign: 'center', margin: '20px'}}>
@@ -522,6 +522,14 @@ export default class ResultPage extends React.Component<Props, State> implements
   private profitPercentYearBtc(): string {
     const diff: number = this.state.btcUSDT / this.state.amount;
     return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
+  }
+
+  private totalArbiterProfit(): string {
+    return this.formatCurrency(this.state.arbiterProfit.toFixed(0));
+  }
+
+  private avgArbiterProfit(): string {
+    return this.formatCurrency((this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3));
   }
 
   private formatCurrency(value: string): string {

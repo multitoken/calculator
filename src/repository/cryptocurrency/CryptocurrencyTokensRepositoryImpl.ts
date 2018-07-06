@@ -53,7 +53,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   }
 
   public getStepSec(): number {
-    return 60;
+    return 5; // hack! real is 60 sec
   }
 
   private async getPrices(name: string, increaseHistory?: TokenPriceHistory[]): Promise<TokenPriceHistory[]> {
