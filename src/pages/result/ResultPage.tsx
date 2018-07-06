@@ -289,7 +289,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*-----------------------*/}
 
-          <div className="ResultPage__content-block" style={{marginLeft: '33.333333%'}}>
+          <div className="ResultPage__content-block" style={{marginLeft: '32.45%'}}>
             <Row>
               <Col span={12}>
                 <div className="ResultPage__content-text-title">
