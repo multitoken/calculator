@@ -1,4 +1,3 @@
-import { BigNumber } from 'bignumber.js';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
@@ -28,6 +27,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
   private commissionPercent: number;
+  private commissionPercentCalculated: number;
   private listener: ProgressListener;
   private amount: number;
   private proportions: TokenProportion[];
@@ -123,7 +123,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     for (let i = 0; i < history.length - 1; i++) {
       const diffCount: number = Math.round((history[i + 1].time - history[i].time) / 5000);
-      for (let j = 0; j <= diffCount; j++) {
+      for (let j = 0; j < diffCount; j++) {
         const time: number = history[i].time + j * 5000;
         const value: number = this.linInterpolation(
           history[i].time,
@@ -135,6 +135,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         result.push(new TokenPriceHistory(time, value));
       }
     }
+    console.log(result.slice(1, 40));
     return result;
   }
 
@@ -144,6 +145,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public setCommission(commissionPercents: number): void {
     this.commissionPercent = commissionPercents;
+    this.commissionPercentCalculated = 1 - commissionPercents / 100;
   }
 
   public getCommission(): number {
@@ -214,8 +216,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       maxProportions += value;
     });
 
-    const actualAmount: BigNumber = new BigNumber(this.amount);
-
     this.selectedTokensHistory
       .forEach((value, key) => {
         if (!this.tokensWeight.has(key)) {
@@ -224,18 +224,14 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         }
         const weight: number = this.tokensWeight.get(key) || 0;
 
-        const amountPerCurrency: BigNumber = new BigNumber(weight)
-          .div(maxProportions)
-          .multipliedBy(actualAmount);
+        const amountPerCurrency: number = (weight / maxProportions) * this.amount;
 
-        const count: number = amountPerCurrency.div(value[this.startCalculationIndex].value).toNumber();
+        const count: number = amountPerCurrency / value[this.startCalculationIndex].value;
 
         console.log(
-          'name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency.toNumber(), count,
+          'name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency, count,
           value[this.startCalculationIndex].value,
-          new BigNumber(count)
-            .multipliedBy(value[this.startCalculationIndex].value)
-            .toNumber()
+          count * value[this.startCalculationIndex].value
         );
 
         result.set(key, count);
@@ -270,12 +266,13 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener.onProgress(1);
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
-      if (i % 1000 === 0) {
+      if (i % 100000 === 0) {
         if (this.listener) {
           this.listener.onProgress(Math.round(
             (i - this.startCalculationIndex) / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100
           ));
         }
+
         await this.wait();
       }
 
@@ -426,7 +423,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   private resetDefaultValues(): void {
     this.amount = 10000;
-    this.commissionPercent = 0.20;
+    this.setCommission(0.20);
     this.proportions = [];
     this.tokenWeights = [];
     this.startCalculationIndex = 0;
@@ -446,10 +443,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
         let reCalcAmount: number = 0;
         try {
-          reCalcAmount = new BigNumber(amount)
-            .multipliedBy(token.weight)
-            .div(oldWeight)
-            .toNumber();
+          reCalcAmount = amount * token.weight / oldWeight;
 
           console.log(
             `indexOfHistory: ${indexOfHistory} 
@@ -495,7 +489,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     let maxProportions: number = 0;
 
     amounts.forEach((value, key) => amount += value * (historyPrice.get(key) || 0));
-    const actualAmount: BigNumber = new BigNumber(amount);
+    const actualAmount: number = amount;
 
     proportions.toArray().forEach(token => {
       weights.set(token.name, token.weight);
@@ -505,19 +499,15 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     historyPrice.forEach((value, key) => {
       const weight: number = weights.get(key) || 0;
 
-      const amountPerCurrency: BigNumber = new BigNumber(weight)
-        .div(maxProportions)
-        .multipliedBy(actualAmount);
+      const amountPerCurrency = weight / maxProportions * actualAmount;
 
-      const count: number = amountPerCurrency.div(value).toNumber();
+      const count: number = amountPerCurrency / value;
 
       console.log(
-        'recalc weights, name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency.toNumber(),
+        'recalc weights, name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency,
         count,
         value,
-        new BigNumber(count)
-          .multipliedBy(value)
-          .toNumber()
+        count * value
       );
 
       amounts.set(key, count);
@@ -579,26 +569,18 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): number {
     // https://github.com/MultiTKN/MultiTKN/blob/master/contracts/MultiToken.sol#L33
-    const fromBalance: BigNumber = new BigNumber(this.tokensAmount.get(fromSymbol) || 0);
+    const fromBalance: number = this.tokensAmount.get(fromSymbol) || 0;
     const fromWeight: number = this.tokensWeight.get(fromSymbol) || 0;
-    const toBalance: BigNumber = new BigNumber(this.tokensAmount.get(toSymbol) || 0);
+    const toBalance: number = this.tokensAmount.get(toSymbol) || 0;
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
     // console.log(fromSymbol, fromWeight, toSymbol, toWeight);
 
-    const result: number = toBalance
-      .multipliedBy(amount)
-      .multipliedBy(fromWeight)
-      .div(toWeight)
-      .div(fromBalance.plus(amount))
-      .multipliedBy(1 - (this.commissionPercent / 100))
-      .toNumber();
-    // console.log('from', fromAmounts.toNumber());
-    // console.log('to', toAmounts.toNumber());
-    // console.log('amount', amount);
-    // console.log('result', result);
-
-    return result;
+    return toBalance *
+      amount *
+      fromWeight /
+      ((fromBalance + amount) * toWeight) *
+      this.commissionPercentCalculated;
   }
 
   private acceptTransaction(arbitration: Arbitration): void {
