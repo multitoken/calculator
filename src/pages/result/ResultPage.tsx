@@ -6,6 +6,7 @@ import { RouteComponentProps } from 'react-router';
 import { ArbiterChart } from '../../components/charts/ArbiterChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { TokensCapChart } from '../../components/charts/TokensCapChart';
+import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
 import { TokensLegendList } from '../../components/lists/legend/TokensLegendList';
@@ -43,6 +44,7 @@ interface State {
   proportionList: TokenProportion[];
   showCharts: boolean;
   showCalculationProgress: boolean;
+  showMessageDialog: boolean;
   calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
   historyChartRangeDateIndex: SliderValue;
@@ -61,6 +63,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   @lazyInject(Services.TOKEN_MANAGER)
   private tokenManager: TokenManager;
+  private chartsAlreadyPrepared: boolean = false;
 
   constructor(props: Props) {
     super(props);
@@ -85,6 +88,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       proportionList: [],
       showCalculationProgress: true,
       showCharts: false,
+      showMessageDialog: false,
       tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -318,10 +322,14 @@ export default class ResultPage extends React.Component<Props, State> implements
                 checkedChildren="shown charts"
                 unCheckedChildren="hidden charts"
                 onChange={checked => {
-                  this.setState({showCharts: checked});
-                  if (checked) {
-                    this.scrollToCharts();
-                  }
+                  this.setState({showMessageDialog: checked});
+                  setTimeout(
+                    () => {
+                      this.setState({showCharts: checked});
+                      this.setState({showMessageDialog: false});
+                    },
+                    1000
+                  );
                 }}
               />
             </div>
@@ -356,6 +364,8 @@ export default class ResultPage extends React.Component<Props, State> implements
           percentProgress={this.state.progressPercents}
         />
 
+        <MessageDialog openDialog={this.state.showMessageDialog}/>
+
         <div>
           <BackTop>
             <div className="ant-back-top-inner">UP</div>
@@ -366,13 +376,13 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private prepareChartsComponents(): any {
+    if (!this.state.showCharts && !this.chartsAlreadyPrepared) {
+      return null;
+    }
+    this.chartsAlreadyPrepared = true;
+
     return (
-      <div
-        style={{
-          display: (this.state.showCharts || this.state.showCalculationProgress) ? 'block' : 'none',
-          zIndex: this.state.showCalculationProgress ? -1 : 0,
-        }}
-      >
+      <div style={{overflow: 'hidden', height: this.chartsAlreadyPrepared && !this.state.showCharts ? '0' : '100%'}}>
         <PageContent className="ResultPage__content">
           <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">Currency price history $:</span>
@@ -436,16 +446,20 @@ export default class ResultPage extends React.Component<Props, State> implements
             </div>
           </div>
         </PageContent>
+        {this.scrollToCharts()}
       </div>
     );
   }
 
   private scrollToCharts() {
+    if (!this.state.showCharts) {
+      return;
+    }
+
     setTimeout(
       () => {
         if (this.refsElements.chart) {
           const chart = ReactDOM.findDOMNode(this.refsElements.chart);
-
           if (chart !== null) {
             (chart as HTMLDivElement).scrollIntoView({block: 'center', behavior: 'smooth'});
           }
@@ -454,7 +468,7 @@ export default class ResultPage extends React.Component<Props, State> implements
         }
       }
       ,
-      200);
+      500);
   }
 
   private capWithRebalance(): string {
@@ -601,6 +615,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       .then(result => {
         this.setState({arbitrationList: result});
         console.log(result);
+
         let profit: number = 0;
         let totalTxPrice: number = 0;
 
