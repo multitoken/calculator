@@ -1,11 +1,11 @@
-import { Button, Layout, Switch } from 'antd';
+import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { TokensNamesList } from '../../components/lists/name/TokensNamesList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
-import { cryptocurrencyFakeRepository, cryptocurrencyRepository, lazyInject, Services } from '../../Injections';
+import { lazyInject, Services } from '../../Injections';
 import { TokenManager } from '../../manager/TokenManager';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
@@ -77,23 +77,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           >
             Next
           </Button>
-        </div>
-
-        <div className="SetupTokenPage__switch-fake">
-          <div>
-            This is only for advanced users!<br/>
-            Fake crypto-currency history!<br/>
-            Without result charts!<br/>
-            Very very slow!
-          </div>
-          <Switch
-            checkedChildren="fake"
-            unCheckedChildren="real"
-            onChange={checked => {
-              this.tokenManager
-                .setupRepository(checked ? cryptocurrencyFakeRepository : cryptocurrencyRepository, checked);
-            }}
-          />
         </div>
         <PageFooter/>
       </Layout>

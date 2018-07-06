@@ -63,6 +63,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.resetDefaultValues();
 
     this.btcHistoryPrice = await this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
+    this.btcHistoryPrice = this.interpolateValues(this.btcHistoryPrice);
 
     for (const item of tokenSymbols) {
       try {
@@ -72,7 +73,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         this.selectedTokensHistory.set(item, result);
 
         if (this.maxCalculationIndex <= 0 || this.maxCalculationIndex > result.length) {
-          this.maxCalculationIndex = result.length;
+          this.maxCalculationIndex = result.length - (result.length % 2);
+          console.log('this.maxCalculationIndex', this.maxCalculationIndex);
           this.endCalculationIndex = this.maxCalculationIndex - 1;
         }
       } catch (e) {
@@ -81,14 +83,47 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     }
 
     this.selectedTokensHistory.forEach((value, key) => {
+      let arr: TokenPriceHistory[] = value;
       if (value.length > this.maxCalculationIndex) {
-        const arr: TokenPriceHistory[] = value.slice((value.length - this.maxCalculationIndex), value.length);
-        this.selectedTokensHistory.set(key, arr);
+        arr = value.slice((value.length - this.maxCalculationIndex), value.length);
       }
-      console.log('actual min date', key, (this.selectedTokensHistory.get(key) || [0])[0]);
+
+      arr = this.interpolateValues(arr);
+      this.selectedTokensHistory.set(key, arr);
+
+      console.log('end len', arr.length);
+
+      // console.log('actual min date', key, (this.selectedTokensHistory.get(key) || [0])[0]);
     });
 
+    this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
+    this.endCalculationIndex = this.maxCalculationIndex - 1;
+
     return this.selectedTokensHistory;
+  }
+
+  public interpolateValues(history: TokenPriceHistory[]): TokenPriceHistory[] {
+    const result: TokenPriceHistory[] = [];
+
+    for (let i = 0; i < history.length - 1; i++) {
+      const diffCount: number = Math.round((history[i + 1].time - history[i].time) / 5000);
+      for (let j = 0; j <= diffCount; j++) {
+        const time: number = history[i].time + j * 5000;
+        const value: number = this.linInterpolation(
+          history[i].time,
+          history[i].value,
+          history[i + 1].time,
+          history[i + 1].value,
+          time
+        );
+        result.push(new TokenPriceHistory(time, value));
+      }
+    }
+    return result;
+  }
+
+  public linInterpolation(x1: number, y1: number, x2: number, y2: number, targetX: number) {
+    return y1 + (targetX - x1) * (y2 - y1) / (x2 - x1);
   }
 
   public setCommission(commissionPercents: number): void {
@@ -217,7 +252,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const btcCount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
 
     this.listener.onProgress(1);
-
+    let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 1000 === 0) {
         if (this.listener) {
@@ -237,8 +272,12 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
       this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount);
       this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed);
+      txPrice = Math.sin(i / 1000) * 0.5 + 1;
+      if (i % 100000 < 10) {
+        console.log(txPrice);
+      }
+      // txPrice = Math.max(0.5, Math.min(2.0, txPrice + ((Math.random() % 2) ? 0.01 : -0.01)));
 
-      const txPrice: number = parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10
       let profit: ArbiterProfit = ArbiterProfit.empty();
 
       for (const [cheap, cheapPrice] of historyPerHour) {
