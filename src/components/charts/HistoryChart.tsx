@@ -10,8 +10,9 @@ interface Properties extends AbstractProperties<Map<string, TokenPriceHistory[]>
 export class HistoryChart extends AbstractChart<Properties, AbstractState, Map<string, TokenPriceHistory[]>, any> {
 
   public shouldComponentUpdate(data: Readonly<Properties>, data1: Readonly<AbstractState>, data2: any): boolean {
-    return super.shouldComponentUpdate(data, data1, data2) ||
-      (this.props.start !== data.start || this.props.end !== data.end);
+    this.isChangedData = this.props.start !== data.start || this.props.end !== data.end;
+
+    return this.isChangedData || super.shouldComponentUpdate(data, data1, data2);
   }
 
   public componentDidUpdate(prevProps: Readonly<Properties>, prevState: Readonly<any>, snapshot?: any): void {

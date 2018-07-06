@@ -273,10 +273,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount);
       this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed);
       txPrice = Math.sin(i / 1000) * 0.5 + 1;
-      if (i % 100000 < 10) {
-        console.log(txPrice);
-      }
-      // txPrice = Math.max(0.5, Math.min(2.0, txPrice + ((Math.random() % 2) ? 0.01 : -0.01)));
 
       let profit: ArbiterProfit = ArbiterProfit.empty();
 

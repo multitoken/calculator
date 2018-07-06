@@ -175,8 +175,8 @@ export default class ResultPage extends React.Component<Props, State> implements
                 <div className="ResultPage__content-text-title">
                   The portfolio without auto rebalancing:
                 </div>
-                <div className={'ResultPage__content-text-result' + this.profitPercentsWithoutRebalance()}>
-                  {this.profitPercentsWithoutRebalance()}%
+                <div className={'ResultPage__content-text-result' + this.profitPercentsDiffWithoutRebalance()}>
+                  {this.profitPercentsDiffWithoutRebalance()}%
                 </div>
               </div>
             </Col>
@@ -186,8 +186,8 @@ export default class ResultPage extends React.Component<Props, State> implements
                 <div className="ResultPage__content-text-title">
                   Portfolio from bitcoin only:
                 </div>
-                <div className={'ResultPage__content-text-result' + this.profitPercentBitcoin()}>
-                  {this.profitPercentBitcoin()}%
+                <div className={'ResultPage__content-text-result' + this.profitPercentDiffBitcoin()}>
+                  {this.profitPercentDiffBitcoin()}%
                 </div>
               </div>
             </Col>
@@ -488,12 +488,12 @@ export default class ResultPage extends React.Component<Props, State> implements
     return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
   }
 
-  private profitPercentsWithoutRebalance(): string {
-    return ((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(0);
+  private profitPercentsDiffWithoutRebalance(): string {
+    return ((this.state.arbiterCap - this.state.cap) / this.state.arbiterCap * 100).toFixed(0);
   }
 
-  private profitPercentBitcoin(): string {
-    return ((this.state.btcUSDT - this.state.amount) / this.state.amount * 100).toFixed(0);
+  private profitPercentDiffBitcoin(): string {
+    return ((this.state.arbiterCap - this.state.btcUSDT ) / this.state.arbiterCap * 100).toFixed(0);
   }
 
   private capWithoutRebalance(): string {
