@@ -53,7 +53,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    console.log(this.tokenManager.getCalculationDate());
     this.state = {
       amount: this.tokenManager.getAmount(),
       calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex() - 1,
@@ -133,6 +132,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
                   disabled={this.state.tokensWeightList.length > 0}
                   max={this.state.calculateMaxDateIndex}
                   min={0}
+                  defaultValue={[0, 10]}
                   tipFormatter={value => this.inputRangeTrackValue(value)}
                   value={this.state.calculateRangeDateIndex}
                   onChange={value => this.setState({calculateRangeDateIndex: value})}

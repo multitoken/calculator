@@ -1,12 +1,11 @@
-import { Modal, Progress } from 'antd';
+import { Modal } from 'antd';
 import * as React from 'react';
 
 export interface Properties {
   openDialog: boolean;
-  percentProgress: number;
 }
 
-export class ProgressDialog extends React.Component<Properties, {}> {
+export class MessageDialog extends React.Component<Properties, {}> {
 
   public render() {
     return (
@@ -17,8 +16,8 @@ export class ProgressDialog extends React.Component<Properties, {}> {
         visible={this.props.openDialog}
       >
         <div>
-          <div className="mb-4"><b>Please wait until the end of the calculations</b></div>
-          <Progress type="circle" percent={this.props.percentProgress}/>
+          <p style={{fontSize: '25px', color: 'white'}}>Please wait few seconds.</p>
+          <p><b>We setup data in charts...</b></p>
         </div>
       </Modal>
     );
