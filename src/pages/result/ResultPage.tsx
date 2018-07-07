@@ -4,8 +4,6 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
 import { ArbiterChart } from '../../components/charts/ArbiterChart';
-import { HistoryChart } from '../../components/charts/HistoryChart';
-import { TokensCapChart } from '../../components/charts/TokensCapChart';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
@@ -167,34 +165,6 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
           </div>
 
-          {/*---------2---------*/}
-          <div className="ResultPage__content-text-caption">The difference in the percentage with</div>
-          <Row gutter={16}>
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  The portfolio without auto rebalancing:
-                </div>
-                <div className={
-                  'ResultPage__content-text-result' +  this.getModif(this.profitPercentsDiffWithoutRebalance())
-                }>
-                  {this.profitPercentsDiffWithoutRebalance()}%
-                </div>
-              </div>
-            </Col>
-
-            <Col span={12}>
-              <div className="ResultPage__content-block">
-                <div className="ResultPage__content-text-title">
-                  Portfolio from bitcoin only:
-                </div>
-                <div className={'ResultPage__content-text-result' +  this.getModif(this.profitPercentDiffBitcoin())}>
-                  {this.profitPercentDiffBitcoin()}%
-                </div>
-              </div>
-            </Col>
-          </Row>
-
           {/*----------3------------*/}
 
           <div className="ResultPage__content-text-caption">The results of the portfolio without auto rebalancing</div>
@@ -234,7 +204,10 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*----------4------------*/}
 
-          <div className="ResultPage__content-text-caption">Portfolio from bitcoin only</div>
+          <div className="ResultPage__content-text-caption">
+            Portfolio Bitcoin only
+            <br/>(It shows investor will get by investing in bitcoin the same amount of cash)
+          </div>
           <div className="ResultPage__content-block">
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
@@ -387,64 +360,23 @@ export default class ResultPage extends React.Component<Props, State> implements
       <div style={{overflow: 'hidden', height: this.chartsAlreadyPrepared && !this.state.showCharts ? '0' : '100%'}}>
         <PageContent className="ResultPage__content">
           <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
-            <span className="ResultPage__result-chart-title">Currency price history $:</span>
-            <HistoryChart
-              data={this.state.tokensHistory}
-              colors={TokensHelper.COLORS}
-              timeStep={this.tokenManager.getStepSec()}
-              isDebugMode={this.tokenManager.isFakeMode()}
-              start={this.state.historyChartRangeDateIndex[0]}
-              end={this.state.historyChartRangeDateIndex[1]}
-              showRange={false}
-            />
-            <div className="ResultPage__result-legend">
-              <TokensLegendList
-                style={LegendStyle.LINE}
-                columnCount={4}
-                data={this.state.tokensLegend}
-              />
-            </div>
-          </div>
-        </PageContent>
-
-        <PageContent className="ResultPage__content">
-          <div className="ResultPage__result-chart">
+            <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
               Portfolio capitalization:
             </span>
-            <ArbiterChart
-              isDebugMode={this.tokenManager.isFakeMode()}
-              data={this.state.arbitrationList}
-              colors={TokensHelper.COLORS}
-              showRange={false}
-            />
-            <div className="ResultPage__result-legend">
-              <TokensLegendList
-                style={LegendStyle.LINE}
-                columnCount={4}
-                data={this.state.tokensLegend}
+              <ArbiterChart
+                isDebugMode={this.tokenManager.isFakeMode()}
+                data={this.state.arbitrationList}
+                colors={TokensHelper.COLORS}
+                showRange={false}
               />
-            </div>
-          </div>
-        </PageContent>
-
-        <PageContent className="ResultPage__content">
-          <div className="ResultPage__result-chart">
-            <span className="ResultPage__result-chart-title">
-              Capitalization of each token in the portfolio with and without arbitrage:
-            </span>
-            <TokensCapChart
-              isDebugMode={this.tokenManager.isFakeMode()}
-              data={this.state.arbitrationList}
-              colors={TokensHelper.COLORS}
-              showRange={false}
-            />
-            <div className="ResultPage__result-legend">
-              <TokensLegendList
-                style={LegendStyle.LINE}
-                columnCount={4}
-                data={this.state.tokensLegend}
-              />
+              <div className="ResultPage__result-legend">
+                <TokensLegendList
+                  style={LegendStyle.LINE}
+                  columnCount={4}
+                  data={this.state.tokensLegend}
+                />
+              </div>
             </div>
           </div>
         </PageContent>
@@ -488,14 +420,6 @@ export default class ResultPage extends React.Component<Props, State> implements
   private profitPercentYearWithRebalance(): string {
     const diff: number = this.state.arbiterCap / this.state.amount;
     return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
-  }
-
-  private profitPercentsDiffWithoutRebalance(): string {
-    return ((this.state.arbiterCap - this.state.cap) / this.state.arbiterCap * 100).toFixed(0);
-  }
-
-  private profitPercentDiffBitcoin(): string {
-    return ((this.state.arbiterCap - this.state.btcUSDT ) / this.state.arbiterCap * 100).toFixed(0);
   }
 
   private capWithoutRebalance(): string {
