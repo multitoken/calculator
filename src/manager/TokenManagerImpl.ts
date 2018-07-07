@@ -135,7 +135,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         result.push(new TokenPriceHistory(time, value));
       }
     }
-    console.log(result.slice(1, 40));
+
     return result;
   }
 
@@ -266,7 +266,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener.onProgress(1);
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
-      if (i % 100000 === 0) {
+      if (i % 10000 === 0) {
         if (this.listener) {
           this.listener.onProgress(Math.round(
             (i - this.startCalculationIndex) / ((this.endCalculationIndex - this.startCalculationIndex) + 1) * 100
@@ -546,10 +546,13 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
                                        expensivePrice: number,
                                        txPrice: number): Promise<ArbiterProfit> {
     // x = sqrt(p_2 * s_1 * b_1 * b_2 / p_1 / s_2) - b_1
+
     const max: number = Math.sqrt(
-      expensivePrice * cheapWeight *
-      cheapBalance * expensiveBalance /
-      cheapPrice / expensiveWeight
+      expensivePrice *
+      cheapWeight *
+      cheapBalance *
+      expensiveBalance /
+      (cheapPrice * expensiveWeight)
     ) - cheapBalance;
 
     const percent: number = max / cheapBalance;
