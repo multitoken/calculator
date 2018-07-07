@@ -175,7 +175,9 @@ export default class ResultPage extends React.Component<Props, State> implements
                 <div className="ResultPage__content-text-title">
                   The portfolio without auto rebalancing:
                 </div>
-                <div className={'ResultPage__content-text-result' + this.profitPercentsDiffWithoutRebalance()}>
+                <div className={
+                  'ResultPage__content-text-result' +  this.getModif(this.profitPercentsDiffWithoutRebalance())
+                }>
                   {this.profitPercentsDiffWithoutRebalance()}%
                 </div>
               </div>
@@ -186,7 +188,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 <div className="ResultPage__content-text-title">
                   Portfolio from bitcoin only:
                 </div>
-                <div className={'ResultPage__content-text-result' + this.profitPercentDiffBitcoin()}>
+                <div className={'ResultPage__content-text-result' +  this.getModif(this.profitPercentDiffBitcoin())}>
                   {this.profitPercentDiffBitcoin()}%
                 </div>
               </div>
@@ -319,8 +321,8 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div style={{textAlign: 'center', margin: '20px'}}>
             <div className="ResultPage__content-switch-block">
               <Switch
-                checkedChildren="shown charts"
-                unCheckedChildren="hidden charts"
+                checkedChildren="Hide Charts"
+                unCheckedChildren="Show Charts"
                 onChange={checked => {
                   this.setState({showMessageDialog: checked});
                   setTimeout(
