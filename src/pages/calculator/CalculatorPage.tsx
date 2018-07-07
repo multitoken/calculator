@@ -118,7 +118,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
 
             <div>
               <div className="CalculatorPage__options-title">
-                Period of date:
+                Period:
               </div>
               <div
                 style={{

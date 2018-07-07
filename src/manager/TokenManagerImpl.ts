@@ -423,7 +423,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   private resetDefaultValues(): void {
     this.amount = 10000;
-    this.setCommission(0.20);
+    this.setCommission(3.0);
     this.proportions = [];
     this.tokenWeights = [];
     this.startCalculationIndex = 0;
