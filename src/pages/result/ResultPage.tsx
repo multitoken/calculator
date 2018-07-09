@@ -4,6 +4,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
 import { ArbiterChart } from '../../components/charts/ArbiterChart';
+import { HistoryChart } from '../../components/charts/HistoryChart';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
@@ -14,7 +15,8 @@ import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
 import { ProgressListener } from '../../manager/ProgressListener';
 import { TokenManager } from '../../manager/TokenManager';
-import { Arbitration } from '../../repository/models/Arbitration';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
@@ -30,7 +32,7 @@ interface State {
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensLegend: TokenLegend[];
   tokensDate: number[];
-  arbitrationList: Arbitration[];
+  rebalanceValuesList: RebalanceValues[];
   arbiterCap: number;
   arbiterProfit: number;
   arbiterTotalTxFee: number;
@@ -73,7 +75,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       arbiterCap: this.tokenManager.getAmount(),
       arbiterProfit: 0,
       arbiterTotalTxFee: 0,
-      arbitrationList: [],
       btcCount: 0,
       btcUSDT: this.tokenManager.getAmount(),
       calculateMaxDateIndex: 1,
@@ -84,6 +85,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       proportionList: [],
+      rebalanceValuesList: [],
       showCalculationProgress: true,
       showCharts: false,
       showMessageDialog: false,
@@ -131,8 +133,24 @@ export default class ResultPage extends React.Component<Props, State> implements
       >
         <PageHeader/>
         <PageContent className="ResultPage__content">
-          <div className="ResultPage__content-text-caption">The results of the portfolio with auto rebalancing</div>
-          <div className="ResultPage__content-block-profit">
+          <div
+            className="ResultPage__content-text-caption"
+            style={{
+              display: this.tokenManager.disabledArbitrage() && this.tokenManager.disabledManualRebalance()
+                ? 'none'
+                : 'block',
+            }}
+          >
+            The results of the portfolio with rebalancing
+          </div>
+          <div
+            className="ResultPage__content-block-profit"
+            style={{
+              display: this.tokenManager.disabledArbitrage() && this.tokenManager.disabledManualRebalance()
+                ? 'none'
+                : 'block',
+            }}
+          >
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
                 Portfolio capitalization:
@@ -167,7 +185,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*----------3------------*/}
 
-          <div className="ResultPage__content-text-caption">The results of the portfolio without auto rebalancing</div>
+          <div className="ResultPage__content-text-caption">The results of the portfolio without rebalancing</div>
           <div className="ResultPage__content-block">
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
@@ -240,8 +258,20 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
 
           {/*------------5-----------*/}
-          <div className="ResultPage__content-text-caption">Arbitrage transactions</div>
-          <div className="ResultPage__content-block">
+          <div
+            className="ResultPage__content-text-caption"
+            style={{
+              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+            }}
+          >
+            Arbitrage transactions
+          </div>
+          <div
+            className="ResultPage__content-block"
+            style={{
+              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+            }}
+          >
             <Row>
               <Col span={8} className="ResultPage__content-text-title">
                 Transactions count:
@@ -255,7 +285,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                {this.state.arbitrationList.length}
+                {Math.max(0, this.state.rebalanceValuesList.length - 1)}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
                 ${this.totalEthFee()}
@@ -268,8 +298,18 @@ export default class ResultPage extends React.Component<Props, State> implements
 
           {/*-----------------------*/}
 
-          <div className="ResultPage__content-block" style={{marginLeft: '32.45%'}}>
-            <Row>
+          <div
+            className="ResultPage__content-block"
+            style={{
+              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              marginLeft: '32.45%',
+            }}
+          >
+            <Row
+              style={{
+                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              }}
+            >
               <Col span={12}>
                 <div className="ResultPage__content-text-title">
                   Total arbitrage profit:
@@ -360,23 +400,46 @@ export default class ResultPage extends React.Component<Props, State> implements
       <div style={{overflow: 'hidden', height: this.chartsAlreadyPrepared && !this.state.showCharts ? '0' : '100%'}}>
         <PageContent className="ResultPage__content">
           <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
-            <div className="ResultPage__result-chart">
+            <span className="ResultPage__result-chart-title">Currency price history $:</span>
+            <HistoryChart
+              data={this.state.tokensHistory}
+              colors={TokensHelper.COLORS}
+              timeStep={this.tokenManager.getStepSec()}
+              isDebugMode={this.tokenManager.isFakeMode()}
+              start={this.state.historyChartRangeDateIndex[0]}
+              end={this.state.historyChartRangeDateIndex[1]}
+              showRange={false}
+            />
+            <div className="ResultPage__result-legend">
+              <TokensLegendList
+                style={LegendStyle.LINE}
+                columnCount={4}
+                data={this.state.tokensLegend}
+              />
+            </div>
+          </div>
+        </PageContent>
+
+        <PageContent
+          className="ResultPage__content"
+          visibility={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
+        >
+          <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
               Portfolio capitalization:
             </span>
-              <ArbiterChart
-                isDebugMode={this.tokenManager.isFakeMode()}
-                data={this.state.arbitrationList}
-                colors={TokensHelper.COLORS}
-                showRange={false}
+            <ArbiterChart
+              isDebugMode={this.tokenManager.isFakeMode()}
+              data={this.state.rebalanceValuesList}
+              colors={TokensHelper.COLORS}
+              showRange={false}
+            />
+            <div className="ResultPage__result-legend">
+              <TokensLegendList
+                style={LegendStyle.LINE}
+                columnCount={4}
+                data={this.state.tokensLegend}
               />
-              <div className="ResultPage__result-legend">
-                <TokensLegendList
-                  style={LegendStyle.LINE}
-                  columnCount={4}
-                  data={this.state.tokensLegend}
-                />
-              </div>
             </div>
           </div>
         </PageContent>
@@ -444,7 +507,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private avgEthFee(): string {
-    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getArbitrationListLen() || 1))).toFixed(3));
+    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getrebalanceValuesListLen() || 1))).toFixed(3));
   }
 
   private capBtc(): string {
@@ -469,7 +532,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private avgArbiterProfit(): string {
-    return this.formatCurrency((this.state.arbiterProfit / (this.getArbitrationListLen() || 1)).toFixed(3));
+    return this.formatCurrency((this.state.arbiterProfit / (this.getrebalanceValuesListLen() || 1)).toFixed(3));
   }
 
   private formatCurrency(value: string): string {
@@ -495,8 +558,8 @@ export default class ResultPage extends React.Component<Props, State> implements
     return Math.floor(((max - min) / (60 / this.tokenManager.getStepSec())) / 60 / 24);
   }
 
-  private getArbitrationListLen(): number {
-    return Math.max(0, this.state.arbitrationList.length - 1);
+  private getrebalanceValuesListLen(): number {
+    return Math.max(0, this.state.rebalanceValuesList.length - 1);
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
@@ -538,14 +601,14 @@ export default class ResultPage extends React.Component<Props, State> implements
 
     this.tokenManager.calculateInitialAmounts()
       .then(() => this.tokenManager.calculateArbitration())
-      .then(result => {
-        this.setState({arbitrationList: result});
+      .then((result: RebalanceHistory) => {
+        this.setState({rebalanceValuesList: result.rebalanceValues});
         console.log(result);
 
         let profit: number = 0;
         let totalTxPrice: number = 0;
 
-        result.forEach(value => {
+        result.arbitrage.forEach(value => {
           profit += value.arbiterProfit;
           totalTxPrice += value.txPrice;
         });

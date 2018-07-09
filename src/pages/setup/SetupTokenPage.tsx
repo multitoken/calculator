@@ -105,7 +105,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.state.selectedTokenNames.sort();
 
     this.tokenManager.setupTokens(this.state.selectedTokenNames)
-      .then(() => history.push('calculator'))
+      .then(() => history.push('types'))
       .catch(reason => {
         console.error(reason);
         alert('something went wrong');

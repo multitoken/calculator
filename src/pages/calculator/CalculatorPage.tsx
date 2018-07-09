@@ -153,8 +153,24 @@ export default class CalculatorPage extends React.Component<Props, State> {
             />
           </PageContent>
           <PageContent className="CalculatorPage__content-right-top">
-            <div className="CalculatorPage__options-title">Change token weight:</div>
-            <div className="CalculatorPage__result-chart">
+            <div
+              className="CalculatorPage__content-rebalance-blocked"
+              style={{
+                display: this.tokenManager.disabledManualRebalance() ? 'block' : 'none',
+              }}
+            >
+              Disabled in selected type of multitoken.
+            </div>
+            <div
+              className="CalculatorPage__options-title"
+              style={{display: this.tokenManager.disabledManualRebalance() ? 'none' : 'block'}}
+            >
+              Change token weight:
+            </div>
+            <div
+              className="CalculatorPage__result-chart"
+              style={{display: this.tokenManager.disabledManualRebalance() ? 'none' : 'block'}}
+            >
               <div style={{margin: '0px 20px 0px -20px'}}>
                 <WeightChart
                   applyScale={false}
@@ -191,6 +207,16 @@ export default class CalculatorPage extends React.Component<Props, State> {
                 onClick={() => this.onCalculateClick()}
               >
                 Calculate
+              </Button>
+              <span className="m-2"/>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => {
+                  window.location.replace('/simulator');
+                }}
+              >
+                Start new
               </Button>
             </div>
           </PageContent>

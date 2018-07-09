@@ -7,9 +7,6 @@ export class Arbitration {
     public expensiveCount: number;
     public bestPercent: number;
     public arbiterProfit: number;
-    public arbiterCap: number;
-    public originCap: number;
-    public bitcoinCap: number;
     public arbiterTokensCap: Map<string, number>;
     public originTokensCap: Map<string, number>;
     public timestamp: number;
@@ -21,9 +18,6 @@ export class Arbitration {
                 expensiveCount: number,
                 bestPercent: number,
                 arbiterProfit: number,
-                arbiterCap: number,
-                originCap: number,
-                bitcoinCap: number,
                 arbiterTokensCap: Map<string, number>,
                 originTokensCap: Map<string, number>,
                 timestamp: number) {
@@ -34,9 +28,6 @@ export class Arbitration {
         this.expensiveCount = expensiveCount;
         this.bestPercent = bestPercent;
         this.arbiterProfit = arbiterProfit;
-        this.arbiterCap = arbiterCap;
-        this.originCap = originCap;
-        this.bitcoinCap = bitcoinCap;
         this.arbiterTokensCap = arbiterTokensCap;
         this.originTokensCap = originTokensCap;
         this.timestamp = timestamp;

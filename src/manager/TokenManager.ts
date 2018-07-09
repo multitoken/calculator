@@ -1,5 +1,5 @@
 import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
-import { Arbitration } from '../repository/models/Arbitration';
+import { RebalanceHistory } from '../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
 import { TokenWeight } from '../repository/models/TokenWeight';
@@ -41,7 +41,7 @@ export interface TokenManager {
 
   subscribeToProgress(listener?: ProgressListener): void;
 
-  calculateArbitration(): Promise<Arbitration[]>;
+  calculateArbitration(): Promise<RebalanceHistory>;
 
   calculateCap(origin: boolean): Promise<number>;
 
@@ -50,5 +50,13 @@ export interface TokenManager {
   isFakeMode(): boolean;
 
   setupRepository(repo: CryptocurrencyRepository, isFake: boolean): void;
+
+  disableArbitrage(disabled: boolean): void;
+
+  disabledArbitrage(): boolean;
+
+  disableManualRebalance(disabled: boolean): void;
+
+  disabledManualRebalance(): boolean;
 
 }
