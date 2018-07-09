@@ -103,7 +103,14 @@ export default class CalculatorPage extends React.Component<Props, State> {
               style={{width: '100%'}}
             />
 
-            <div className="CalculatorPage__options-title">Commission percents:&nbsp;</div>
+            <div
+              className="CalculatorPage__options-title"
+              style={{
+                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              }}
+            >
+              Commission percents:&nbsp;
+            </div>
             <InputNumber
               value={this.state.commissionPercents}
               step={0.01}
@@ -112,7 +119,10 @@ export default class CalculatorPage extends React.Component<Props, State> {
               max={99.99}
               min={0.01}
               onChange={value => this.onFeeChange(value)}
-              style={{width: '100%'}}
+              style={{
+                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+                width: '100%',
+              }}
             />
 
             <div>
