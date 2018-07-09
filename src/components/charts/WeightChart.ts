@@ -11,6 +11,8 @@ interface Properties extends AbstractProperties<TokenWeight[]> {
 export class WeightChart extends AbstractChart<Properties, AbstractState, TokenWeight[], any> {
 
   public shouldComponentUpdate(props: Readonly<Properties>, state: Readonly<AbstractState>, data2: any): boolean {
+    super.shouldComponentUpdate(props, state, data2);
+
     this.isChangedData = this.props.data !== props.data ||
       this.props.initialState !== props.initialState ||
       this.props.initialDate !== props.initialDate ||
