@@ -280,7 +280,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                {Math.max(0, this.state.rebalanceValuesList.length - 1)}
+                {Math.max(0, this.state.rebalanceValuesList.length - 2)}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
                 ${this.totalEthFee()}
