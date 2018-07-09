@@ -7,11 +7,8 @@ import { ArbiterChart } from '../../components/charts/ArbiterChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
-import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
-import { TokensLegendList } from '../../components/lists/legend/TokensLegendList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
-import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
 import { ProgressListener } from '../../manager/ProgressListener';
 import { TokenManager } from '../../manager/TokenManager';
@@ -30,7 +27,6 @@ interface Props extends RouteComponentProps<{}> {
 interface State {
   tokenNames: Map<string, boolean>;
   tokensHistory: Map<string, TokenPriceHistory[]>;
-  tokensLegend: TokenLegend[];
   tokensDate: number[];
   rebalanceValuesList: RebalanceValues[];
   arbiterCap: number;
@@ -95,7 +91,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       tokenNames: new Map(),
       tokensDate: [],
       tokensHistory: new Map(),
-      tokensLegend: [],
       tokensWeightEditItem: undefined,
       tokensWeightList: [],
     };
@@ -410,13 +405,6 @@ export default class ResultPage extends React.Component<Props, State> implements
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
             />
-            <div className="ResultPage__result-legend">
-              <TokensLegendList
-                style={LegendStyle.LINE}
-                columnCount={4}
-                data={this.state.tokensLegend}
-              />
-            </div>
           </div>
         </PageContent>
 
@@ -434,13 +422,6 @@ export default class ResultPage extends React.Component<Props, State> implements
               colors={TokensHelper.COLORS}
               showRange={false}
             />
-            <div className="ResultPage__result-legend">
-              <TokensLegendList
-                style={LegendStyle.LINE}
-                columnCount={4}
-                data={this.state.tokensLegend}
-              />
-            </div>
           </div>
         </PageContent>
         {this.scrollToCharts()}
@@ -586,7 +567,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       proportionList: proportions,
       tokenNames: tokenItems,
       tokensHistory: this.tokenManager.getPriceHistory(),
-      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, TokensHelper.COLORS[i])),
     });
 
     this.processCalculate();

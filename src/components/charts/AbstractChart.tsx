@@ -14,7 +14,11 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
+import { TokenLegend } from '../../entities/TokenLegend';
 import { DateUtils } from '../../utils/DateUtils';
+import { TokensHelper } from '../../utils/TokensHelper';
+import { LegendStyle } from '../holders/legend/TokenLegendHolder';
+import { TokensLegendList } from '../lists/legend/TokensLegendList';
 import { XAxisDate } from './XAxisDate';
 import { YAxisValue } from './YAxisValue';
 
@@ -69,6 +73,13 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           {this.prepareChart()}
         </ResponsiveContainer>
         {this.prepareRangeComponent()}
+        <div style={{margin: '20px 65px 0 65px'}}>
+          <TokensLegendList
+            style={LegendStyle.LINE}
+            columnCount={4}
+            data={this.getNames().map((value, i) => new TokenLegend(value, TokensHelper.COLORS[i]))}
+          />
+        </div>
       </div>
     );
   }
