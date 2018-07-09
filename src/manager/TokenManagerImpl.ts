@@ -4,6 +4,8 @@ import { CryptocurrencyRepository } from '../repository/cryptocurrency/Cryptocur
 import { ArbiterProfit } from '../repository/models/ArbiterProfit';
 import { Arbitration } from '../repository/models/Arbitration';
 import Pair from '../repository/models/Pair';
+import { RebalanceHistory } from '../repository/models/RebalanceHistory';
+import { RebalanceValues } from '../repository/models/RebalanceValues';
 import { Token } from '../repository/models/Token';
 import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../repository/models/TokenProportion';
@@ -32,6 +34,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private amount: number;
   private proportions: TokenProportion[];
   private tokenWeights: TokenWeight[];
+  private isDisabledArbitrage: boolean;
+  private isDisabledManualRebalance: boolean;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.resetDefaultValues();
@@ -57,9 +61,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.tokensAmountFixed.clear();
     this.tokensWeight.clear();
     this.tokensWeightFixed.clear();
-    this.startCalculationIndex = 0;
-    this.endCalculationIndex = 0;
-    this.maxCalculationIndex = 0;
+
     this.resetDefaultValues();
 
     this.btcHistoryPrice = await this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
@@ -257,13 +259,19 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener = listener || this;
   }
 
-  public async calculateArbitration(): Promise<Arbitration[]> {
-    const result: Arbitration[] = [];
+  public async calculateArbitration(): Promise<RebalanceHistory> {
+    const resultArbitrage: Arbitration[] = [];
+    const resultValues: RebalanceValues[] = [];
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcCount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
 
     this.listener.onProgress(1);
+    if (this.isDisabledArbitrage && this.isDisabledManualRebalance) {
+      this.listener.onProgress(100);
+      return new RebalanceHistory([], []);
+    }
+
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 10000 === 0) {
@@ -283,8 +291,21 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         timestamp = value[i].time;
       });
 
-      this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount);
-      this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed);
+      if (i === this.startCalculationIndex) {
+        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
+      }
+
+      if (!this.isDisabledManualRebalance) {
+        if (this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount) ||
+          this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed)) {
+          resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
+        }
+      }
+
+      if (this.isDisabledArbitrage) {
+        continue;
+      }
+
       txPrice = Math.sin(i / 1000) * 0.5 + 1;
 
       let profit: ArbiterProfit = ArbiterProfit.empty();
@@ -335,7 +356,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
         // console.log(profit.cheapTokenName, cheapPrice * profit.cheapTokensCount, cheapValue);
         // console.log(profit.expensiveTokenName, expensivePrice * profit.expensiveTokensCount, expValue);
-        const bitcoinCap: number = btcCount * this.btcHistoryPrice[i].value;
 
         const arb: Arbitration = new Arbitration(
           txPrice,
@@ -345,9 +365,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
           profit.expensiveTokensCount,
           profit.percent,
           profit.profit,
-          0,
-          await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
-          bitcoinCap,
           new Map(),
           await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
           timestamp
@@ -362,10 +379,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         // console.log(profit.cheapTokenName, cheapValue, this.tokensAmount.get(profit.cheapTokenName));
         // console.log(profit.expensiveTokenName, expValue, this.tokensAmount.get(profit.expensiveTokenName));
 
-        arb.arbiterCap = await this.calculateCapByHistory(this.tokensAmount, historyPerHour);
         arb.arbiterTokensCap = await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour);
+        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
 
-        result.push(arb);
+        resultArbitrage.push(arb);
       }
     }
 
@@ -377,20 +394,18 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       0,
       0,
       0,
-      await this.calculateCapByHistory(this.tokensAmount, historyPerHour),
-      await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
-      btcCount * this.btcHistoryPrice[this.endCalculationIndex].value,
       await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour),
       await this.calculateTokensPriceByHistory(this.tokensAmountFixed, historyPerHour),
       timestamp
     );
-    result.push(arbFinished);
+    resultArbitrage.push(arbFinished);
+    resultValues.push(await this.calculateRebalanceValues(this.endCalculationIndex, btcCount, historyPerHour));
 
     for (const [key, value] of this.tokensAmount) {
       console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
     }
 
-    return result;
+    return new RebalanceHistory(resultValues, resultArbitrage);
   }
 
   public async calculateCap(origin: boolean): Promise<number> {
@@ -421,6 +436,22 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.isFakeModeEnabled = isFake;
   }
 
+  public disableArbitrage(disabled: boolean): void {
+    this.isDisabledArbitrage = disabled;
+  }
+
+  public disabledArbitrage(): boolean {
+    return this.isDisabledArbitrage;
+  }
+
+  public disableManualRebalance(disabled: boolean): void {
+    this.isDisabledManualRebalance = disabled;
+  }
+
+  public disabledManualRebalance(): boolean {
+    return this.isDisabledManualRebalance;
+  }
+
   private resetDefaultValues(): void {
     this.amount = 10000;
     this.setCommission(3.0);
@@ -429,12 +460,28 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;
+    this.isDisabledArbitrage = false;
+    this.isDisabledManualRebalance = false;
   }
 
-  private applyCustomProportions(indexOfHistory: number, weights: Map<string, number>, amounts: Map<string, number>) {
+  private async calculateRebalanceValues(indexTimeLine: number,
+                                         btcCount: number,
+                                         historyPerHour: Map<string, number>): Promise<RebalanceValues> {
+    const bitcoinCap: number = btcCount * this.btcHistoryPrice[indexTimeLine].value;
+    return new RebalanceValues(
+      await this.calculateCapByHistory(this.tokensAmount, historyPerHour),
+      await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
+      bitcoinCap,
+      this.btcHistoryPrice[indexTimeLine].time
+    );
+  }
+
+  private applyCustomProportions(indexOfHistory: number,
+                                 weights: Map<string, number>,
+                                 amounts: Map<string, number>): boolean {
     const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeline.get(indexOfHistory);
     if (!proportions) {
-      return;
+      return false;
     }
 
     proportions.toArray().forEach(token => {
@@ -460,6 +507,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         if (reCalcAmount > 0) {
           weights.set(token.name, token.weight);
           amounts.set(token.name, reCalcAmount);
+          return true;
 
         } else {
           throw new Error(
@@ -474,15 +522,16 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         }
       }
     );
+    return false;
   }
 
   private applyCustomProportionsFixed(indexOfHistory: number,
                                       historyPrice: Map<string, number>,
                                       weights: Map<string, number>,
-                                      amounts: Map<string, number>) {
+                                      amounts: Map<string, number>): boolean {
     const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeline.get(indexOfHistory);
     if (!proportions) {
-      return;
+      return false;
     }
 
     let amount: number = 0;
@@ -512,6 +561,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
       amounts.set(key, count);
     });
+
+    return true;
   }
 
   private async calculateCapByHistory(tokensAmounts: Map<string, number>,

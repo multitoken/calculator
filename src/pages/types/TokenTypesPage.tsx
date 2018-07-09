@@ -1,14 +1,25 @@
 import { Layout } from 'antd';
 import * as React from 'react';
-import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import TokenType from '../../components/token-type/TokenType';
+import { lazyInject, Services } from '../../Injections';
+import { TokenManager } from '../../manager/TokenManager';
 import ImgBalance from '../../res/icons/balance.svg';
 import ImgBalanceCustom from '../../res/icons/balance_custom.svg';
 import ImgBalanceOff from '../../res/icons/balance_off.svg';
 import './TokenTypesPage.less';
 
-export default class TokenTypesPage extends React.Component<{}, {}> {
+export default class TokenTypesPage extends React.Component<any, {}> {
+
+  @lazyInject(Services.TOKEN_MANAGER)
+  public tokenManager: TokenManager;
+
+  public componentDidMount(): void {
+    if (this.tokenManager.getPriceHistory().size === 0) {
+      // Redirect to root
+      window.location.replace('/simulator');
+    }
+  }
 
   public render() {
     return (
@@ -27,32 +38,32 @@ export default class TokenTypesPage extends React.Component<{}, {}> {
           <TokenType
             title="With auto rebalancing"
             img={ImgBalance}
-            onItemClick={() => {
-              // hello
-            }}
-            desc={<span>Hello</span>}
+            onItemClick={() => this.onTokenTypeSelected(1)}
+            desc={<span>Keeps the specified ratio of portfolio proportions.</span>}
           />
           <TokenType
             title="Without auto rebalancing"
             img={ImgBalanceOff}
-            desc={<span>Hello</span>}
-            onItemClick={() => {
-              // hello
-            }}
+            desc={<span>The number of tokens in the portfolio will be constant.</span>}
+            onItemClick={() => this.onTokenTypeSelected(2)}
           />
           <TokenType
             title="Manual control rebalancing"
             img={ImgBalanceCustom}
-            desc={<span>Hello</span>}
-            onItemClick={() => {
-              // hello
-            }}
+            desc={<span>Change the proportion of assets manually after creating a multitoken.</span>}
+            onItemClick={() => this.onTokenTypeSelected(3)}
           />
         </div>
 
-        <PageFooter/>
       </Layout>
     );
+  }
+
+  private onTokenTypeSelected(type: number): void {
+    this.tokenManager.disableArbitrage(type >= 2);
+    this.tokenManager.disableManualRebalance(type !== 3);
+    const {history} = this.props;
+    history.push('calculator');
   }
 
 }

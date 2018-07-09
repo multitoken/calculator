@@ -1,24 +1,25 @@
-import { Arbitration } from '../../repository/models/Arbitration';
+import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
-interface Properties extends AbstractProperties<Arbitration[]> {
+interface Properties extends AbstractProperties<RebalanceValues[]> {
 }
 
-export class ArbiterChart extends AbstractChart<Properties, AbstractState, Arbitration[], any> {
+export class ArbiterChart extends AbstractChart<Properties, AbstractState, RebalanceValues[], any> {
 
-  public parseData(data: Arbitration[]): any[] {
+  public parseData(data: RebalanceValues[]): any[] {
     return data.map(value => {
       const copy: any = Object.assign({}, value);
       copy.date = value.timestamp;
-      copy.arbiterCap = parseFloat(copy.arbiterCap.toFixed(0));
-      copy.originCap = parseFloat(copy.originCap.toFixed(0));
-      copy['only Bitcoin'] = parseFloat(copy.bitcoinCap.toFixed(0));
+      copy['rebalance cap'] = parseFloat(copy.rebalanceCap.toFixed(0));
+      copy['original cap'] = parseFloat(copy.originalCap.toFixed(0));
+      copy['bitcoin cap'] = parseFloat(copy.bitcoinCap.toFixed(0));
+
       return copy;
     });
   }
 
   public getNames(): string[] {
-    return ['arbiterCap', 'originCap', 'only Bitcoin'];
+    return ['rebalance cap', 'original cap', 'bitcoin cap'];
   }
 
 }
