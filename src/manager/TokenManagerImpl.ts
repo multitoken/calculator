@@ -117,6 +117,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
     this.endCalculationIndex = this.maxCalculationIndex - 1;
 
+    this.btcHistoryPrice  =
+      this.btcHistoryPrice.slice((this.btcHistoryPrice.length - this.maxCalculationIndex), this.btcHistoryPrice.length);
+
     return this.selectedTokensHistory;
   }
 
@@ -272,6 +275,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       return new RebalanceHistory([], []);
     }
 
+    console.log(
+      this.startCalculationIndex, this.endCalculationIndex, this.selectedTokensHistory, this.btcHistoryPrice.length
+    );
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 10000 === 0) {
