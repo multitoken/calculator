@@ -50,6 +50,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   public data: any[];
   public isChangedData: boolean = false;
+  private colorByName: Map<string, string> = new Map();
 
   constructor(props: P) {
     super(props);
@@ -66,7 +67,12 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
     this.isChangedData = this.props.data !== props.data;
 
-    console.log(this.state.selectedNames.length, state.selectedNames.length);
+    this.colorByName.clear();
+    this.getNames()
+      .forEach((value, index) =>
+        this.colorByName.set(value, index < props.colors.length ? props.colors[index] : '#ffffff')
+      );
+
     return this.isChangedData || (this.state.calculateRangeIndex !== state.calculateRangeIndex) ||
       this.state.selectedNames.length !== state.selectedNames.length;
   }
@@ -245,7 +251,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
             key={value}
             dataKey={value}
             dot={false}
-            stroke={this.props.colors[index]}
+            stroke={this.colorByName.get(value) || '#ffffff'}
           />
         );
       });
@@ -259,7 +265,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
             key={value}
             dataKey={value}
             stackId={''}
-            fill={this.props.colors[index]}
+            fill={this.colorByName.get(value) || '#ffffff'}
           />
         );
       });
@@ -273,7 +279,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
             key={value}
             dataKey={value}
             stackId={''}
-            fill={this.props.colors[index]}
+            fill={this.colorByName.get(value) || '#ffffff'}
           />
         );
       });
