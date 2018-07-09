@@ -462,8 +462,8 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private profitPercentYearWithRebalance(): string {
-    const diff: number = this.state.arbiterCap / this.state.amount;
-    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
+    const percents: number = (this.state.arbiterCap - this.state.amount) / this.state.amount * 100;
+    return (percents / this.calcCountDays() * 365).toFixed(0);
   }
 
   private capWithoutRebalance(): string {
@@ -479,8 +479,8 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private profitPercentYearWithoutRebalance(): string {
-    const diff: number = this.state.cap / this.state.amount;
-    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
+    const percents: number = (this.state.cap - this.state.amount) / this.state.amount * 100;
+    return (percents / this.calcCountDays() * 365).toFixed(0);
   }
 
   private totalEthFee(): string {
@@ -504,8 +504,8 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private profitPercentYearBtc(): string {
-    const diff: number = this.state.btcUSDT / this.state.amount;
-    return ((Math.pow(diff, 365 / this.calcCountDays()) - 1) * 100).toFixed(0);
+    const percents: number = (this.state.btcUSDT - this.state.amount) / this.state.amount * 100;
+    return (percents / this.calcCountDays() * 365).toFixed(0);
   }
 
   private totalArbiterProfit(): string {
