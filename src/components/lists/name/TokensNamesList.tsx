@@ -51,7 +51,6 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
       this.state.checkedSet.add(model.name);
     }
 
-    console.log(this.state.checkedSet);
     this.setState({checkedSet: this.state.checkedSet});
     this.props.onCheck(Array.from(this.state.checkedSet.keys()));
   }

@@ -280,7 +280,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                {Math.max(0, this.state.rebalanceValuesList.length - 1)}
+                {Math.max(0, this.state.rebalanceValuesList.length - 2)}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
                 ${this.totalEthFee()}
@@ -404,6 +404,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
+              showLegendCheckBox={true}
             />
           </div>
         </PageContent>
@@ -421,6 +422,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               data={this.state.rebalanceValuesList}
               colors={TokensHelper.COLORS}
               showRange={false}
+              showLegendCheckBox={true}
             />
           </div>
         </PageContent>

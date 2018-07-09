@@ -34,6 +34,7 @@ export interface AbstractProperties<M> {
   applyScale?: boolean;
   colors: string[];
   showRange?: boolean;
+  showLegendCheckBox?: boolean;
   type?: ChartType;
   aspect?: number;
   isDebugMode?: boolean;
@@ -41,6 +42,7 @@ export interface AbstractProperties<M> {
 
 export interface AbstractState {
   calculateRangeIndex: Range | number;
+  selectedNames: string[];
 }
 
 export default abstract class AbstractChart<P extends AbstractProperties<M>, S extends AbstractState, M, D>
@@ -56,14 +58,17 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
     this.isChangedData = true;
 
     this.state = {
-      calculateRangeIndex: {min: 0, max: 1}
+      calculateRangeIndex: {min: 0, max: 1},
+      selectedNames: this.getNames()
     };
   }
 
   public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
     this.isChangedData = this.props.data !== props.data;
 
-    return this.isChangedData || (this.state.calculateRangeIndex !== state.calculateRangeIndex);
+    console.log(this.state.selectedNames.length, state.selectedNames.length);
+    return this.isChangedData || (this.state.calculateRangeIndex !== state.calculateRangeIndex) ||
+      this.state.selectedNames.length !== state.selectedNames.length;
   }
 
   public render() {
@@ -77,6 +82,8 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           <TokensLegendList
             style={LegendStyle.LINE}
             columnCount={4}
+            showCheckbox={this.props.showLegendCheckBox}
+            onChangeNames={names => this.setState({selectedNames: names})}
             data={this.getNames().map((value, i) => new TokenLegend(value, TokensHelper.COLORS[i]))}
           />
         </div>
@@ -229,7 +236,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   }
 
   private prepareLines(): any {
-    return this.getNames()
+    return (this.state.selectedNames as string[])
       .map((value, index) => {
         return (
           <Line
@@ -245,7 +252,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   }
 
   private prepareBars(): any {
-    return this.getNames()
+    return (this.state.selectedNames as string[])
       .map((value, index) => {
         return (
           <Bar
@@ -259,7 +266,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   }
 
   private prepareBarsStacked(): any {
-    return this.getNames()
+    return  (this.state.selectedNames as string[])
       .map((value, index) => {
         return (
           <Bar

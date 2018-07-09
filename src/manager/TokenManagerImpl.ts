@@ -292,13 +292,12 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       });
 
       if (i === this.startCalculationIndex) {
-        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
+        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
       }
 
-      if (!this.isDisabledManualRebalance) {
-        if (this.applyCustomProportions(i, this.tokensWeight, this.tokensAmount) ||
-          this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeightFixed, this.tokensAmountFixed)) {
-          resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
+      if (!this.isDisabledManualRebalance && this.isDisabledArbitrage) {
+        if (this.applyCustomProportionsFixed(i, historyPerHour, this.tokensWeight, this.tokensAmount)) {
+          resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
         }
       }
 
@@ -380,7 +379,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         // console.log(profit.expensiveTokenName, expValue, this.tokensAmount.get(profit.expensiveTokenName));
 
         arb.arbiterTokensCap = await this.calculateTokensPriceByHistory(this.tokensAmount, historyPerHour);
-        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour));
+        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
 
         resultArbitrage.push(arb);
       }
@@ -399,7 +398,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       timestamp
     );
     resultArbitrage.push(arbFinished);
-    resultValues.push(await this.calculateRebalanceValues(this.endCalculationIndex, btcCount, historyPerHour));
+    resultValues.push(
+      await this.calculateRebalanceValues(this.endCalculationIndex, btcCount, historyPerHour, timestamp)
+    );
 
     for (const [key, value] of this.tokensAmount) {
       console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
@@ -466,63 +467,15 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   private async calculateRebalanceValues(indexTimeLine: number,
                                          btcCount: number,
-                                         historyPerHour: Map<string, number>): Promise<RebalanceValues> {
+                                         historyPerHour: Map<string, number>,
+                                         timestamp: number): Promise<RebalanceValues> {
     const bitcoinCap: number = btcCount * this.btcHistoryPrice[indexTimeLine].value;
     return new RebalanceValues(
       await this.calculateCapByHistory(this.tokensAmount, historyPerHour),
       await this.calculateCapByHistory(this.tokensAmountFixed, historyPerHour),
       bitcoinCap,
-      this.btcHistoryPrice[indexTimeLine].time
+      timestamp
     );
-  }
-
-  private applyCustomProportions(indexOfHistory: number,
-                                 weights: Map<string, number>,
-                                 amounts: Map<string, number>): boolean {
-    const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeline.get(indexOfHistory);
-    if (!proportions) {
-      return false;
-    }
-
-    proportions.toArray().forEach(token => {
-        const oldWeight: number = weights.get(token.name) || 0;
-        const amount: number = amounts.get(token.name) || 0;
-
-        let reCalcAmount: number = 0;
-        try {
-          reCalcAmount = amount * token.weight / oldWeight;
-
-          console.log(
-            `indexOfHistory: ${indexOfHistory} 
-           name: ${token.name};
-           oldWeight: ${oldWeight};
-           newWeight: ${token.weight};
-           amount: ${amount};
-           newAmount: ${reCalcAmount}`
-          );
-        } catch (e) {
-          console.log(e);
-        }
-
-        if (reCalcAmount > 0) {
-          weights.set(token.name, token.weight);
-          amounts.set(token.name, reCalcAmount);
-          return true;
-
-        } else {
-          throw new Error(
-            `invalid value of recalculate amount!
-                     indexOfHistory: ${indexOfHistory} 
-                     name: ${token.name};
-                     oldWeight: ${oldWeight};
-                     newWeight: ${token.weight};
-                     amount: ${amount};
-                     newAmount: ${reCalcAmount}`
-          );
-        }
-      }
-    );
-    return false;
   }
 
   private applyCustomProportionsFixed(indexOfHistory: number,
