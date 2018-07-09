@@ -237,7 +237,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
   }
 
   private formatter(value: number): string {
-    return DateUtils.toFormat(this.props.dateList[value]);
+    return DateUtils.toFormat(this.props.dateList[value], DateUtils.DATE_FORMAT_SHORT);
   }
 
   private prepareTokenNames(): any {
