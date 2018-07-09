@@ -98,6 +98,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
             <div className="CalculatorPage__options-title">Amount of money:&nbsp;</div>
             <InputNumber
               value={this.state.amount}
+              step={Math.pow(10, this.state.amount.toString().length - 1)}
               formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
               onChange={value => this.onAmountChange(value)}
