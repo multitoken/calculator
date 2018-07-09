@@ -6,8 +6,6 @@ import { ChartType } from '../../components/charts/AbstractChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { WeightChart } from '../../components/charts/WeightChart';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
-import { LegendStyle } from '../../components/holders/legend/TokenLegendHolder';
-import { TokensLegendList } from '../../components/lists/legend/TokensLegendList';
 import { TokensProportionsList } from '../../components/lists/proportion/TokensProportionsList';
 import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageContent from '../../components/page-content/PageContent';
@@ -184,13 +182,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
                   type={ChartType.BAR}
                 />
               </div>
-              <div style={{margin: '10px 20px 0px 45px'}}>
-                <TokensLegendList
-                  style={LegendStyle.LINE}
-                  columnCount={4}
-                  data={this.state.tokensLegend}
-                />
-              </div>
               <div style={{margin: '0 20px 0px 45px'}}>
                 <TokenWeightList
                   maxHeight="200px"
@@ -230,6 +221,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
               end={this.state.historyChartRangeDateIndex[1]}
               applyScale={!this.tokenManager.isFakeMode()}
               showRange={false}
+              showLegendCheckBox={true}
             />
           </PageContent>
         </div>

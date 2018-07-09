@@ -55,7 +55,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       >
         <PageHeader/>
         <header className="SetupTokenPage__header">
-          Select tokens to simulate multiToken(at least two)
+          Select tokens to simulate multiToken (at least two)
         </header>
 
         <div className="SetupTokenPage">

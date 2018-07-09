@@ -16,7 +16,7 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
       this.props.initialDate !== props.initialDate ||
       this.props.finishDate !== props.finishDate;
 
-    return this.isChangedData;
+    return this.isChangedData || this.state.selectedNames.length !== state.selectedNames.length;
   }
 
   public parseData(data: TokenWeight[]): any[] {
