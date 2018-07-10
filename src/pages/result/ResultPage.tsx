@@ -346,7 +346,6 @@ export default class ResultPage extends React.Component<Props, State> implements
 
             <Button
               type="primary"
-              size="large"
               onClick={() => {
                 const {history} = this.props;
                 history.goBack();
@@ -357,7 +356,6 @@ export default class ResultPage extends React.Component<Props, State> implements
             <span className="m-2"/>
             <Button
               type="primary"
-              size="large"
               onClick={() => {
                 window.location.replace('/simulator');
               }}

@@ -49,7 +49,6 @@ export class TokensLegendList extends AbstractList<Properties, TokenLegend, {}> 
   }
 
   private onCheckItemClick(model: TokenLegend, checked: boolean) {
-    console.log(this.checked);
     this.checked.set(model.name, checked);
 
     if (this.props.onChangeNames) {
