@@ -25,6 +25,7 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
+  exchangeAmount: number;
   tokenNames: Map<string, boolean>;
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensLegend: TokenLegend[];
@@ -57,6 +58,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
       calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
       changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
       commissionPercents: this.tokenManager.getCommission(),
+      exchangeAmount: this.tokenManager.getExchangeAmount(),
       historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
       proportionList: [],
       tokenDialogDateList: [],
@@ -100,6 +102,20 @@ export default class CalculatorPage extends React.Component<Props, State> {
               formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
               onChange={value => this.onAmountChange(value)}
+              style={{width: '100%'}}
+            />
+
+            <div className="CalculatorPage__options-title">Exchange Amount (Optional):&nbsp;</div>
+            <InputNumber
+              value={this.state.exchangeAmount}
+              step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
+              formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
+              onChange={value =>
+                this.setState({exchangeAmount:
+                  Math.min(this.state.amount, Math.max(0, parseInt((value || '0').toString(), 10) || 0))
+                })
+              }
               style={{width: '100%'}}
             />
 
@@ -362,6 +378,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
   }
 
   private onCalculateClick() {
+    this.tokenManager.setExchangeAmount(this.state.exchangeAmount || 0);
     this.tokenManager.changeProportions(this.state.proportionList);
 
     this.tokenManager.setExchangeWeights(this.state.tokensWeightList);
