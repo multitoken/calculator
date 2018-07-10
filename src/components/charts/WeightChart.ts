@@ -40,9 +40,6 @@ export class WeightChart extends AbstractChart<Properties, AbstractState, TokenW
       result.push(dataResult);
     });
 
-    result.push(Object.assign({}, result[result.length - 1]));
-    result[result.length - 1].date = this.props.finishDate;
-
     return result;
   }
 
