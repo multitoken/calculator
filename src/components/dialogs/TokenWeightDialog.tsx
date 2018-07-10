@@ -223,13 +223,13 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           </span>
         </div>
         <Slider
+          disabled={this.props.editTokenWeights !== undefined}
           className="TokenWeightDialog__content-date-slider"
           max={this.props.dateList.length - 1}
-          min={this.props.minDateIndex}
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
           onChange={value =>
-            this.setState({selectedDateIndex: value as number})
+            this.setState({selectedDateIndex: Math.max(this.props.minDateIndex, value as number)})
           }
         />
       </div>
