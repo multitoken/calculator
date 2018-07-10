@@ -268,8 +268,13 @@ export default class CalculatorPage extends React.Component<Props, State> {
       }
     });
 
+    const weightList: TokenWeight[] = this.state.tokensWeightList;
+    const minDateIndex: number = weightList.length > 0
+      ? weightList[weightList.length - 1].index
+      : this.state.calculateRangeDateIndex[0];
+
     this.setState({
-      changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
+      changeWeightMinDateIndex: model ? model.index : minDateIndex + 1,
       tokenDialogOpen: true,
       tokenLatestWeights: latestTokensWeight,
       tokensWeightEditItem: model,

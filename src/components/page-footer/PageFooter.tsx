@@ -11,7 +11,7 @@ export default class PageFooter extends React.Component {
     const versionLink = `https://github.com/MultiTKN/arbitrator-simulator/tree/v${version}`;
     return (
       <Footer className="PageFooter__content">
-        MultiTKN&nbsp;©2018&nbsp;
+        Multitoken&nbsp;©2018&nbsp;
         <code className="PageFooter-version">
           {version ?
             <a href={versionLink} target="_blank">version&nbsp;{versionText}</a> :
