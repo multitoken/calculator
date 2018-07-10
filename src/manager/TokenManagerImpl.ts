@@ -117,7 +117,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
     this.endCalculationIndex = this.maxCalculationIndex - 1;
 
-    this.btcHistoryPrice  =
+    this.btcHistoryPrice =
       this.btcHistoryPrice.slice((this.btcHistoryPrice.length - this.maxCalculationIndex), this.btcHistoryPrice.length);
 
     return this.selectedTokensHistory;
@@ -268,12 +268,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcCount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
+    const skipStep: number = 86400 /* sec in day */ / this.getStepSec();
 
     this.listener.onProgress(1);
-    if (this.isDisabledArbitrage && this.isDisabledManualRebalance) {
-      this.listener.onProgress(100);
-      return new RebalanceHistory([], []);
-    }
 
     console.log(
       this.startCalculationIndex, this.endCalculationIndex, this.selectedTokensHistory, this.btcHistoryPrice.length
@@ -299,6 +296,11 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
       if (i === this.startCalculationIndex) {
         resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
+      }
+
+      if (this.isDisabledArbitrage && this.isDisabledManualRebalance && i % skipStep === 0) {
+        resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
+        continue;
       }
 
       if (!this.isDisabledManualRebalance && this.isDisabledArbitrage) {

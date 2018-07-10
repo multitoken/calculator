@@ -407,15 +407,13 @@ export default class ResultPage extends React.Component<Props, State> implements
           </div>
         </PageContent>
 
-        <PageContent
-          className="ResultPage__content"
-          visibility={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
-        >
+        <PageContent className="ResultPage__content">
           <div className="ResultPage__result-chart">
             <span className="ResultPage__result-chart-title">
               Portfolio capitalization:
             </span>
             <ArbiterChart
+              showRebalanceCap={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
               isDebugMode={this.tokenManager.isFakeMode()}
               data={this.state.rebalanceValuesList}
               colors={TokensHelper.COLORS}
