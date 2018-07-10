@@ -25,7 +25,6 @@ export default class TokenType extends React.Component<Props, {}> {
 
         <Button
           type="primary"
-          size="large"
           onClick={() => this.props.onItemClick()}
         >
           Select

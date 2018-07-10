@@ -172,13 +172,13 @@ export default class CalculatorPage extends React.Component<Props, State> {
             </div>
             <div
               className="CalculatorPage__options-title"
-              style={{display: this.tokenManager.disabledManualRebalance() ? 'none' : 'block'}}
+              style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
             >
               Change token weight:
             </div>
             <div
               className="CalculatorPage__result-chart"
-              style={{display: this.tokenManager.disabledManualRebalance() ? 'none' : 'block'}}
+              style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
             >
               <div style={{margin: '0px 20px 0px -20px'}}>
                 <WeightChart
@@ -213,7 +213,6 @@ export default class CalculatorPage extends React.Component<Props, State> {
               <span className="m-2"/>
               <Button
                 type="primary"
-                size="large"
                 onClick={() => {
                   window.location.replace('/simulator');
                 }}
