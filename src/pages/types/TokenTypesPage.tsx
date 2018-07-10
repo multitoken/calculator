@@ -31,24 +31,24 @@ export default class TokenTypesPage extends React.Component<any, {}> {
       >
         <PageHeader/>
         <header className="TokenTypesPage__header">
-          Select type of Multitoken
+          Select of rebalancing
         </header>
 
         <div className="TokenTypesPage__content">
           <TokenType
-            title="With auto rebalancing"
+            title="Auto rebalance"
             img={ImgBalance}
             onItemClick={() => this.onTokenTypeSelected(1)}
             desc={<span>Keeps the specified ratio of portfolio proportions.</span>}
           />
           <TokenType
-            title="Without auto rebalancing"
+            title="Fix proportions"
             img={ImgBalanceOff}
             desc={<span>The number of tokens in the portfolio will be constant.</span>}
             onItemClick={() => this.onTokenTypeSelected(2)}
           />
           <TokenType
-            title="Manual control rebalancing"
+            title="Manual rebalance"
             img={ImgBalanceCustom}
             desc={<span>Change the proportion of assets manually after creating a multitoken.</span>}
             onItemClick={() => this.onTokenTypeSelected(3)}

@@ -61,7 +61,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
       tokenNameSecond = this.props.editTokenWeights.tokens.second.name;
       tokenWeightFirst = this.props.editTokenWeights.tokens.first.weight;
       tokenWeightSecond = this.props.editTokenWeights.tokens.second.weight;
-      prevStateUpdated = this.props.editTokenWeights.equals(prevProps.editTokenWeights);
+      prevStateUpdated = !this.props.editTokenWeights.equals(prevProps.editTokenWeights);
 
     } else {
       tokenNameFirst = this.props.tokenNames.length > 0 ? this.props.tokenNames[0] : '';
