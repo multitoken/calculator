@@ -483,10 +483,11 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     while (balance > 0) {
       const timeLineValue = Math.round(this.random(endTime, startTime));
+
       if (!this.exchangeValues.has(timeLineValue)) {
         const priceValue = this.random(0.1, 0.01) * amount;
         this.exchangeValues.set(timeLineValue, priceValue);
-        balance -= priceValue;
+        balance -= Math.min(priceValue, balance);
       }
     }
   }
@@ -495,20 +496,24 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     if (!this.exchangeValues.has(timeLineValue)) {
       return;
     }
+
     const tokens: string[] = Array.from(price.keys());
 
     while (true) {
       const firstToken: string = tokens[Math.round(this.random(0, tokens.length - 1))];
       const secondToken: string = tokens[Math.round(this.random(0, tokens.length - 1))];
+
       if (firstToken !== secondToken) {
         const count: number = (this.exchangeValues.get(timeLineValue) || 0) / (price.get(firstToken) || 1);
-        if ((balances.get(firstToken) || 0) >= count) {
 
+        if ((balances.get(firstToken) || 0) >= count) {
           const exchanged: number = this.contractSellTokens(firstToken, secondToken, count);
+
           console.log(
             'exchange (tokenA, tokenB, count, exchange $, tokenA price, exchanged):',
             firstToken, secondToken, count, this.exchangeValues.get(timeLineValue), price.get(firstToken), exchanged
           );
+
           this.acceptTransaction(new Arbitration(
               0, firstToken, count, secondToken, exchanged, 0, 0,
               TokenManagerImpl.EMPTY_MAP,  TokenManagerImpl.EMPTY_MAP, 0
@@ -517,7 +522,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         }
       }
     }
-
   }
 
   private random(min: number, max: number): number {
