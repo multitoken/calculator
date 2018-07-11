@@ -18,15 +18,15 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
 
   public bindModel(model: TokenWeight): object {
     return (
-      <div className="TokenWeight__content">
-        <div className="TokenWeight__content-data">
-        <span className="TokenWeight__item-date">
+      <div className="TokenWeightHolder__content">
+        <div className="TokenWeightHolder__content-data">
+        <span className="TokenWeightHolder__item-date">
           {DateUtils.toFormat(model.timestamp, DateUtils.DATE_FORMAT_SHORT)}
           </span>
           {this.prepareTokens(model)}
         </div>
 
-        <div className="TokenWeight__content-actions">
+        <div className="TokenWeightHolder__content-actions">
           <div>
             <img
               style={{cursor: 'pointer'}}
@@ -52,8 +52,8 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
     return model.tokens.toArray().map((value: Token) => {
       return (
         <div key={value.name}>
-          <span className="TokenWeight__item-key">{value.name}</span>
-          <span className="TokenWeight__item-value">{value.weight}</span>
+          <span className="TokenWeightHolder__item-key">{value.name}</span>
+          <span className="TokenWeightHolder__item-value">{value.weight}</span>
         </div>
       );
     });

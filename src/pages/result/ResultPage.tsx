@@ -1,12 +1,14 @@
 import { BackTop, Button, Col, Layout, Row, Switch } from 'antd';
 import { SliderValue } from 'antd/es/slider';
+import Tooltip from 'antd/lib/tooltip';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
-import { ArbiterChart } from '../../components/charts/ArbiterChart';
+import { BalancesCapChart } from '../../components/charts/BalancesCapChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
+import { TokenWeightSimpleList } from '../../components/lists/weight-simple/TokenWeightSimpleList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
@@ -17,6 +19,7 @@ import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import IcoInfo from '../../res/icons/ico_info.svg';
 import { TokensHelper } from '../../utils/TokensHelper';
 
 import './ResultPage.less';
@@ -128,6 +131,11 @@ export default class ResultPage extends React.Component<Props, State> implements
       >
         <PageHeader/>
         <PageContent className="ResultPage__content">
+
+          <Tooltip title={this.getTooltipInfo()} placement={'rightTop'}>
+            <img src={IcoInfo} alt={'i'} className="ResultPage__content-info"/>
+          </Tooltip>
+
           <div
             className="ResultPage__content-text-caption"
             style={{
@@ -327,23 +335,6 @@ export default class ResultPage extends React.Component<Props, State> implements
           {/*-----------------------*/}
 
           <div style={{textAlign: 'center', margin: '20px'}}>
-            <div className="ResultPage__content-switch-block">
-              <Switch
-                checkedChildren="Hide Charts"
-                unCheckedChildren="Show Charts"
-                onChange={checked => {
-                  this.setState({showMessageDialog: checked});
-                  setTimeout(
-                    () => {
-                      this.setState({showCharts: checked});
-                      this.setState({showMessageDialog: false});
-                    },
-                    1000
-                  );
-                }}
-              />
-            </div>
-
             <Button
               type="primary"
               onClick={() => {
@@ -362,6 +353,23 @@ export default class ResultPage extends React.Component<Props, State> implements
             >
               Start new
             </Button>
+
+            <div className="ResultPage__content-switch-block">
+              <span className="ResultPage__content-switch-block-text">Show Charts</span>
+              <Switch
+                onChange={checked => {
+                  this.setState({showMessageDialog: checked});
+                  setTimeout(
+                    () => {
+                      this.setState({showCharts: checked});
+                      this.setState({showMessageDialog: false});
+                    },
+                    1000
+                  );
+                }}
+              />
+            </div>
+
           </div>
 
         </PageContent>
@@ -412,7 +420,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <span className="ResultPage__result-chart-title">
               Portfolio capitalization:
             </span>
-            <ArbiterChart
+            <BalancesCapChart
               showRebalanceCap={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
               isDebugMode={this.tokenManager.isFakeMode()}
               data={this.state.rebalanceValuesList}
@@ -425,6 +433,82 @@ export default class ResultPage extends React.Component<Props, State> implements
         {this.scrollToCharts()}
       </div>
     );
+  }
+
+  private getTooltipInfo(): React.ReactNode {
+    return (
+      <div className="ResultPage__tooltip">
+        <div className="ResultPage__tooltip_title">{this.getTitleOfType()}</div>
+        <div className="ResultPage__tooltip_param">
+          <span className="ResultPage__tooltip_param_name">
+            Amount of money:
+          </span>
+          <span className="ResultPage__tooltip_param_value">
+            $ {this.tokenManager.getAmount().toLocaleString()}
+          </span>
+        </div>
+        {this.getCommissionPercent()}
+        {this.getTokensProportions()}
+        {this.getManualRebalanceList()}
+      </div>
+    );
+  }
+
+  private getTitleOfType(): string {
+    if (this.tokenManager.disabledManualRebalance() && this.tokenManager.disabledArbitrage()) {
+      return 'Fix proportions:';
+
+    } else if (this.tokenManager.disabledArbitrage()) {
+      return 'Manual rebalance:';
+
+    } else {
+      return 'Auto rebalance:';
+    }
+  }
+
+  private getCommissionPercent(): React.ReactNode {
+    if (!this.tokenManager.disabledArbitrage()) {
+      return (
+        <div>
+          <div className="ResultPage__tooltip_param">
+          <span className="ResultPage__tooltip_param_name">
+            Commission percent:
+          </span>
+            <span className="ResultPage__tooltip_param_value">
+            $ {this.tokenManager.getCommission().toLocaleString()}
+          </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private getTokensProportions(): React.ReactNode {
+    return this.tokenManager.getProportions().map(value => {
+      return (
+        <div key={value.name}>
+          <div className="ResultPage__tooltip_param">
+          <span className="ResultPage__tooltip_param_name">
+            {value.name} weight:
+          </span>
+            <span className="ResultPage__tooltip_param_value">
+            {value.weight}
+          </span>
+          </div>
+        </div>
+      );
+    });
+  }
+
+  private getManualRebalanceList(): React.ReactNode {
+    if (!this.tokenManager.disabledManualRebalance()) {
+      return <TokenWeightSimpleList
+        data={this.tokenManager.getExchangedWeights()}
+      />;
+    }
+    return '';
   }
 
   private scrollToCharts() {
@@ -461,7 +545,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearWithRebalance(): string {
     const percents: number = (this.state.arbiterCap - this.state.amount) / this.state.amount * 100;
-    return (percents / this.calcCountDays() * 365).toFixed(0);
+    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
   }
 
   private capWithoutRebalance(): string {
@@ -478,7 +562,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearWithoutRebalance(): string {
     const percents: number = (this.state.cap - this.state.amount) / this.state.amount * 100;
-    return (percents / this.calcCountDays() * 365).toFixed(0);
+    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
   }
 
   private totalEthFee(): string {
@@ -503,7 +587,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private profitPercentYearBtc(): string {
     const percents: number = (this.state.btcUSDT - this.state.amount) / this.state.amount * 100;
-    return (percents / this.calcCountDays() * 365).toFixed(0);
+    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
   }
 
   private totalArbiterProfit(): string {
