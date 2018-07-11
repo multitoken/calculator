@@ -7,6 +7,7 @@ export interface AbstractProperties<M> {
   data: M[];
   bordered?: boolean;
   maxHeight?: string;
+  split?: boolean;
 }
 
 export default abstract class AbstractList<P extends AbstractProperties<M>, M, S> extends React.Component<P, S> {
@@ -23,6 +24,7 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
       >
         <div>
           <List
+            split={this.props.split === true}
             grid={this.getGridType()}
             dataSource={this.getData()}
             renderItem={(item: M, index: number) => {
@@ -52,6 +54,6 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
 
   protected abstract getListName(): string;
 
-  protected abstract bindHolder(dataItem: M, position: number): object;
+  protected abstract bindHolder(dataItem: M, position: number): React.ReactNode;
 
 }

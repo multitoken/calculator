@@ -6,11 +6,11 @@ import AbstractList, { AbstractProperties } from '../AbstractList';
 import './TokenWeightList.less';
 
 interface Properties extends AbstractProperties<TokenWeight> {
-  onEditClick(model: TokenWeight, position: number): void;
+  onEditClick?(model: TokenWeight, position: number): void;
 
-  onDeleteClick(model: TokenWeight, position: number): void;
+  onDeleteClick?(model: TokenWeight, position: number): void;
 
-  onAddClick(): void;
+  onAddClick?(): void;
 }
 
 export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
@@ -40,11 +40,11 @@ export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
     return 'TokenWeightList';
   }
 
-  public bindHolder(dataItem: TokenWeight, position: number): object {
+  public bindHolder(dataItem: TokenWeight, position: number): React.ReactNode {
     if (dataItem.isEmpty()) {
       return (
         <TokenWeightEmptyHolder
-          onItemClick={(model, id) => this.props.onAddClick()}
+          onItemClick={(model, id) => this.props.onAddClick ? this.props.onAddClick() : ''}
           model={dataItem}
           key={position}
         />
@@ -55,9 +55,9 @@ export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
       <TokenWeightHolder
         model={dataItem}
         onItemClick={(model, id) => {
-          if (id === TokenWeightHolder.HOLDER_ACTION_ID_DELETE) {
+          if (id === TokenWeightHolder.HOLDER_ACTION_ID_DELETE && this.props.onDeleteClick) {
             this.props.onDeleteClick(model, position);
-          } else if (id === TokenWeightHolder.HOLDER_ACTION_ID_EDIT) {
+          } else if (id === TokenWeightHolder.HOLDER_ACTION_ID_EDIT && this.props.onEditClick) {
             this.props.onEditClick(model, position);
           }
         }}
