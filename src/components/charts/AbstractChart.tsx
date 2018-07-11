@@ -1,3 +1,4 @@
+import { ColumnCount } from 'antd/lib/list';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
 import {
@@ -38,6 +39,7 @@ export interface AbstractProperties<M> {
   type?: ChartType;
   aspect?: number;
   isDebugMode?: boolean;
+  legendColumnCount?: number;
 }
 
 export interface AbstractState {
@@ -84,10 +86,10 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           {this.prepareChart()}
         </ResponsiveContainer>
         {this.prepareRangeComponent()}
-        <div style={{margin: '20px 65px 0 65px'}}>
+        <div style={{margin: '20px 0px 0 65px'}}>
           <TokensLegendList
             style={LegendStyle.LINE}
-            columnCount={4}
+            columnCount={(this.props.legendColumnCount as ColumnCount) || 4}
             showCheckbox={this.props.showLegendCheckBox}
             onChangeNames={names => this.setState({selectedNames: names})}
             data={this.getNames().map((value, i) => new TokenLegend(value, TokensHelper.COLORS[i]))}
@@ -272,7 +274,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
   }
 
   private prepareBarsStacked(): any {
-    return  (this.state.selectedNames as string[])
+    return (this.state.selectedNames as string[])
       .map((value, index) => {
         return (
           <Bar

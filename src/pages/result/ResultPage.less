@@ -32,11 +32,59 @@
   padding: 10px;
 }
 
+.ResultPage__content-info {
+  float: right;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.ResultPage__tooltip {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-light;
+}
+
+.ResultPage__tooltip_title {
+  .ResultPage__tooltip;
+  margin-bottom: 5px;
+}
+
+.ResultPage__tooltip_param_name {
+  .ResultPage__tooltip;
+  width: 160px;
+  display: inline-block;
+  font-size: 16px;
+  color: @text-color-dark;
+}
+
+.ResultPage__tooltip_param_value {
+  .ResultPage__tooltip;
+  font-size: 16px;
+  color: @text-color-light;
+}
+
 .ResultPage__content-switch-block {
-  float: left;
-  line-height: 40px;
-  width: 110px;
-  margin-right: -110px;
+  float: right;
+  margin-left: -180px;
+}
+
+.ResultPage__content-switch-block-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-light;
+  vertical-align: middle;
+  margin-right: 20px;
 }
 
 .ResultPage__content-block {
@@ -67,7 +115,7 @@
 .ResultPage__content-text-caption {
   .ResultPage__content-text-title;
   font-size: 20px;
-  margin: 10px 5px;
+  margin: 10px 50px 10px 5px;
   opacity: 0.4;
 }
 
