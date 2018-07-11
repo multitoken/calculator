@@ -8,19 +8,26 @@ interface Properties extends AbstractProperties<RebalanceValues[]> {
 export class ArbiterChart extends AbstractChart<Properties, AbstractState, RebalanceValues[], any> {
 
   public parseData(data: RebalanceValues[]): any[] {
-    return data.map(value => {
-      const copy: any = Object.assign({}, value);
-      copy.date = value.timestamp;
+    const step: number = data.length > 1000 ? 3 : 1;
+    const result: any[] = [];
 
-      if (this.props.showRebalanceCap) {
-        copy['rebalance cap'] = parseFloat(copy.rebalanceCap.toFixed(0));
+    data.forEach((value, index) => {
+      if (index % step === 0) {
+        const copy: any = Object.assign({}, value);
+        copy.date = value.timestamp;
+
+        if (this.props.showRebalanceCap) {
+          copy['rebalance cap'] = parseFloat(copy.rebalanceCap.toFixed(0));
+        }
+
+        copy['original cap'] = parseFloat(copy.originalCap.toFixed(0));
+        copy['bitcoin cap'] = parseFloat(copy.bitcoinCap.toFixed(0));
+
+        result.push(copy);
       }
-
-      copy['original cap'] = parseFloat(copy.originalCap.toFixed(0));
-      copy['bitcoin cap'] = parseFloat(copy.bitcoinCap.toFixed(0));
-
-      return copy;
     });
+
+    return result;
   }
 
   public getNames(): string[] {
