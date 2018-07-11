@@ -3,7 +3,7 @@ import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
-import { ArbiterChart } from '../../components/charts/ArbiterChart';
+import { BalancesCapChart } from '../../components/charts/BalancesCapChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
@@ -412,7 +412,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <span className="ResultPage__result-chart-title">
               Portfolio capitalization:
             </span>
-            <ArbiterChart
+            <BalancesCapChart
               showRebalanceCap={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
               isDebugMode={this.tokenManager.isFakeMode()}
               data={this.state.rebalanceValuesList}

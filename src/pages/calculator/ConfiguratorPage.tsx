@@ -2,6 +2,7 @@ import { Button, InputNumber, Layout, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
+import { Link } from 'react-router-dom';
 import { ChartType } from '../../components/charts/AbstractChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { WeightChart } from '../../components/charts/WeightChart';
@@ -19,7 +20,7 @@ import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
-import './CalculatorPage.less';
+import './ConfiguratorPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -43,7 +44,7 @@ interface State {
   commissionPercents: number;
 }
 
-export default class CalculatorPage extends React.Component<Props, State> {
+export default class ConfiguratorPage extends React.Component<Props, State> {
 
   @lazyInject(Services.TOKEN_MANAGER)
   private tokenManager: TokenManager;
@@ -91,9 +92,9 @@ export default class CalculatorPage extends React.Component<Props, State> {
         }}
       >
         <PageHeader/>
-        <div className="CalculatorPage__content">
-          <PageContent className="CalculatorPage__content-left">
-            <div className="CalculatorPage__options-title">Amount of money:&nbsp;</div>
+        <div className="ConfiguratorPage__content">
+          <PageContent className="ConfiguratorPage__content-left">
+            <div className="ConfiguratorPage__options-title">Amount of money:&nbsp;</div>
             <InputNumber
               value={this.state.amount}
               step={Math.pow(10, this.state.amount.toString().length - 1)}
@@ -104,7 +105,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
             />
 
             <div
-              className="CalculatorPage__options-title"
+              className="ConfiguratorPage__options-title"
               style={{
                 display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
               }}
@@ -126,7 +127,7 @@ export default class CalculatorPage extends React.Component<Props, State> {
             />
 
             <div>
-              <div className="CalculatorPage__options-title">
+              <div className="ConfiguratorPage__options-title">
                 Period:
               </div>
               <div
@@ -161,78 +162,79 @@ export default class CalculatorPage extends React.Component<Props, State> {
               }
             />
           </PageContent>
-          <PageContent className="CalculatorPage__content-right-top">
-            <div
-              className="CalculatorPage__content-rebalance-blocked"
-              style={{
-                display: this.tokenManager.disabledManualRebalance() ? 'block' : 'none',
-              }}
-            >
-              Disabled in selected type of multitoken.
-            </div>
-            <div
-              className="CalculatorPage__options-title"
-              style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
-            >
-              Change token weight:
-            </div>
-            <div
-              className="CalculatorPage__result-chart"
-              style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
-            >
-              <div style={{margin: '0px 20px 0px -20px'}}>
-                <WeightChart
-                  applyScale={false}
-                  data={this.state.tokensWeightList}
-                  colors={TokensHelper.COLORS}
-                  initialDate={this.state.tokensDate[this.state.calculateRangeDateIndex[0]]}
-                  initialState={this.state.proportionList}
-                  finishDate={this.state.tokensDate[this.state.calculateRangeDateIndex[1]]}
-                  showRange={false}
-                  type={ChartType.BAR}
-                />
-              </div>
-              <div style={{margin: '0 20px 0px 45px'}}>
-                <TokenWeightList
-                  maxHeight="200px"
-                  onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
-                  onEditClick={(model, position) => this.onChangeTokenExchangeWeightClick(position, model)}
-                  onDeleteClick={(model, position) => this.onDeleteTokenWeightClick(position)}
-                  data={this.state.tokensWeightList}
-                />
-              </div>
-            </div>
-            <div className="CalculatorPage__content-calculate">
-              <Button
-                type="primary"
-                size="large"
-                onClick={() => this.onCalculateClick()}
-              >
-                Calculate
-              </Button>
-              <span className="m-2"/>
-              <Button
-                type="primary"
-                onClick={() => {
-                  window.location.replace('/simulator');
+          <div className="ConfiguratorPage__content-right-top">
+            <PageContent className="ConfiguratorPage__content-weights">
+              <div
+                className="ConfiguratorPage__content-rebalance-blocked"
+                style={{
+                  display: this.tokenManager.disabledManualRebalance() ? 'block' : 'none',
                 }}
               >
-                Start new
-              </Button>
-            </div>
-          </PageContent>
-          <PageContent className="CalculatorPage__content-bottom">
-            <HistoryChart
-              timeStep={this.tokenManager.getStepSec()}
-              data={this.state.tokensHistory}
-              colors={TokensHelper.COLORS}
-              start={this.state.historyChartRangeDateIndex[0]}
-              end={this.state.historyChartRangeDateIndex[1]}
-              applyScale={!this.tokenManager.isFakeMode()}
-              showRange={false}
-              showLegendCheckBox={true}
-            />
-          </PageContent>
+                Disabled in selected type of multitoken.
+              </div>
+              <div
+                className="ConfiguratorPage__options-title"
+                style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
+              >
+                Change token weight:
+              </div>
+              <div
+                className="ConfiguratorPage__result-chart"
+                style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
+              >
+                <div style={{margin: '0px 20px 0px -20px'}}>
+                  <WeightChart
+                    applyScale={false}
+                    data={this.state.tokensWeightList}
+                    colors={TokensHelper.COLORS}
+                    initialDate={this.state.tokensDate[this.state.calculateRangeDateIndex[0]]}
+                    initialState={this.state.proportionList}
+                    finishDate={this.state.tokensDate[this.state.calculateRangeDateIndex[1]]}
+                    showRange={false}
+                    aspect={3.5}
+                    type={ChartType.BAR}
+                  />
+                </div>
+                <div style={{margin: '0 20px 0px 45px'}}>
+                  <TokenWeightList
+                    maxHeight="200px"
+                    onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
+                    onEditClick={(model, position) => this.onChangeTokenExchangeWeightClick(position, model)}
+                    onDeleteClick={(model, position) => this.onDeleteTokenWeightClick(position)}
+                    data={this.state.tokensWeightList}
+                  />
+                </div>
+              </div>
+              <div className="ConfiguratorPage__content-calculate">
+                <Button
+                  type="primary"
+                  onClick={() => this.onCalculateClick()}
+                >
+                  Calculate
+                </Button>
+                <span className="m-2"/>
+                <Link
+                  className="ConfiguratorPage__content-button-start"
+                  to={'/'}
+                >
+                  Start new
+                </Link>
+              </div>
+            </PageContent>
+            <PageContent className="ConfiguratorPage__content-bottom">
+              <HistoryChart
+                timeStep={this.tokenManager.getStepSec()}
+                data={this.state.tokensHistory}
+                colors={TokensHelper.COLORS}
+                legendColumnCount={3}
+                start={this.state.historyChartRangeDateIndex[0]}
+                end={this.state.historyChartRangeDateIndex[1]}
+                applyScale={!this.tokenManager.isFakeMode()}
+                showRange={false}
+                showLegendCheckBox={true}
+              />
+            </PageContent>
+          </div>
         </div>
 
         <TokenWeightDialog

@@ -5,7 +5,7 @@ interface Properties extends AbstractProperties<RebalanceValues[]> {
   showRebalanceCap: boolean;
 }
 
-export class ArbiterChart extends AbstractChart<Properties, AbstractState, RebalanceValues[], any> {
+export class BalancesCapChart extends AbstractChart<Properties, AbstractState, RebalanceValues[], any> {
 
   public parseData(data: RebalanceValues[]): any[] {
     const step: number = data.length > 1000 ? 3 : 1;

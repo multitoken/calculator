@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'react-input-range/lib/css/index.css';
 import { HashRouter as Router, Route } from 'react-router-dom';
-import CalculatorPage from './pages/calculator/CalculatorPage';
+import ConfiguratorPage from './pages/calculator/ConfiguratorPage';
 import ResultPage from './pages/result/ResultPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
 import TokenTypesPage from './pages/types/TokenTypesPage';
@@ -16,7 +16,7 @@ ReactDOM.render(
     <div className="router">
       <Route exact={true} path="/" component={SetupTokenPage}/>
       <Route exact={true} path="/types" component={TokenTypesPage}/>
-      <Route exact={true} path="/calculator" component={CalculatorPage}/>
+      <Route exact={true} path="/calculator" component={ConfiguratorPage}/>
       <Route exact={true} path="/calculator/result" component={ResultPage}/>
     </div>
   </Router>,
