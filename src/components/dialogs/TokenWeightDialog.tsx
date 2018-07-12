@@ -13,7 +13,7 @@ export interface Properties {
   openDialog: boolean;
   dateList: number[];
   maxWeight: number;
-  minDateIndex: number;
+  rangeDateIndex: [number, number];
   tokenNames: string[];
   tokenWeights: Map<string, number>;
   editTokenWeights?: TokenWeight | undefined;
@@ -40,7 +40,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     const tokenNameSecond: string = this.props.tokenNames.length > 1 ? this.props.tokenNames[1] : '';
 
     this.state = {
-      selectedDateIndex: this.props.minDateIndex,
+      selectedDateIndex: this.props.rangeDateIndex[0],
       selectedTokenFirst: tokenNameFirst,
       selectedTokenSecond: tokenNameSecond,
       selectedWeightFirst: this.props.tokenWeights.get(tokenNameFirst) || 1,
@@ -69,6 +69,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
       tokenWeightFirst = this.props.tokenWeights.get(tokenNameFirst) || 1;
       tokenWeightSecond = this.props.tokenWeights.get(tokenNameSecond) || 1;
       prevStateUpdated = (
+        prevState.selectedDateIndex !== this.props.rangeDateIndex[0] ||
         prevState.selectedTokenFirst !== tokenNameFirst ||
         prevState.selectedTokenSecond !== tokenNameSecond ||
         prevState.selectedWeightFirst !== tokenWeightFirst ||
@@ -78,7 +79,7 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
 
     if (this.props.openDialog && !prevProps.openDialog && prevStateUpdated) {
       this.setState({
-        selectedDateIndex: this.props.minDateIndex,
+        selectedDateIndex: this.props.rangeDateIndex[0],
         selectedTokenFirst: tokenNameFirst,
         selectedTokenSecond: tokenNameSecond,
         selectedWeightFirst: tokenWeightFirst,
@@ -229,7 +230,9 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
           onChange={value =>
-            this.setState({selectedDateIndex: Math.max(this.props.minDateIndex, value as number)})
+            this.setState({selectedDateIndex:
+                Math.min(this.props.rangeDateIndex[1], Math.max(this.props.rangeDateIndex[0], value as number))
+            })
           }
         />
       </div>

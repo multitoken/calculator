@@ -40,7 +40,7 @@ interface State {
   tokenDialogDateList: string[];
   tokenDialogOpen: boolean;
   tokenLatestWeights: Map<string, number>;
-  changeWeightMinDateIndex: number;
+  changeWeightMinDates: [number, number];
   commissionPercents: number;
 }
 
@@ -56,7 +56,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       amount: this.tokenManager.getAmount(),
       calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex() - 1,
       calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
-      changeWeightMinDateIndex: this.tokenManager.getCalculationDate()[0],
+      changeWeightMinDates: this.tokenManager.getCalculationDate() as [number, number],
       commissionPercents: this.tokenManager.getCommission(),
       historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
       proportionList: [],
@@ -244,7 +244,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
           tokenWeights={this.state.tokenLatestWeights}
           editTokenWeights={this.state.tokensWeightEditItem}
           maxWeight={10}
-          minDateIndex={this.state.changeWeightMinDateIndex}
+          rangeDateIndex={this.state.changeWeightMinDates}
           tokenNames={Array.from(this.tokenManager.getPriceHistory().keys())}
           dateList={this.state.tokensDate}
         />
@@ -276,7 +276,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       : this.state.calculateRangeDateIndex[0];
 
     this.setState({
-      changeWeightMinDateIndex: model ? model.index : minDateIndex + 1,
+      changeWeightMinDates: [model ? model.index : minDateIndex + 1, this.state.calculateRangeDateIndex[1]],
       tokenDialogOpen: true,
       tokenLatestWeights: latestTokensWeight,
       tokensWeightEditItem: model,
