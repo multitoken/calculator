@@ -59,4 +59,8 @@ export interface TokenManager {
 
   disabledManualRebalance(): boolean;
 
+  setExchangeAmount(value: number): void;
+
+  getExchangeAmount(): number;
+
 }
