@@ -118,7 +118,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       .then(this.onSyncTokens.bind(this))
       .catch(reason => {
         console.log(reason);
-        alert(reason.message);
       });
   }
 
