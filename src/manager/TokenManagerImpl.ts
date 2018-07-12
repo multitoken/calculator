@@ -499,17 +499,17 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     let maxProportions: number = 0;
 
     amounts.forEach((value, key) => amount += value * (historyPrice.get(key) || 0));
-    const actualAmount: number = amount;
 
     proportions.toArray().forEach(token => {
       weights.set(token.name, token.weight);
-      maxProportions += token.weight;
     });
+
+    weights.forEach((value, key) => maxProportions += value);
 
     historyPrice.forEach((value, key) => {
       const weight: number = weights.get(key) || 0;
 
-      const amountPerCurrency = weight / maxProportions * actualAmount;
+      const amountPerCurrency = weight / maxProportions * amount;
 
       const count: number = amountPerCurrency / value;
 
