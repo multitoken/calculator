@@ -123,7 +123,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
             <div
               className="ConfiguratorPage__options-title"
               style={{
-                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+                display: 'none',
               }}
             >
               Commission percents:&nbsp;
@@ -137,7 +137,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               min={0.01}
               onChange={value => this.onFeeChange(value)}
               style={{
-                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+                display: 'none',
                 width: '100%',
               }}
             />

@@ -31,7 +31,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private endCalculationIndex: number;
   private maxCalculationIndex: number;
   private commissionPercent: number;
-  private commissionPercentCalculated: number;
   private listener: ProgressListener;
   private amount: number;
   private proportions: TokenProportion[];
@@ -154,7 +153,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public setCommission(commissionPercents: number): void {
     this.commissionPercent = commissionPercents;
-    this.commissionPercentCalculated = 1 - commissionPercents / 100;
   }
 
   public getCommission(): number {
@@ -515,9 +513,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
           );
 
           this.acceptTransaction(new Arbitration(
-              0, firstToken, count, secondToken, exchanged, 0, 0,
-              TokenManagerImpl.EMPTY_MAP,  TokenManagerImpl.EMPTY_MAP, 0
-            ));
+            0, firstToken, count, secondToken, exchanged, 0, 0,
+            TokenManagerImpl.EMPTY_MAP, TokenManagerImpl.EMPTY_MAP, 0
+          ));
           return;
         }
       }
@@ -658,13 +656,18 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const toBalance: number = this.tokensAmount.get(toSymbol) || 0;
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
-    // console.log(fromSymbol, fromWeight, toSymbol, toWeight);
+    const diffPercentFrom: number = (this.tokensAmountFixed.get(fromSymbol) || 0) / fromBalance;
+    let percent: number = Math.min(Math.max(0.1, diffPercentFrom), 0.9);
+
+    const diffPercentTo: number = (this.tokensAmountFixed.get(toSymbol) || 0) / toBalance;
+    const percentTo: number = Math.min(Math.max(0.1, diffPercentTo), 0.9);
+
+    percent = Math.max(percent, percentTo);
 
     return toBalance *
       amount *
       fromWeight /
-      ((fromBalance + amount) * toWeight) *
-      this.commissionPercentCalculated;
+      ((fromBalance + amount) * toWeight) * percent;
   }
 
   private acceptTransaction(arbitration: Arbitration): void {
