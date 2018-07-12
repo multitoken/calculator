@@ -16,6 +16,8 @@ import { TokenManager } from './TokenManager';
 @injectable()
 export default class TokenManagerImpl implements TokenManager, ProgressListener {
 
+  private static readonly EMPTY_MAP: Map<any, any> = new Map();
+
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private isFakeModeEnabled: boolean = false;
   private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
@@ -36,6 +38,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private tokenWeights: TokenWeight[];
   private isDisabledArbitrage: boolean;
   private isDisabledManualRebalance: boolean;
+  private exchangeAmount: number;
+  private readonly exchangeValues: Map<number, number> = new Map();
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.resetDefaultValues();
@@ -276,6 +280,9 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       this.startCalculationIndex, this.endCalculationIndex, this.selectedTokensHistory, this.btcHistoryPrice.length
     );
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
+
+    this.prepareExchanges(this.exchangeAmount, this.startCalculationIndex, this.endCalculationIndex);
+
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 10000 === 0) {
         if (this.listener) {
@@ -293,6 +300,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         historyPerHour.set(key, value[i].value);
         timestamp = value[i].time;
       });
+
+      this.exchangeTokens(i, historyPerHour, this.tokensAmount);
 
       if (i === this.startCalculationIndex) {
         resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
@@ -461,6 +470,64 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     return this.isDisabledManualRebalance;
   }
 
+  public setExchangeAmount(value: number): void {
+    this.exchangeAmount = value;
+  }
+
+  public getExchangeAmount(): number {
+    return this.exchangeAmount;
+  }
+
+  private prepareExchanges(amount: number, startTime: number, endTime: number): void {
+    let balance: number = amount;
+
+    while (balance > 0) {
+      const timeLineValue = Math.round(this.random(endTime, startTime));
+
+      if (!this.exchangeValues.has(timeLineValue)) {
+        const priceValue = this.random(0.1, 0.01) * amount;
+        this.exchangeValues.set(timeLineValue, priceValue);
+        balance -= Math.min(priceValue, balance);
+      }
+    }
+  }
+
+  private exchangeTokens(timeLineValue: number, price: Map<string, number>, balances: Map<string, number>) {
+    if (!this.exchangeValues.has(timeLineValue)) {
+      return;
+    }
+
+    const tokens: string[] = Array.from(price.keys());
+
+    while (true) {
+      const firstToken: string = tokens[Math.round(this.random(0, tokens.length - 1))];
+      const secondToken: string = tokens[Math.round(this.random(0, tokens.length - 1))];
+
+      if (firstToken !== secondToken) {
+        const count: number = (this.exchangeValues.get(timeLineValue) || 0) / (price.get(firstToken) || 1);
+
+        if ((balances.get(firstToken) || 0) >= count) {
+          const exchanged: number = this.contractSellTokens(firstToken, secondToken, count);
+
+          console.log(
+            'exchange (tokenA, tokenB, count, exchange $, tokenA price, exchanged):',
+            firstToken, secondToken, count, this.exchangeValues.get(timeLineValue), price.get(firstToken), exchanged
+          );
+
+          this.acceptTransaction(new Arbitration(
+              0, firstToken, count, secondToken, exchanged, 0, 0,
+              TokenManagerImpl.EMPTY_MAP,  TokenManagerImpl.EMPTY_MAP, 0
+            ));
+          return;
+        }
+      }
+    }
+  }
+
+  private random(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+  }
+
   private resetDefaultValues(): void {
     this.amount = 10000;
     this.setCommission(3.0);
@@ -471,6 +538,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.maxCalculationIndex = 0;
     this.isDisabledArbitrage = false;
     this.isDisabledManualRebalance = false;
+    this.exchangeAmount = 0;
+    this.exchangeValues.clear();
   }
 
   private async calculateRebalanceValues(indexTimeLine: number,
