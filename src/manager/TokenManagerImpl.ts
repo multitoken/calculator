@@ -508,7 +508,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         const count: number = (this.exchangeValues.get(timeLineValue) || 0) / (price.get(firstToken) || 1);
 
         if ((balances.get(firstToken) || 0) >= count) {
-          const exchanged: number = this.contractSellTokens(firstToken, secondToken, count);
+          const exchanged: number = this.contractSellTokens(firstToken, secondToken, count)[0];
 
           console.log(
             'exchange (tokenA, tokenB, count, exchange $, tokenA price, exchanged):',
@@ -640,19 +640,19 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const percent: number = max / cheapBalance;
 
     if (max > 0) {
-      const contractSellTokens: number =
-        this.contractSellTokens(cheapName, expensiveName, max);
+      const result: [number, number] =  this.contractSellTokens(cheapName, expensiveName, max);
+      const contractSellTokens: number = result[0];
 
       const profit: number =
         (contractSellTokens * expensivePrice) - (txPrice + (max * cheapPrice));
 
-      return new ArbiterProfit(percent, expensiveName, contractSellTokens, cheapName, max, profit);
+      return new ArbiterProfit(percent, expensiveName, contractSellTokens, cheapName, max, profit, result[1]);
     }
 
-    return new ArbiterProfit(percent, '', 0, '', max, 0);
+    return new ArbiterProfit(percent, '', 0, '', max, 0, 0);
   }
 
-  private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): number {
+  private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): [number, number] {
     // https://github.com/MultiTKN/MultiTKN/blob/master/contracts/MultiToken.sol#L33
     const fromBalance: number = this.tokensAmount.get(fromSymbol) || 0;
     const fromWeight: number = this.tokensWeight.get(fromSymbol) || 0;
@@ -663,10 +663,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const to = (toBalance / ((toWeight / this.maxWeight) * 100)) * 100;
     const percent = (from - to) / (from + to + amount);
 
-    return toBalance *
+    return [toBalance *
       amount *
       fromWeight /
-      ((fromBalance + amount) * toWeight) * percent;
+      ((fromBalance + amount) * toWeight) * percent, percent];
   }
 
   private acceptTransaction(arbitration: Arbitration): void {
