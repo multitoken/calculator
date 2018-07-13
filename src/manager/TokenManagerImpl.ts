@@ -39,6 +39,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   private isDisabledManualRebalance: boolean;
   private exchangeAmount: number;
   private readonly exchangeValues: Map<number, number> = new Map();
+  private maxWeight: number = 0;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository) {
     this.resetDefaultValues();
@@ -280,6 +281,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
 
     this.prepareExchanges(this.exchangeAmount, this.startCalculationIndex, this.endCalculationIndex);
+
+    this.tokensWeight.forEach(value => this.maxWeight += value);
 
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
       if (i % 10000 === 0) {
@@ -656,13 +659,20 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const toBalance: number = this.tokensAmount.get(toSymbol) || 0;
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
-    const diffPercentFrom: number = (this.tokensAmountFixed.get(fromSymbol) || 0) / fromBalance;
-    let percent: number = Math.min(Math.max(0.1, diffPercentFrom), 0.9);
+    // const diffPercentFrom: number = (this.tokensAmountFixed.get(fromSymbol) || 0) / fromBalance;
+    // let percent: number = Math.min(Math.max(0.1, diffPercentFrom), 0.9);
+    //
+    // const diffPercentTo: number = (this.tokensAmountFixed.get(toSymbol) || 0) / toBalance;
+    // const percentTo: number = Math.min(Math.max(0.3, diffPercentTo), 0.9);
+    //
+    // percent = Math.max(percent, percentTo);
 
-    const diffPercentTo: number = (this.tokensAmountFixed.get(toSymbol) || 0) / toBalance;
-    const percentTo: number = Math.min(Math.max(0.1, diffPercentTo), 0.9);
-
-    percent = Math.max(percent, percentTo);
+    const from = (fromBalance / ((fromWeight / this.maxWeight) * 100)) * 100;
+    const to = (toBalance / ((toWeight / this.maxWeight) * 100)) * 100;
+    const percent = from > to
+      ? 0.9
+      : 0.2;
+    // console.log(percent);
 
     return toBalance *
       amount *
