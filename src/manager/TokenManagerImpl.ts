@@ -666,10 +666,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     const from = (fromBalance / ((fromWeight / this.maxWeight) * 100)) * 100;
     const to = (toBalance / ((toWeight / this.maxWeight) * 100)) * 100;
-    const percent = (from - to) / (from + to + amount);
+    let percent = (from - to) / (from + to + amount);
 
     if (percent <= 0) {
-      return [0, percent];
+      percent = 1 - -percent;
     }
 
     return [toBalance *
