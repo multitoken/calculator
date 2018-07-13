@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
 import { ArbiterProfit } from '../repository/models/ArbiterProfit';
 import { Arbitration } from '../repository/models/Arbitration';
+import { Exchange } from '../repository/models/Exchange';
 import Pair from '../repository/models/Pair';
 import { RebalanceHistory } from '../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../repository/models/RebalanceValues';
@@ -268,6 +269,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   public async calculateArbitration(): Promise<RebalanceHistory> {
     const resultArbitrage: Arbitration[] = [];
     const resultValues: RebalanceValues[] = [];
+    const resultExchange: Exchange[] = [];
     const historyPerHour: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcCount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
@@ -302,7 +304,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         timestamp = value[i].time;
       });
 
-      this.exchangeTokens(i, historyPerHour, this.tokensAmount);
+      const exchange: Exchange | undefined = this.exchangeTokens(i, historyPerHour, this.tokensAmount);
+      if (exchange !== undefined) {
+        resultExchange.push(exchange);
+      }
 
       if (i === this.startCalculationIndex) {
         resultValues.push(await this.calculateRebalanceValues(i, btcCount, historyPerHour, timestamp));
@@ -376,6 +381,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
         const arb: Arbitration = new Arbitration(
           txPrice,
+          profit.commission,
           profit.cheapTokenName,
           profit.cheapTokensCount,
           profit.expensiveTokenName,
@@ -405,6 +411,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     const arbFinished: Arbitration = new Arbitration(
       0,
+      0,
       '',
       0,
       '',
@@ -424,7 +431,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
       console.log(key, 'before: ', this.tokensAmountFixed.get(key), 'after: ', value);
     }
 
-    return new RebalanceHistory(resultValues, resultArbitrage);
+    return new RebalanceHistory(resultValues, resultArbitrage, resultExchange);
   }
 
   public async calculateCap(origin: boolean): Promise<number> {
@@ -493,9 +500,11 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     }
   }
 
-  private exchangeTokens(timeLineValue: number, price: Map<string, number>, balances: Map<string, number>) {
+  private exchangeTokens(timeLineValue: number,
+                         price: Map<string, number>,
+                         balances: Map<string, number>): Exchange | undefined {
     if (!this.exchangeValues.has(timeLineValue)) {
-      return;
+      return undefined;
     }
 
     const tokens: string[] = Array.from(price.keys());
@@ -508,18 +517,14 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         const count: number = (this.exchangeValues.get(timeLineValue) || 0) / (price.get(firstToken) || 1);
 
         if ((balances.get(firstToken) || 0) >= count) {
-          const exchanged: number = this.contractSellTokens(firstToken, secondToken, count);
-
-          console.log(
-            'exchange (tokenA, tokenB, count, exchange $, tokenA price, exchanged):',
-            firstToken, secondToken, count, this.exchangeValues.get(timeLineValue), price.get(firstToken), exchanged
-          );
+          const result: [number, number] = this.contractSellTokens(firstToken, secondToken, count);
+          const exchanged: number = result[0];
 
           this.acceptTransaction(new Arbitration(
-            0, firstToken, count, secondToken, exchanged, 0, 0,
+            0, 0, firstToken, count, secondToken, exchanged, 0, 0,
             TokenManagerImpl.EMPTY_MAP, TokenManagerImpl.EMPTY_MAP, 0
           ));
-          return;
+          return new Exchange(firstToken, secondToken, count, exchanged, result[1]);
         }
       }
     }
@@ -640,19 +645,19 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const percent: number = max / cheapBalance;
 
     if (max > 0) {
-      const contractSellTokens: number =
-        this.contractSellTokens(cheapName, expensiveName, max);
+      const result: [number, number] = this.contractSellTokens(cheapName, expensiveName, max);
+      const contractSellTokens: number = result[0];
 
       const profit: number =
         (contractSellTokens * expensivePrice) - (txPrice + (max * cheapPrice));
 
-      return new ArbiterProfit(percent, expensiveName, contractSellTokens, cheapName, max, profit);
+      return new ArbiterProfit(percent, expensiveName, contractSellTokens, cheapName, max, profit, result[1]);
     }
 
-    return new ArbiterProfit(percent, '', 0, '', max, 0);
+    return new ArbiterProfit(percent, '', 0, '', max, 0, 0);
   }
 
-  private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): number {
+  private contractSellTokens(fromSymbol: string, toSymbol: string, amount: number): [number, number] {
     // https://github.com/MultiTKN/MultiTKN/blob/master/contracts/MultiToken.sol#L33
     const fromBalance: number = this.tokensAmount.get(fromSymbol) || 0;
     const fromWeight: number = this.tokensWeight.get(fromSymbol) || 0;
@@ -661,12 +666,16 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     const from = (fromBalance / ((fromWeight / this.maxWeight) * 100)) * 100;
     const to = (toBalance / ((toWeight / this.maxWeight) * 100)) * 100;
-    const percent = (from - to) / (from + to + amount);
+    let percent = (from - to) / (from + to + amount);
 
-    return toBalance *
-      amount *
-      fromWeight /
-      ((fromBalance + amount) * toWeight) * percent;
+    if (percent <= 0) {
+      percent = 1 - -percent;
+    }
+
+    return [toBalance *
+    amount *
+    fromWeight /
+    ((fromBalance + amount) * toWeight) * percent, percent];
   }
 
   private acceptTransaction(arbitration: Arbitration): void {

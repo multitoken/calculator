@@ -1,6 +1,6 @@
 export class ArbiterProfit {
 
-    private static readonly emptyProfit: ArbiterProfit = new ArbiterProfit(0, '', 0, '', 0, 0);
+    private static readonly emptyProfit: ArbiterProfit = new ArbiterProfit(0, '', 0, '', 0, 0, 0);
 
     public percent: number;
     public expensiveTokenName: string;
@@ -8,6 +8,7 @@ export class ArbiterProfit {
     public cheapTokenName: string;
     public cheapTokensCount: number;
     public profit: number;
+    public commission: number;
 
     public static empty(): ArbiterProfit {
         return ArbiterProfit.emptyProfit;
@@ -18,13 +19,15 @@ export class ArbiterProfit {
                 expensiveTokensCount: number,
                 cheapTokenName: string,
                 cheapTokensCount: number,
-                profit: number) {
+                profit: number,
+                commission: number) {
         this.percent = percent;
         this.expensiveTokenName = expensiveTokenName;
         this.expensiveTokensCount = expensiveTokensCount;
         this.cheapTokenName = cheapTokenName;
         this.cheapTokensCount = cheapTokensCount;
         this.profit = profit;
+        this.commission = commission;
     }
 
 }
