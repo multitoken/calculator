@@ -466,6 +466,8 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getCommissionPercent(): React.ReactNode {
+    return '';
+
     if (!this.tokenManager.disabledArbitrage()) {
       return (
         <div>
@@ -590,7 +592,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private totalArbiterProfit(): string {
-    return this.formatCurrency(this.state.arbiterProfit.toFixed(0));
+    return this.formatCurrency(this.state.arbiterProfit.toFixed(3));
   }
 
   private avgArbiterProfit(): string {
