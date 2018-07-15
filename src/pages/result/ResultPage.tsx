@@ -161,7 +161,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Profit for the {this.calcCountDays()} days / annual:
+                ROI {this.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
@@ -197,7 +197,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Profit for the {this.calcCountDays()} days / annual:
+                ROI {this.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
@@ -237,7 +237,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                Profit for the {this.calcCountDays()} days / annual:
+                ROI {this.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
@@ -368,9 +368,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                 }}
               />
             </div>
-
           </div>
-
         </PageContent>
 
         {this.prepareChartsComponents()}
