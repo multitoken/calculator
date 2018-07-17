@@ -284,6 +284,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
     this.prepareExchanges(this.exchangeAmount, this.startCalculationIndex, this.endCalculationIndex);
 
+    this.maxWeight = 0;
+
     this.tokensWeight.forEach(value => this.maxWeight += value);
 
     for (let i = this.startCalculationIndex; i < (this.endCalculationIndex + 1); i++) {
