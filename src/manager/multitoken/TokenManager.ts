@@ -1,9 +1,10 @@
-import { CryptocurrencyRepository } from '../repository/cryptocurrency/CryptocurrencyRepository';
-import { RebalanceHistory } from '../repository/models/RebalanceHistory';
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
-import { TokenProportion } from '../repository/models/TokenProportion';
-import { TokenWeight } from '../repository/models/TokenWeight';
+import { CryptocurrencyRepository } from '../../repository/cryptocurrency/CryptocurrencyRepository';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../../repository/models/TokenProportion';
+import { TokenWeight } from '../../repository/models/TokenWeight';
 import { ProgressListener } from './ProgressListener';
+import { TokenType } from './TokenManagerImpl';
 
 export interface TokenManager {
 
@@ -12,6 +13,10 @@ export interface TokenManager {
   setAmount(amount: number): void;
 
   getAmount(): number;
+
+  setTokenType(tokenType: TokenType): void;
+
+  getTokenType(): TokenType;
 
   setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
@@ -23,9 +28,9 @@ export interface TokenManager {
 
   getProportions(): TokenProportion[];
 
-  getExchangedWeights(): TokenWeight[];
+  getRebalanceWeights(): TokenWeight[];
 
-  setExchangeWeights(tokenWeights: TokenWeight[]): void;
+  setRebalanceWeights(tokenWeights: TokenWeight[]): void;
 
   changeCalculationDate(indexStart: number, indexEnd: number): void;
 
@@ -43,21 +48,9 @@ export interface TokenManager {
 
   calculateArbitration(): Promise<RebalanceHistory>;
 
-  calculateCap(origin: boolean): Promise<number>;
-
   getStepSec(): number;
 
-  isFakeMode(): boolean;
-
-  setupRepository(repo: CryptocurrencyRepository, isFake: boolean): void;
-
-  disableArbitrage(disabled: boolean): void;
-
-  disabledArbitrage(): boolean;
-
-  disableManualRebalance(disabled: boolean): void;
-
-  disabledManualRebalance(): boolean;
+  setupRepository(repo: CryptocurrencyRepository): void;
 
   setExchangeAmount(value: number): void;
 

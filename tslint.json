@@ -48,6 +48,7 @@
     "no-any": false,
     "no-arg": true,
     "no-bitwise": true,
+    "no-empty-interface": false,
     "no-console": [
       false,
       "log",

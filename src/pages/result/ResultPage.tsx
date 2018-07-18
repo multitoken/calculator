@@ -12,8 +12,10 @@ import { TokenWeightSimpleList } from '../../components/lists/weight-simple/Toke
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
-import { ProgressListener } from '../../manager/ProgressListener';
-import { TokenManager } from '../../manager/TokenManager';
+import { ProgressListener } from '../../manager/multitoken/ProgressListener';
+import { TokenManager } from '../../manager/multitoken/TokenManager';
+import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
+import { Arbitration } from '../../repository/models/Arbitration';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
@@ -32,6 +34,7 @@ interface State {
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensDate: number[];
   rebalanceValuesList: RebalanceValues[];
+  arbitrationList: Arbitration[];
   arbiterCap: number;
   arbiterProfit: number;
   arbiterTotalTxFee: number;
@@ -74,6 +77,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       arbiterCap: this.tokenManager.getAmount(),
       arbiterProfit: 0,
       arbiterTotalTxFee: 0,
+      arbitrationList: [],
       btcCount: 0,
       btcUSDT: this.tokenManager.getAmount(),
       calculateMaxDateIndex: 1,
@@ -138,7 +142,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-text-caption"
             style={{
-              display: this.tokenManager.disabledArbitrage() && this.tokenManager.disabledManualRebalance()
+              display: this.tokenManager.getTokenType() === TokenType.FIX_PROPORTIONS
                 ? 'none'
                 : 'block',
             }}
@@ -148,7 +152,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block-profit"
             style={{
-              display: this.tokenManager.disabledArbitrage() && this.tokenManager.disabledManualRebalance()
+              display: this.tokenManager.getTokenType() === TokenType.FIX_PROPORTIONS
                 ? 'none'
                 : 'block',
             }}
@@ -263,7 +267,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-text-caption"
             style={{
-              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
             }}
           >
             Arbitrage transactions
@@ -271,7 +275,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block"
             style={{
-              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
             }}
           >
             <Row>
@@ -287,7 +291,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                {Math.max(0, this.state.rebalanceValuesList.length - 2)}
+                {this.getArbitrageListLen()}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
                 ${this.totalEthFee()}
@@ -303,13 +307,13 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block"
             style={{
-              display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
               marginLeft: '32.45%',
             }}
           >
             <Row
               style={{
-                display: this.tokenManager.disabledArbitrage() ? 'none' : 'block',
+                display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
               }}
             >
               <Col span={12}>
@@ -403,7 +407,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
               timeStep={this.tokenManager.getStepSec()}
-              isDebugMode={this.tokenManager.isFakeMode()}
+              isDebugMode={false}
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
               showRange={false}
@@ -418,8 +422,9 @@ export default class ResultPage extends React.Component<Props, State> implements
               Portfolio capitalization:
             </span>
             <BalancesCapChart
-              showRebalanceCap={!this.tokenManager.disabledArbitrage() || !this.tokenManager.disabledManualRebalance()}
-              isDebugMode={this.tokenManager.isFakeMode()}
+              showRebalanceCap={this.tokenManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
+              isDebugMode={false}
+              applyScale={true}
               data={this.state.rebalanceValuesList}
               colors={TokensHelper.COLORS}
               showRange={false}
@@ -452,10 +457,10 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getTitleOfType(): string {
-    if (this.tokenManager.disabledManualRebalance() && this.tokenManager.disabledArbitrage()) {
+    if (this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE) {
       return 'Fix proportions:';
 
-    } else if (this.tokenManager.disabledArbitrage()) {
+    } else if (this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE) {
       return 'Manual rebalance:';
 
     } else {
@@ -466,7 +471,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   private getCommissionPercent(): React.ReactNode {
     return '';
 
-    if (!this.tokenManager.disabledArbitrage()) {
+    if (this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE) {
       return (
         <div>
           <div className="ResultPage__tooltip_param">
@@ -502,9 +507,9 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getManualRebalanceList(): React.ReactNode {
-    if (!this.tokenManager.disabledManualRebalance()) {
+    if (this.tokenManager.getTokenType() === TokenType.MANUAL_REBALANCE) {
       return <TokenWeightSimpleList
-        data={this.tokenManager.getExchangedWeights()}
+        data={this.tokenManager.getRebalanceWeights()}
       />;
     }
     return '';
@@ -569,7 +574,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private avgEthFee(): string {
-    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getrebalanceValuesListLen() || 1))).toFixed(3));
+    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getArbitrageListLen() || 1))).toFixed(3));
   }
 
   private capBtc(): string {
@@ -594,7 +599,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private avgArbiterProfit(): string {
-    return this.formatCurrency((this.state.arbiterProfit / (this.getrebalanceValuesListLen() || 1)).toFixed(3));
+    return this.formatCurrency((this.state.arbiterProfit / (this.getArbitrageListLen() || 1)).toFixed(3));
   }
 
   private formatCurrency(value: string): string {
@@ -620,8 +625,8 @@ export default class ResultPage extends React.Component<Props, State> implements
     return Math.floor(((max - min) / (60 / this.tokenManager.getStepSec())) / 60 / 24);
   }
 
-  private getrebalanceValuesListLen(): number {
-    return Math.max(0, this.state.rebalanceValuesList.length - 1);
+  private getArbitrageListLen(): number {
+    return Math.max(0, this.state.arbitrationList.length);
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
@@ -663,7 +668,13 @@ export default class ResultPage extends React.Component<Props, State> implements
     this.tokenManager.calculateInitialAmounts()
       .then(() => this.tokenManager.calculateArbitration())
       .then((result: RebalanceHistory) => {
-        this.setState({rebalanceValuesList: result.rebalanceValues});
+        this.setState({
+          arbitrationList: result.arbitrage,
+          rebalanceValuesList: this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE
+            ? result.getCapByArbitrage()
+            : result.rebalanceValues
+        });
+
         console.log(result);
 
         let profit: number = 0;
@@ -679,14 +690,12 @@ export default class ResultPage extends React.Component<Props, State> implements
           arbiterTotalTxFee: totalTxPrice,
         });
 
-        return this.tokenManager.calculateCap(false);
-      })
-      .then(cap => this.setState({
-        arbiterCap: cap,
-        showCalculationProgress: false,
-      }))
-      .then(() => this.tokenManager.calculateCap(true))
-      .then(resultCap => Promise.resolve(this.setState({cap: resultCap})));
+        this.setState({
+          arbiterCap: result.getRebalancedCap(),
+          cap: result.getCap(),
+          showCalculationProgress: false,
+        });
+      });
   }
 
 }

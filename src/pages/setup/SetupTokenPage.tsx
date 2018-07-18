@@ -6,7 +6,7 @@ import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/TokenManager';
+import { TokenManager } from '../../manager/multitoken/TokenManager';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 

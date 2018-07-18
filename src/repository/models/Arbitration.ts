@@ -1,4 +1,6 @@
-export class Arbitration {
+import { ExecuteResult } from './ExecuteResult';
+
+export class Arbitration implements ExecuteResult {
 
   public txPrice: number;
   public commission: number;
@@ -8,8 +10,6 @@ export class Arbitration {
   public expensiveCount: number;
   public bestPercent: number;
   public arbiterProfit: number;
-  public arbiterTokensCap: Map<string, number>;
-  public originTokensCap: Map<string, number>;
   public timestamp: number;
 
   constructor(txPrice: number,
@@ -20,8 +20,6 @@ export class Arbitration {
               expensiveCount: number,
               bestPercent: number,
               arbiterProfit: number,
-              arbiterTokensCap: Map<string, number>,
-              originTokensCap: Map<string, number>,
               timestamp: number) {
     this.txPrice = txPrice;
     this.commission = commission;
@@ -31,8 +29,6 @@ export class Arbitration {
     this.expensiveCount = expensiveCount;
     this.bestPercent = bestPercent;
     this.arbiterProfit = arbiterProfit;
-    this.arbiterTokensCap = arbiterTokensCap;
-    this.originTokensCap = originTokensCap;
     this.timestamp = timestamp;
   }
 

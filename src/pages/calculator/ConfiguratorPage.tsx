@@ -13,7 +13,8 @@ import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/TokenManager';
+import { TokenManager } from '../../manager/multitoken/TokenManager';
+import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
 import { Token } from '../../repository/models/Token';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
@@ -70,7 +71,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       tokensHistory: new Map(),
       tokensLegend: [],
       tokensWeightEditItem: undefined,
-      tokensWeightList: this.tokenManager.getExchangedWeights(),
+      tokensWeightList: this.tokenManager.getRebalanceWeights(),
     };
   }
 
@@ -83,7 +84,10 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     this.tokenManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
-      .catch(reason => alert(reason.message));
+      .catch(reason => {
+        console.log(reason);
+        alert(reason.message);
+      });
   }
 
   public render() {
@@ -113,8 +117,9 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
               onChange={value =>
-                this.setState({exchangeAmount:
-                  Math.min(this.state.amount, Math.max(0, parseInt((value || '0').toString(), 10) || 0))
+                this.setState({
+                  exchangeAmount:
+                    Math.min(this.state.amount, Math.max(0, parseInt((value || '0').toString(), 10) || 0))
                 })
               }
               style={{width: '100%'}}
@@ -183,20 +188,20 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               <div
                 className="ConfiguratorPage__content-rebalance-blocked"
                 style={{
-                  display: this.tokenManager.disabledManualRebalance() ? 'block' : 'none',
+                  display: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 'block' : 'none',
                 }}
               >
                 Disabled in selected type of multitoken.
               </div>
               <div
                 className="ConfiguratorPage__options-title"
-                style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
+                style={{opacity: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
               >
                 Change token weight:
               </div>
               <div
                 className="ConfiguratorPage__result-chart"
-                style={{opacity: this.tokenManager.disabledManualRebalance() ? 0.3 : 1}}
+                style={{opacity: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
               >
                 <div style={{margin: '0px 20px 0px -20px'}}>
                   <WeightChart
@@ -245,7 +250,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                 legendColumnCount={3}
                 start={this.state.historyChartRangeDateIndex[0]}
                 end={this.state.historyChartRangeDateIndex[1]}
-                applyScale={!this.tokenManager.isFakeMode()}
+                applyScale={true}
                 showRange={false}
                 showLegendCheckBox={true}
               />
@@ -383,7 +388,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     this.tokenManager.setExchangeAmount(this.state.exchangeAmount || 0);
     this.tokenManager.changeProportions(this.state.proportionList);
 
-    this.tokenManager.setExchangeWeights(this.state.tokensWeightList);
+    this.tokenManager.setRebalanceWeights(this.state.tokensWeightList);
     this.tokenManager.setCommission(this.state.commissionPercents);
     this.tokenManager.setAmount(this.state.amount);
     const {history} = this.props;
