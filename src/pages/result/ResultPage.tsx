@@ -19,8 +19,6 @@ import { Arbitration } from '../../repository/models/Arbitration';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
-import { TokenProportion } from '../../repository/models/TokenProportion';
-import { TokenWeight } from '../../repository/models/TokenWeight';
 import IcoInfo from '../../res/icons/ico_info.svg';
 import { TokensHelper } from '../../utils/TokensHelper';
 
@@ -30,33 +28,22 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  tokenNames: Map<string, boolean>;
-  tokensHistory: Map<string, TokenPriceHistory[]>;
-  tokensDate: number[];
-  rebalanceValuesList: RebalanceValues[];
-  arbitrationList: Arbitration[];
+  amount: number;
   arbiterCap: number;
   arbiterProfit: number;
   arbiterTotalTxFee: number;
-  amount: number;
-  btcUSDT: number;
+  arbitrationList: Arbitration[];
   btcCount: number;
-  cap: number;
-  progressPercents: number;
-  proportionList: TokenProportion[];
-  showCharts: boolean;
-  showCalculationProgress: boolean;
-  showMessageDialog: boolean;
+  btcUSDT: number;
   calculateRangeDateIndex: SliderValue;
-  calculateMaxDateIndex: number;
+  cap: number;
   historyChartRangeDateIndex: SliderValue;
-  tokensWeightList: TokenWeight[];
-  tokensWeightEditItem: TokenWeight | undefined;
-  tokenDialogDateList: string[];
-  tokenDialogOpen: boolean;
-  tokenLatestWeights: Map<string, number>;
-  changeWeightMinDateIndex: number;
-  commissionPercents: number;
+  progressPercents: number;
+  rebalanceValuesList: RebalanceValues[];
+  showCalculationProgress: boolean;
+  showCharts: boolean;
+  showMessageDialog: boolean;
+  tokensHistory: Map<string, TokenPriceHistory[]>;
 }
 
 export default class ResultPage extends React.Component<Props, State> implements ProgressListener {
@@ -80,26 +67,15 @@ export default class ResultPage extends React.Component<Props, State> implements
       arbitrationList: [],
       btcCount: 0,
       btcUSDT: this.tokenManager.getAmount(),
-      calculateMaxDateIndex: 1,
       calculateRangeDateIndex: [0, 1],
       cap: this.tokenManager.getAmount(),
-      changeWeightMinDateIndex: 1,
-      commissionPercents: 0.2,
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
-      proportionList: [],
       rebalanceValuesList: [],
       showCalculationProgress: true,
       showCharts: false,
       showMessageDialog: false,
-      tokenDialogDateList: [],
-      tokenDialogOpen: false,
-      tokenLatestWeights: new Map(),
-      tokenNames: new Map(),
-      tokensDate: [],
       tokensHistory: new Map(),
-      tokensWeightEditItem: undefined,
-      tokensWeightList: [],
     };
   }
 
@@ -630,28 +606,9 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
-    const tokenItems: Map<string, boolean> = new Map();
-    const proportions: TokenProportion[] = [];
-
-    tokens.forEach((value, key) => tokenItems.set(key, false));
-
-    this.tokenManager.getPriceHistory().forEach((value, key) => {
-      proportions.push(new TokenProportion(key, 10, 1, 10));
-    });
-    const firstTokenName: string = Array.from(this.tokenManager.getPriceHistory().keys())[0];
-    const history: TokenPriceHistory[] = this.tokenManager.getPriceHistory().get(firstTokenName) || [];
-
-    this.setState({tokensDate: history.map(value => value.time)});
-
     this.setState({
-      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex(),
       calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
-      historyChartRangeDateIndex: this.tokenManager.getCalculationDate()
-    });
-
-    this.setState({
-      proportionList: proportions,
-      tokenNames: tokenItems,
+      historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
       tokensHistory: this.tokenManager.getPriceHistory(),
     });
 
