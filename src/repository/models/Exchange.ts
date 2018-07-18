@@ -1,4 +1,6 @@
-export class Exchange {
+import { ExecuteResult } from './ExecuteResult';
+
+export class Exchange implements ExecuteResult {
 
   public from: string;
   public to: string;

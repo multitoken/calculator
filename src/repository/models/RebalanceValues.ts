@@ -1,13 +1,18 @@
-export class RebalanceValues {
+import { ExecuteResult } from './ExecuteResult';
 
-  public rebalanceCap: number;
-  public originalCap: number;
+export class RebalanceValues implements ExecuteResult {
+
+  public multitokenCap: Map<string, number>;
+  public multitokenTokensCap: Map<string, Map<string, number>>;
   public bitcoinCap: number;
   public timestamp: number;
 
-  constructor(rebalanceCap: number, originalCap: number, bitcoinCap: number, timestamp: number) {
-    this.rebalanceCap = rebalanceCap;
-    this.originalCap = originalCap;
+  constructor(multitokenCap: Map<string, number>,
+              multitokenTokensCap: Map<string, Map<string, number>>,
+              bitcoinCap: number,
+              timestamp: number) {
+    this.multitokenCap = multitokenCap;
+    this.multitokenTokensCap = multitokenTokensCap;
     this.bitcoinCap = bitcoinCap;
     this.timestamp = timestamp;
   }

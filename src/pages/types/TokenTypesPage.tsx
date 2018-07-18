@@ -1,9 +1,10 @@
 import { Layout } from 'antd';
 import * as React from 'react';
 import PageHeader from '../../components/page-header/PageHeader';
-import TokenType from '../../components/token-type/TokenType';
+import TokenTypeHolder from '../../components/token-type/TokenTypeHolder';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/TokenManager';
+import { TokenManager } from '../../manager/multitoken/TokenManager';
+import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
 import ImgBalance from '../../res/icons/balance.svg';
 import ImgBalanceCustom from '../../res/icons/balance_custom.svg';
 import ImgBalanceOff from '../../res/icons/balance_off.svg';
@@ -35,23 +36,23 @@ export default class TokenTypesPage extends React.Component<any, {}> {
         </header>
 
         <div className="TokenTypesPage__content">
-          <TokenType
+          <TokenTypeHolder
             title="Auto rebalance"
             img={ImgBalance}
-            onItemClick={() => this.onTokenTypeSelected(1)}
+            onItemClick={() => this.onTokenTypeSelected(TokenType.AUTO_REBALANCE)}
             desc={<span>Keeps the specified ratio of portfolio proportions.</span>}
           />
-          <TokenType
+          <TokenTypeHolder
             title="Fix proportions"
             img={ImgBalanceOff}
             desc={<span>The number of tokens in the portfolio will be constant.</span>}
-            onItemClick={() => this.onTokenTypeSelected(2)}
+            onItemClick={() => this.onTokenTypeSelected(TokenType.FIX_PROPORTIONS)}
           />
-          <TokenType
+          <TokenTypeHolder
             title="Manual rebalance"
             img={ImgBalanceCustom}
             desc={<span>Change the proportion of assets manually after creating a multitoken.</span>}
-            onItemClick={() => this.onTokenTypeSelected(3)}
+            onItemClick={() => this.onTokenTypeSelected(TokenType.MANUAL_REBALANCE)}
           />
         </div>
 
@@ -59,9 +60,8 @@ export default class TokenTypesPage extends React.Component<any, {}> {
     );
   }
 
-  private onTokenTypeSelected(type: number): void {
-    this.tokenManager.disableArbitrage(type >= 2);
-    this.tokenManager.disableManualRebalance(type !== 3);
+  private onTokenTypeSelected(type: TokenType): void {
+    this.tokenManager.setTokenType(type);
     const {history} = this.props;
     history.push('calculator');
   }

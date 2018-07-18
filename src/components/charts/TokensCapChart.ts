@@ -1,21 +1,28 @@
-import { Arbitration } from '../../repository/models/Arbitration';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import AbstractChart, { AbstractProperties, AbstractState } from './AbstractChart';
 
-interface Properties extends AbstractProperties<Arbitration[]> {
+interface Properties extends AbstractProperties<RebalanceValues[]> {
 }
 
-export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arbitration[], any> {
+export class TokensCapChart extends AbstractChart<Properties, AbstractState, RebalanceValues[], any> {
 
-  public parseData(data: Arbitration[]): any[] {
+  public parseData(data: RebalanceValues[]): any[] {
     return data.map(value => {
       const dataResult: any = {};
       dataResult.date = value.timestamp;
+      const rebalanceTokensCap: Map<string, number> = value.multitokenTokensCap
+        .get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
 
-      value.arbiterTokensCap.forEach((value2, key) => {
-        dataResult['arbiter' + key] = parseFloat(value2.toFixed(0));
+      const standardTokensCap: Map<string, number> = value.multitokenTokensCap
+        .get(RebalanceHistory.MULTITOKEN_NAME_STANDARD) || new Map();
+
+      rebalanceTokensCap.forEach((value2, key) => {
+        dataResult[RebalanceHistory.MULTITOKEN_NAME_REBALANCE + key] = parseFloat(value2.toFixed(0));
       });
-      value.originTokensCap.forEach((value2, key) => {
-        dataResult['origin' + key] = parseFloat(value2.toFixed(0));
+
+      standardTokensCap.forEach((value2, key) => {
+        dataResult[RebalanceHistory.MULTITOKEN_NAME_STANDARD + key] = parseFloat(value2.toFixed(0));
       });
 
       return dataResult;
@@ -23,14 +30,19 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Arb
   }
 
   public getNames(): string[] {
-    if (this.props.data.length > 0 && this.props.data[0].originTokensCap.size > 0) {
+    if (this.props.data.length > 0) {
       const result: Set<string> = new Set();
+      const rebalanceTokensCap: Map<string, number> = this.data[0].multitokenTokensCap
+        .get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
+      const standardTokensCap: Map<string, number> = this.data[0].multitokenTokensCap
+        .get(RebalanceHistory.MULTITOKEN_NAME_STANDARD) || new Map();
 
-      this.props.data[0].arbiterTokensCap.forEach((value2, key) => {
-        result.add('arbiter' + key);
+      rebalanceTokensCap.forEach((value2, key) => {
+        result.add(RebalanceHistory.MULTITOKEN_NAME_REBALANCE + key);
       });
-      this.props.data[0].originTokensCap.forEach((value2, key) => {
-        result.add('origin' + key);
+
+      standardTokensCap.forEach((value2, key) => {
+        result.add(RebalanceHistory.MULTITOKEN_NAME_STANDARD + key);
       });
 
       return Array.from(result);
