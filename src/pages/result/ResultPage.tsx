@@ -671,7 +671,7 @@ export default class ResultPage extends React.Component<Props, State> implements
         this.setState({
           arbitrationList: result.arbitrage,
           rebalanceValuesList: this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE
-            ? result.capByArbitrage
+            ? result.getCapByArbitrage()
             : result.rebalanceValues
         });
 

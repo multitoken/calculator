@@ -45,8 +45,8 @@ export class ExchangerExecutor extends AbstractExecutor {
     }
 
     while (true) {
-      const firstToken: string = this.availableTokens[Math.round(this.random(0, this.maxTokens - 1))];
-      const secondToken: string = this.availableTokens[Math.round(this.random(0, this.maxTokens - 1))];
+      const firstToken: string = this.availableTokens[Math.trunc(this.random(0, this.maxTokens))];
+      const secondToken: string = this.availableTokens[Math.trunc(this.random(0, this.maxTokens))];
 
       if (firstToken !== secondToken) {
         const amount: number =

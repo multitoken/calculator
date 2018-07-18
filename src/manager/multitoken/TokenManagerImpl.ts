@@ -278,7 +278,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     const skipStep: number = 86400 /* sec in day */ / this.getStepSec();
     const result: Map<string, ExecuteResult[]> = new Map();
     const executorsByType = this.getExecutorsByType(this.tokenType);
-    const capByArbitrage: RebalanceValues[] = [];
 
     console.log('executors:', executorsByType);
 
@@ -340,10 +339,8 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         executeResult = executor.execute(i, historyInTimeLine, timestamp, btcAmount, txPrice);
 
         // add reblance info in arbitration time
-        if (executor.getType() === ExecutorType.CAP_CLAMP && executeResult !== undefined &&
-          (i === this.startCalculationIndex || i === this.endCalculationIndex || successArbitration)) {
+        if (executor.getType() === ExecutorType.CAP_CLAMP) {
           successArbitration = false;
-          capByArbitrage.push((executeResult as RebalanceValues));
         }
 
         if (executor.getType() === ExecutorType.ARBITRAGEUR && executeResult !== undefined) {
@@ -359,8 +356,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     return new RebalanceHistory(
       (result.get(ExecutorType.CAP_CLAMP) || []) as RebalanceValues[],
       (result.get(ExecutorType.ARBITRAGEUR) || []) as Arbitration[],
-      (result.get(ExecutorType.EXCHANGER) || [] ) as Exchange[],
-      capByArbitrage
+      (result.get(ExecutorType.EXCHANGER) || [] ) as Exchange[]
     );
   }
 
