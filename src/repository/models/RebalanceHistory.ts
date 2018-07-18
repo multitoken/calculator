@@ -39,10 +39,6 @@ export class RebalanceHistory {
     let arbitrageIndex: number = 0;
 
     return this.rebalanceValues.filter((value, index) => {
-      if (index === 1 || index === this.rebalanceValues.length) {
-        return true;
-      }
-
       arbitrageIndex = Math.min(arbitrageIndex, this.arbitrage.length - 1);
 
       if (arbitrageIndex >= 0 && this.arbitrage[arbitrageIndex].timestamp === value.timestamp) {
@@ -50,7 +46,7 @@ export class RebalanceHistory {
         return true;
       }
 
-      return false;
+      return index === 1 || index === this.rebalanceValues.length;
     });
   }
 

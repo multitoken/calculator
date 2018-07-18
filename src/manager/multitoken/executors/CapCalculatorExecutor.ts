@@ -22,6 +22,7 @@ export class CapCalculatorExecutor extends AbstractExecutor {
                             startTime: number,
                             endTime: number): void {
     this.btcHistoryPrice = btcHistoryPrice;
+    this.cache.clear();
   }
 
   public execute(timeLineIndex: number,
