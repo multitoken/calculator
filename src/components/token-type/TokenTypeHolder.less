@@ -1,13 +1,28 @@
 @import "../../res/styles/Colors";
 
 .TokenTypeHolder__content-block {
-  width: 320px;
   height: 443px;
   padding: 20px;
   margin: 20px;
   border-radius: 5px;
   background-color: @content-color;
   border: solid 1px @border;
+
+}
+
+@tablet: ~"(min-width: 768px)";
+@desktop: ~"(min-width: 1536px)";
+
+@media @tablet {
+  .TokenTypeHolder__content-block {
+    width: 255px;
+  }
+}
+
+@media @desktop {
+  .TokenTypeHolder__content-block {
+    width: 320px;
+  }
 }
 
 .TokenTypeHolder__content-block-title {
