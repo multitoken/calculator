@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="36" height="36" viewBox="0 0 36 36">
+    <defs>
+        <path id="a" d="M0 15.926L8.2 19.8V4.144L0 .27z"/>
+        <linearGradient id="b" x1="-12.416%" x2="226.62%" y1="72.594%" y2="-13.942%">
+            <stop offset="0%" stop-color="#BAE802"/>
+            <stop offset="100%" stop-color="#4DBD04"/>
+        </linearGradient>
+        <path id="d" d="M11.672 0L.019 4.182 7.81 7.859l3.685-1.322 7.97-2.86L11.675 0z"/>
+        <linearGradient id="e" x1="-20.937%" x2="79.852%" y1="201.353%" y2="-13.692%">
+            <stop offset="0%" stop-color="#BAE802"/>
+            <stop offset="100%" stop-color="#4DBD04"/>
+        </linearGradient>
+        <path id="g" d="M.095 3.493l.018 8.976 8.33 3.955V.498z"/>
+        <linearGradient id="h" x1="-98.925%" x2="135.867%" y1="126.714%" y2="20.597%">
+            <stop offset="0%" stop-color="#BAE802"/>
+            <stop offset="100%" stop-color="#4DBD04"/>
+        </linearGradient>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <path fill="#212121" d="M-676-464h1920V536H-676z"/>
+        <g>
+            <circle cx="18" cy="18" r="18" fill="#FFF"/>
+            <g transform="translate(8 10.2)">
+                <mask id="c" fill="#fff">
+                    <use xlink:href="#a"/>
+                </mask>
+                <path fill="url(#b)" d="M0 15.926L8.2 19.8V4.144L0 .27z" mask="url(#c)"/>
+            </g>
+            <g transform="translate(8.6 6)">
+                <mask id="f" fill="#fff">
+                    <use xlink:href="#d"/>
+                </mask>
+                <path fill="url(#e)" d="M11.672 0L.019 4.182 7.81 7.859l3.685-1.322 7.97-2.86L11.675 0z" mask="url(#f)"/>
+            </g>
+            <g transform="translate(20 9.6)">
+                <mask id="i" fill="#fff">
+                    <use xlink:href="#g"/>
+                </mask>
+                <path fill="url(#h)" d="M.095 3.493l.018 8.976 8.33 3.955V.498z" mask="url(#i)"/>
+            </g>
+        </g>
+    </g>
+</svg>
