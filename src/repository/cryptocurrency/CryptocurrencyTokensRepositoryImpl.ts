@@ -6,13 +6,26 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
     ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
-    ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX']
+    ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX'],
+    ['Populous', 'PPT'], ['Ardor', 'ARDR'], ['Hshare', 'HSR'], ['IOST', 'IOST'], ['Monero', 'XMR'], ['Dash', 'DASH'],
+    ['Eth Classic', 'ETC'], ['NEM', 'XEM'], ['Zcash', 'ZEC'], ['Qtum', 'QTUM'], ['Bytecoin', 'BCN'], ['Lisk', 'LSK'],
+    ['BitShares', 'BTS'], ['Ontology', 'ONT'], ['BTC Gold', 'BTG'], ['Siacoin', 'SC'], ['Steem', 'STEEM'],
+    ['Verge', 'XVG'], ['Nano', 'NANO'], ['BAT', 'BAT'], ['Augur', 'REP'], ['BTC Diamond', 'BCD'], ['Golem', 'GNT'],
+    ['Pundi X', 'NPXS'], ['Stratis', 'STRAT'], ['Waves', 'WAVES'], ['Waltonchain', 'WTC'], ['Status', 'SNT'],
+    ['Wanchain', 'WAN'], ['Stellar', 'XLM'], ['NEO', 'NEO'], ['Litecoin', 'lTC'], ['Cardano', 'ADA']
   ]);
 
   private readonly BTC_VALUES: Map<string, any> = new Map([
     ['USDT', 'usdbtc'], ['Bitcoin', 'btcusd'], ['Eth', 'ethbtc'], ['EOS', 'eosbtc'], ['Tron', 'trxbtc'],
     ['VeChain', 'venbtc'], ['Binance', 'bnbbtc'], ['OmiseGO', 'omgbtc'], ['Icon', 'icxbtc'], ['Zilliqa', 'zilbtc'],
-    ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'],
+    ['Aeternity', 'aebtc'], ['0x', 'zrxbtc'], ['Populous', 'pptbtc'], ['Ardor', 'ardrbtc'], ['Hshare', 'hsrbtc'],
+    ['IOST', 'iostbtc'], ['Monero', 'xmrbtc'], ['Dash', 'dashbtc'], ['Eth Classic', 'etcbtc'], ['NEM', 'xembtc'],
+    ['Zcash', 'zecbtc'], ['Qtum', 'qtumbtc'], ['Bytecoin', 'bcnbtc'], ['Lisk', 'lskbtc'], ['BitShares', 'btsbtc'],
+    ['Ontology', 'ontbtc'], ['BTC Gold', 'btgbtc'], ['Siacoin', 'scbtc'], ['Steem', 'steembtc'], ['Verge', 'xvgbtc'],
+    ['Nano', 'nanobtc'], ['BAT', 'batbtc'], ['Augur', 'repbtc'], ['BTC Diamond', 'bcdbtc'], ['Golem', 'gntbtc'],
+    ['Pundi X', 'npxsbtc'], ['Stratis', 'stratbtc'], ['Waves', 'wavesbtc'], ['Waltonchain', 'wtcbtc'],
+    ['Status', 'sntbtc'], ['Wanchain', 'wanbtc'], ['Stellar', 'xlmbtc'], ['NEO', 'neobtc'], ['Litecoin', 'ltcbtc'],
+    ['Cardano', 'adabtc']
   ]);
 
   private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
