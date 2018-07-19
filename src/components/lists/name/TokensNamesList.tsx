@@ -26,7 +26,7 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
   }
 
   protected getGridType(): ListGridType | undefined {
-    return {gutter: 1, column: 2};
+    return {gutter: 2, column: 6};
   }
 
   protected getListName(): string {

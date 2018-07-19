@@ -46,7 +46,7 @@ export class RebalanceHistory {
         return true;
       }
 
-      return index === 1 || index === this.rebalanceValues.length;
+      return index === 0 || index === this.rebalanceValues.length - 1;
     });
   }
 

@@ -11,7 +11,6 @@ import { TokensProportionsList } from '../../components/lists/proportion/TokensP
 import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
-import { TokenLegend } from '../../entities/TokenLegend';
 import { lazyInject, Services } from '../../Injections';
 import { TokenManager } from '../../manager/multitoken/TokenManager';
 import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
@@ -27,23 +26,21 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  exchangeAmount: number;
-  tokenNames: Map<string, boolean>;
-  tokensHistory: Map<string, TokenPriceHistory[]>;
-  tokensLegend: TokenLegend[];
-  tokensDate: number[];
   amount: number;
-  proportionList: TokenProportion[];
-  calculateRangeDateIndex: SliderValue;
   calculateMaxDateIndex: number;
-  historyChartRangeDateIndex: SliderValue;
-  tokensWeightList: TokenWeight[];
-  tokensWeightEditItem: TokenWeight | undefined;
-  tokenDialogDateList: string[];
-  tokenDialogOpen: boolean;
-  tokenLatestWeights: Map<string, number>;
+  calculateRangeDateIndex: SliderValue;
   changeWeightMinDates: [number, number];
   commissionPercents: number;
+  exchangeAmount: number;
+  historyChartRangeDateIndex: SliderValue;
+  proportionList: TokenProportion[];
+  tokenDialogOpen: boolean;
+  tokenLatestWeights: Map<string, number>;
+  tokenNames: Map<string, boolean>;
+  tokensDate: number[];
+  tokensHistory: Map<string, TokenPriceHistory[]>;
+  tokensWeightEditItem: TokenWeight | undefined;
+  tokensWeightList: TokenWeight[];
 }
 
 export default class ConfiguratorPage extends React.Component<Props, State> {
@@ -63,13 +60,11 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       exchangeAmount: this.tokenManager.getExchangeAmount(),
       historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
       proportionList: [],
-      tokenDialogDateList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
       tokenNames: new Map(),
       tokensDate: [],
       tokensHistory: new Map(),
-      tokensLegend: [],
       tokensWeightEditItem: undefined,
       tokensWeightList: this.tokenManager.getRebalanceWeights(),
     };
@@ -364,7 +359,6 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       proportionList: proportions,
       tokenNames: tokenItems,
       tokensHistory: this.tokenManager.getPriceHistory(),
-      tokensLegend: proportions.map((value, i) => new TokenLegend(value.name, TokensHelper.getColor(i))),
     });
   }
 

@@ -15,7 +15,7 @@ export class TokenNameHolder extends AbstractHolder<Properties, {}, TokenItemEnt
   public bindModel(model: TokenItemEntity): object {
     return (
       <div className="TokenNameHolder__content" onClick={e => this.props.onItemClick(model)}>
-        <img className="TokenNameHolder__icon" src={model.icon} alt={model.name}/>
+        {this.prepareImage(model.icon)}
         <span className={this.props.checked ? 'TokenNameHolder__name__checked' : 'TokenNameHolder__name'}>
           {model.name}
         </span>
@@ -24,4 +24,11 @@ export class TokenNameHolder extends AbstractHolder<Properties, {}, TokenItemEnt
     );
   }
 
+  private prepareImage(icon: any): React.ReactNode {
+    if (icon) {
+      return <img className="TokenNameHolder__icon" src={icon}/>;
+    }
+
+    return <div className="TokenNameHolder__icon-box"><span className="TokenNameHolder__icon_empty"/></div>;
+  }
 }
