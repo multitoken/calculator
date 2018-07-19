@@ -1,6 +1,5 @@
 import ada from '../res/icons/tokens/ada.svg';
 import ae from '../res/icons/tokens/ae.svg';
-import ardr from '../res/icons/tokens/ardr.svg';
 import bat from '../res/icons/tokens/bat.svg';
 import bcd from '../res/icons/tokens/bcd.svg';
 import bcn from '../res/icons/tokens/bcn.svg';
@@ -54,7 +53,7 @@ export class TokensHelper {
   private static readonly ICONS: Map<string, any> = new Map([
     ['USDT', usdt], ['Bitcoin', btc], ['Eth', eth], ['EOS', eos], ['Tron', trx], ['VeChain', ven],
     ['Binance', bnb], ['OmiseGO', omg], ['Icon', icx], ['Zilliqa', zil], ['Aeternity', ae], ['0x', zrx],
-    ['Populous', ppt], ['Ardor', ardr], ['Hshare', hsr], ['IOST', iost], ['Monero', xmr], ['Dash', dash],
+    ['Populous', ppt], ['Hshare', hsr], ['IOST', iost], ['Monero', xmr], ['Dash', dash],
     ['Eth Classic', etc], ['NEM', xem], ['Zcash', zec], ['Qtum', qtum], ['Bytecoin', bcn], ['Lisk', lsk],
     ['BitShares', bts], ['Ontology', ont], ['BTC Gold', btg], ['Siacoin', sc], ['Steem', steem],
     ['Verge', xvg], ['Nano', nano], ['BAT', bat], ['Augur', rep], ['BTC Diamond', bcd], ['Golem', gnt],
