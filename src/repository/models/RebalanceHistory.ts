@@ -46,7 +46,9 @@ export class RebalanceHistory {
         return true;
       }
 
-      return index === 0 || index === this.rebalanceValues.length - 1;
+      return index === 0 ||
+        index === this.rebalanceValues.length - 1 ||
+        (arbitrageIndex >= 0 && value.timestamp > this.arbitrage[arbitrageIndex].timestamp);
     });
   }
 
