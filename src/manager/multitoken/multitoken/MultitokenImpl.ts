@@ -49,7 +49,7 @@ export class MultitokenImpl implements Multitoken {
     const fromResult: number = fromAmounts + fromAmount;
     const toResult: number = toAmounts - toAmount;
 
-    if (fromResult <= 0 || toResult <= 0) {
+    if (fromResult <= 0 || toResult <= 0 || fromAmount <= 0 || toAmount <= 0) {
       console.log(fromSymbol, toAmount, fromAmount, toAmount);
       console.log(fromAmounts, fromResult);
       console.log(toAmounts, toResult);
