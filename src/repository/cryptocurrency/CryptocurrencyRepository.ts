@@ -4,9 +4,9 @@ export interface CryptocurrencyRepository {
 
   getAvailableCurrencies(): Promise<Map<string, string>>;
 
-  getHistoryPrice(name: string, convertTo: string, hours: number): Promise<TokenPriceHistory[]>;
+  getHistoryPrice(name: string): Promise<TokenPriceHistory[]>;
 
-  getMinDate(names: string[]): Promise<number>;
+  getHistoryPrices(names: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
   getStepSec(): number;
 

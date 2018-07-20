@@ -27,7 +27,7 @@ export enum TokenType {
 export default class TokenManagerImpl implements TokenManager, ProgressListener {
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
-  private readonly selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
+  private selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
   private btcHistoryPrice: TokenPriceHistory[] = [];
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
@@ -78,92 +78,24 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
-    this.selectedTokensHistory.clear();
     this.tokensAmount.clear();
     this.tokensWeight.clear();
 
     this.resetDefaultValues();
+    const btcAlreadyExist: boolean = tokenSymbols.indexOf('Bitcoin') > -1;
+    const completeTokenList: string[] = btcAlreadyExist ? tokenSymbols : ['Bitcoin'].concat(tokenSymbols);
+    this.selectedTokensHistory = await this.cryptocurrencyRepository.getHistoryPrices(completeTokenList);
 
-    this.btcHistoryPrice = await this.cryptocurrencyRepository.getHistoryPrice('Bitcoin', 'usdt', 2000);
-    this.btcHistoryPrice = this.interpolateValues(this.btcHistoryPrice);
-
-    for (const item of tokenSymbols) {
-      try {
-        const result: TokenPriceHistory[] = await this.cryptocurrencyRepository
-          .getHistoryPrice(item, 'USD', 2160);
-
-        this.selectedTokensHistory.set(item, result);
-
-        if (this.maxCalculationIndex <= 0 || this.maxCalculationIndex > result.length) {
-          this.maxCalculationIndex = result.length - (result.length % 2);
-          this.endCalculationIndex = this.maxCalculationIndex - 1;
-        }
-      } catch (e) {
-        console.error(`error sync ${item}: ${e}`);
-      }
-    }
-
-    this.selectedTokensHistory.forEach((value, key) => {
-      let arr: TokenPriceHistory[] = value;
-      if (value.length > this.maxCalculationIndex) {
-        arr = value.slice((value.length - this.maxCalculationIndex), value.length);
-      }
-
-      arr = this.interpolateValues(arr);
-      this.selectedTokensHistory.set(key, arr);
-
-      console.log('end len', arr.length);
-    });
-
-    this.maxCalculationIndex = 0;
-
-    this.selectedTokensHistory.forEach((value, key) => {
-      if (this.maxCalculationIndex <= 0 || this.maxCalculationIndex > value.length) {
-        this.maxCalculationIndex = value.length;
-        this.endCalculationIndex = this.maxCalculationIndex - 1;
-      }
-    });
-
-    this.selectedTokensHistory.forEach((value, key) => {
-      if (value.length > this.maxCalculationIndex) {
-        const arr: TokenPriceHistory[] = value.slice((value.length - this.maxCalculationIndex), value.length);
-        this.selectedTokensHistory.set(key, arr);
-      }
-    });
+    this.btcHistoryPrice = this.selectedTokensHistory.get('Bitcoin') || [];
 
     this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
     this.endCalculationIndex = this.maxCalculationIndex - 1;
 
-    this.btcHistoryPrice =
-      this.btcHistoryPrice.slice((this.btcHistoryPrice.length - this.maxCalculationIndex), this.btcHistoryPrice.length);
-
-    return this.selectedTokensHistory;
-  }
-
-  public interpolateValues(history: TokenPriceHistory[]): TokenPriceHistory[] {
-    const result: TokenPriceHistory[] = [];
-
-    for (let i = 0; i < history.length - 1; i++) {
-      const diffCount: number = Math.round((history[i + 1].time - history[i].time) / 5000);
-
-      for (let j = 0; j < diffCount; j++) {
-        const time: number = history[i].time + j * 5000;
-        const value: number = this.linInterpolation(
-          history[i].time,
-          history[i].value,
-          history[i + 1].time,
-          history[i + 1].value,
-          time
-        );
-        result.push(new TokenPriceHistory(time, value));
-      }
+    if (!btcAlreadyExist) {
+      this.selectedTokensHistory.delete('Bitcoin');
     }
 
-    return result;
-  }
-
-  public linInterpolation(x1: number, y1: number, x2: number, y2: number, targetX: number) {
-    return y1 + (targetX - x1) * (y2 - y1) / (x2 - x1);
+    return this.selectedTokensHistory;
   }
 
   public setCommission(commissionPercents: number): void {
@@ -352,6 +284,10 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
         }
       }
     }
+
+    this.multitokens.forEach(multitoken =>
+      console.log('after: ', multitoken.getName(), multitoken.getAmounts())
+    );
 
     return new RebalanceHistory(
       (result.get(ExecutorType.CAP_CLAMP) || []) as RebalanceValues[],
