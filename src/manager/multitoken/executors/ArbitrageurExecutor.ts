@@ -66,7 +66,7 @@ export class ArbitrageursExecutor extends AbstractExecutor {
       }
     }
 
-    if (profit.profit > 0) {
+    if (profit.profit > 0 && !profit.isEmpty()) {
       const arbitration: Arbitration = new Arbitration(
         txPrice,
         profit.commission,
