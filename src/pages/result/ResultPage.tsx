@@ -623,7 +623,7 @@ export default class ResultPage extends React.Component<Props, State> implements
     this.setState({btcCount: count, btcUSDT: btcUsdt});
 
     this.portfolioManager.calculateInitialAmounts()
-      .then(() => this.portfolioManager.calculateArbitration())
+      .then(() => this.portfolioManager.calculate())
       .then((result: RebalanceHistory) => {
         this.setState({
           arbitrationList: result.arbitrage,

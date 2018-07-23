@@ -45,7 +45,7 @@ export interface PortfolioManager {
 
   subscribeToProgress(listener?: ProgressListener): void;
 
-  calculateArbitration(): Promise<RebalanceHistory>;
+  calculate(): Promise<RebalanceHistory>;
 
   getStepSec(): number;
 

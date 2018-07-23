@@ -203,7 +203,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.listener = listener || this;
   }
 
-  public async calculateArbitration(): Promise<RebalanceHistory> {
+  public async calculate(): Promise<RebalanceHistory> {
     const historyInTimeLine: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcAmount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
