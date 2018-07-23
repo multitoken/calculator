@@ -11,7 +11,7 @@ import { TimeLineExecutor } from './manager/multitoken/executors/TimeLineExecuto
 import { Multitoken } from './manager/multitoken/multitoken/Multitoken';
 import { MultitokenImpl } from './manager/multitoken/multitoken/MultitokenImpl';
 import { PortfolioManager } from './manager/multitoken/PortfolioManager';
-import TokenManagerImpl from './manager/multitoken/PortfolioManagerImpl';
+import PortfolioManagerImpl from './manager/multitoken/PortfolioManagerImpl';
 import { CryptocurrencyRepository } from './repository/cryptocurrency/CryptocurrencyRepository';
 import { CryptocurrencyTokensRepositoryImpl } from './repository/cryptocurrency/CryptocurrencyTokensRepositoryImpl';
 import { RebalanceHistory } from './repository/models/RebalanceHistory';
@@ -48,7 +48,7 @@ const arbitrageurs: TimeLineExecutor = new ArbitrageursExecutor(multitoken, 9);
 const manualRebalancer: ManualRebalancerExecutor = new ManualRebalancerExecutorImpl(multitoken, 8);
 const capCalculator: TimeLineExecutor = new CapCalculatorExecutor([multitoken, standardMultitoken], 7);
 
-const portfolioManager: PortfolioManager = new TokenManagerImpl(
+const portfolioManager: PortfolioManager = new PortfolioManagerImpl(
   cryptocurrencyRepository,
   [multitoken, standardMultitoken],
   [exchanger, arbitrageurs, manualRebalancer, capCalculator]
