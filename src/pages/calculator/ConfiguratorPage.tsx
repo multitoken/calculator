@@ -12,8 +12,8 @@ import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/multitoken/TokenManager';
-import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
+import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { Token } from '../../repository/models/Token';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
@@ -45,20 +45,20 @@ interface State {
 
 export default class ConfiguratorPage extends React.Component<Props, State> {
 
-  @lazyInject(Services.TOKEN_MANAGER)
-  private tokenManager: TokenManager;
+  @lazyInject(Services.PORTFOLIO_MANAGER)
+  private portfolioManager: PortfolioManager;
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      amount: this.tokenManager.getAmount(),
-      calculateMaxDateIndex: this.tokenManager.getMaxCalculationIndex() - 1,
-      calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
-      changeWeightMinDates: this.tokenManager.getCalculationDate() as [number, number],
-      commissionPercents: this.tokenManager.getCommission(),
-      exchangeAmount: this.tokenManager.getExchangeAmount(),
-      historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
+      amount: this.portfolioManager.getAmount(),
+      calculateMaxDateIndex: this.portfolioManager.getMaxCalculationIndex() - 1,
+      calculateRangeDateIndex: this.portfolioManager.getCalculationDate(),
+      changeWeightMinDates: this.portfolioManager.getCalculationDate() as [number, number],
+      commissionPercents: this.portfolioManager.getCommission(),
+      exchangeAmount: this.portfolioManager.getExchangeAmount(),
+      historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
       proportionList: [],
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
@@ -66,17 +66,17 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       tokensDate: [],
       tokensHistory: new Map(),
       tokensWeightEditItem: undefined,
-      tokensWeightList: this.tokenManager.getRebalanceWeights(),
+      tokensWeightList: this.portfolioManager.getRebalanceWeights(),
     };
   }
 
   public componentDidMount(): void {
-    if (this.tokenManager.getPriceHistory().size === 0) {
+    if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
       window.location.replace('/simulator');
     }
 
-    this.tokenManager
+    this.portfolioManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
       .catch(reason => {
@@ -164,7 +164,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                   onChange={value => this.setState({calculateRangeDateIndex: value})}
                   onAfterChange={(value: SliderValue) => {
                     this.setState({historyChartRangeDateIndex: this.state.calculateRangeDateIndex});
-                    this.tokenManager.changeCalculationDate(value[0], value[1]);
+                    this.portfolioManager.changeCalculationDate(value[0], value[1]);
                   }}
                 />
               </div>
@@ -183,20 +183,20 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               <div
                 className="ConfiguratorPage__content-rebalance-blocked"
                 style={{
-                  display: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 'block' : 'none',
+                  display: this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 'block' : 'none',
                 }}
               >
                 Disabled in selected type of multitoken.
               </div>
               <div
                 className="ConfiguratorPage__options-title"
-                style={{opacity: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
+                style={{opacity: this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
               >
                 Change token weight:
               </div>
               <div
                 className="ConfiguratorPage__result-chart"
-                style={{opacity: this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
+                style={{opacity: this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE ? 0.3 : 1}}
               >
                 <div style={{margin: '0px 20px 0px -20px'}}>
                   <WeightChart
@@ -239,7 +239,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
             </PageContent>
             <PageContent className="ConfiguratorPage__content-bottom">
               <HistoryChart
-                timeStep={this.tokenManager.getStepSec()}
+                timeStep={this.portfolioManager.getStepSec()}
                 data={this.state.tokensHistory}
                 colors={TokensHelper.COLORS}
                 legendColumnCount={3}
@@ -261,7 +261,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
           editTokenWeights={this.state.tokensWeightEditItem}
           maxWeight={10}
           rangeDateIndex={this.state.changeWeightMinDates}
-          tokenNames={Array.from(this.tokenManager.getPriceHistory().keys())}
+          tokenNames={Array.from(this.portfolioManager.getPriceHistory().keys())}
           dateList={this.state.tokensDate}
         />
 
@@ -342,23 +342,23 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
     tokens.forEach((value, key) => tokenItems.set(key, false));
 
-    if (this.tokenManager.getProportions().length === 0) {
-      this.tokenManager.getPriceHistory().forEach((value, key) => {
+    if (this.portfolioManager.getProportions().length === 0) {
+      this.portfolioManager.getPriceHistory().forEach((value, key) => {
         proportions.push(new TokenProportion(key, 10, 1, 10));
       });
     } else {
-      proportions = this.tokenManager.getProportions();
+      proportions = this.portfolioManager.getProportions();
     }
 
-    const firstTokenName: string = Array.from(this.tokenManager.getPriceHistory().keys())[0];
-    const history: TokenPriceHistory[] = this.tokenManager.getPriceHistory().get(firstTokenName) || [];
+    const firstTokenName: string = Array.from(this.portfolioManager.getPriceHistory().keys())[0];
+    const history: TokenPriceHistory[] = this.portfolioManager.getPriceHistory().get(firstTokenName) || [];
 
     this.setState({tokensDate: history.map(value => value.time)});
 
     this.setState({
       proportionList: proportions,
       tokenNames: tokenItems,
-      tokensHistory: this.tokenManager.getPriceHistory(),
+      tokensHistory: this.portfolioManager.getPriceHistory(),
     });
   }
 
@@ -379,12 +379,12 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   }
 
   private onCalculateClick() {
-    this.tokenManager.setExchangeAmount(this.state.exchangeAmount || 0);
-    this.tokenManager.changeProportions(this.state.proportionList);
+    this.portfolioManager.setExchangeAmount(this.state.exchangeAmount || 0);
+    this.portfolioManager.changeProportions(this.state.proportionList);
 
-    this.tokenManager.setRebalanceWeights(this.state.tokensWeightList);
-    this.tokenManager.setCommission(this.state.commissionPercents);
-    this.tokenManager.setAmount(this.state.amount);
+    this.portfolioManager.setRebalanceWeights(this.state.tokensWeightList);
+    this.portfolioManager.setCommission(this.state.commissionPercents);
+    this.portfolioManager.setAmount(this.state.amount);
     const {history} = this.props;
     history.push('calculator/result');
   }

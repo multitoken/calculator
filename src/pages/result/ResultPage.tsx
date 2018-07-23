@@ -12,9 +12,9 @@ import { TokenWeightSimpleList } from '../../components/lists/weight-simple/Toke
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
+import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
-import { TokenManager } from '../../manager/multitoken/TokenManager';
-import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
 import { Arbitration } from '../../repository/models/Arbitration';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
@@ -50,25 +50,25 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private refsElements: { chart?: HTMLDivElement | null; } = {};
 
-  @lazyInject(Services.TOKEN_MANAGER)
-  private tokenManager: TokenManager;
+  @lazyInject(Services.PORTFOLIO_MANAGER)
+  private portfolioManager: PortfolioManager;
   private chartsAlreadyPrepared: boolean = false;
 
   constructor(props: Props) {
     super(props);
 
-    this.tokenManager.subscribeToProgress(this);
+    this.portfolioManager.subscribeToProgress(this);
 
     this.state = {
-      amount: this.tokenManager.getAmount(),
-      arbiterCap: this.tokenManager.getAmount(),
+      amount: this.portfolioManager.getAmount(),
+      arbiterCap: this.portfolioManager.getAmount(),
       arbiterProfit: 0,
       arbiterTotalTxFee: 0,
       arbitrationList: [],
       btcCount: 0,
-      btcUSDT: this.tokenManager.getAmount(),
+      btcUSDT: this.portfolioManager.getAmount(),
       calculateRangeDateIndex: [0, 1],
-      cap: this.tokenManager.getAmount(),
+      cap: this.portfolioManager.getAmount(),
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       rebalanceValuesList: [],
@@ -88,12 +88,12 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   public componentDidMount(): void {
-    if (this.tokenManager.getPriceHistory().size === 0) {
+    if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
       window.location.replace('/simulator');
     }
 
-    this.tokenManager
+    this.portfolioManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
       .catch(reason => {
@@ -118,7 +118,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-text-caption"
             style={{
-              display: this.tokenManager.getTokenType() === TokenType.FIX_PROPORTIONS
+              display: this.portfolioManager.getTokenType() === TokenType.FIX_PROPORTIONS
                 ? 'none'
                 : 'block',
             }}
@@ -128,7 +128,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block-profit"
             style={{
-              display: this.tokenManager.getTokenType() === TokenType.FIX_PROPORTIONS
+              display: this.portfolioManager.getTokenType() === TokenType.FIX_PROPORTIONS
                 ? 'none'
                 : 'block',
             }}
@@ -243,7 +243,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-text-caption"
             style={{
-              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
             }}
           >
             Arbitrage transactions
@@ -251,7 +251,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block"
             style={{
-              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
             }}
           >
             <Row>
@@ -283,13 +283,13 @@ export default class ResultPage extends React.Component<Props, State> implements
           <div
             className="ResultPage__content-block"
             style={{
-              display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
               marginLeft: '32.45%',
             }}
           >
             <Row
               style={{
-                display: this.tokenManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+                display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
               }}
             >
               <Col span={12}>
@@ -382,7 +382,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <HistoryChart
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
-              timeStep={this.tokenManager.getStepSec()}
+              timeStep={this.portfolioManager.getStepSec()}
               isDebugMode={false}
               start={this.state.historyChartRangeDateIndex[0]}
               end={this.state.historyChartRangeDateIndex[1]}
@@ -398,7 +398,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               Portfolio capitalization:
             </span>
             <BalancesCapChart
-              showRebalanceCap={this.tokenManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
+              showRebalanceCap={this.portfolioManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
               isDebugMode={false}
               applyScale={true}
               data={this.state.rebalanceValuesList}
@@ -422,7 +422,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             Amount of money:
           </span>
           <span className="ResultPage__tooltip_param_value">
-            $ {this.tokenManager.getAmount().toLocaleString()}
+            $ {this.portfolioManager.getAmount().toLocaleString()}
           </span>
         </div>
         {this.getCommissionPercent()}
@@ -433,10 +433,10 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getTitleOfType(): string {
-    if (this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE) {
+    if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
       return 'Fix proportions:';
 
-    } else if (this.tokenManager.getTokenType() !== TokenType.MANUAL_REBALANCE) {
+    } else if (this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE) {
       return 'Manual rebalance:';
 
     } else {
@@ -447,7 +447,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   private getCommissionPercent(): React.ReactNode {
     return '';
 
-    if (this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE) {
+    if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
       return (
         <div>
           <div className="ResultPage__tooltip_param">
@@ -455,7 +455,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             Commission percent:
           </span>
             <span className="ResultPage__tooltip_param_value">
-            $ {this.tokenManager.getCommission().toLocaleString()}
+            $ {this.portfolioManager.getCommission().toLocaleString()}
           </span>
           </div>
         </div>
@@ -466,7 +466,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getTokensProportions(): React.ReactNode {
-    return this.tokenManager.getProportions().map(value => {
+    return this.portfolioManager.getProportions().map(value => {
       return (
         <div key={value.name}>
           <div className="ResultPage__tooltip_param">
@@ -483,9 +483,9 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private getManualRebalanceList(): React.ReactNode {
-    if (this.tokenManager.getTokenType() === TokenType.MANUAL_REBALANCE) {
+    if (this.portfolioManager.getTokenType() === TokenType.MANUAL_REBALANCE) {
       return <TokenWeightSimpleList
-        data={this.tokenManager.getRebalanceWeights()}
+        data={this.portfolioManager.getRebalanceWeights()}
       />;
     }
     return '';
@@ -598,7 +598,7 @@ export default class ResultPage extends React.Component<Props, State> implements
     const min: number = this.state.calculateRangeDateIndex[0];
     const max: number = this.state.calculateRangeDateIndex[1];
 
-    return Math.floor(((max - min) / (60 / this.tokenManager.getStepSec())) / 60 / 24);
+    return Math.floor(((max - min) / (60 / this.portfolioManager.getStepSec())) / 60 / 24);
   }
 
   private getArbitrageListLen(): number {
@@ -607,27 +607,27 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private onSyncTokens(tokens: Map<string, string>) {
     this.setState({
-      calculateRangeDateIndex: this.tokenManager.getCalculationDate(),
-      historyChartRangeDateIndex: this.tokenManager.getCalculationDate(),
-      tokensHistory: this.tokenManager.getPriceHistory(),
+      calculateRangeDateIndex: this.portfolioManager.getCalculationDate(),
+      historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
+      tokensHistory: this.portfolioManager.getPriceHistory(),
     });
 
     this.processCalculate();
   }
 
   private processCalculate() {
-    const btcusdt: TokenPriceHistory[] = this.tokenManager.getBtcPrice();
+    const btcusdt: TokenPriceHistory[] = this.portfolioManager.getBtcPrice();
     const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
     const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
 
     this.setState({btcCount: count, btcUSDT: btcUsdt});
 
-    this.tokenManager.calculateInitialAmounts()
-      .then(() => this.tokenManager.calculateArbitration())
+    this.portfolioManager.calculateInitialAmounts()
+      .then(() => this.portfolioManager.calculateArbitration())
       .then((result: RebalanceHistory) => {
         this.setState({
           arbitrationList: result.arbitrage,
-          rebalanceValuesList: this.tokenManager.getTokenType() === TokenType.AUTO_REBALANCE
+          rebalanceValuesList: this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE
             ? result.getCapByArbitrage()
             : result.rebalanceValues
         });

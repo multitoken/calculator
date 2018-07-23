@@ -1,12 +1,11 @@
-import { CryptocurrencyRepository } from '../../repository/cryptocurrency/CryptocurrencyRepository';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { TokenType } from './PortfolioManagerImpl';
 import { ProgressListener } from './ProgressListener';
-import { TokenType } from './TokenManagerImpl';
 
-export interface TokenManager {
+export interface PortfolioManager {
 
   getBtcPrice(): TokenPriceHistory[];
 
@@ -49,8 +48,6 @@ export interface TokenManager {
   calculateArbitration(): Promise<RebalanceHistory>;
 
   getStepSec(): number;
-
-  setupRepository(repo: CryptocurrencyRepository): void;
 
   setExchangeAmount(value: number): void;
 
