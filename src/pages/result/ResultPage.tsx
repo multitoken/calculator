@@ -15,11 +15,11 @@ import { lazyInject, Services } from '../../Injections';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
-import { Arbitration } from '../../repository/models/Arbitration';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import IcoInfo from '../../res/icons/ico_info.svg';
+import { RebalanceHistoryHelper } from '../../utils/RebalanceHistoryHelper';
 import { TokensHelper } from '../../utils/TokensHelper';
 
 import './ResultPage.less';
@@ -28,15 +28,6 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  amount: number;
-  arbiterCap: number;
-  arbiterProfit: number;
-  arbiterTotalTxFee: number;
-  arbitrationList: Arbitration[];
-  btcCount: number;
-  btcUSDT: number;
-  calculateRangeDateIndex: SliderValue;
-  cap: number;
   historyChartRangeDateIndex: SliderValue;
   progressPercents: number;
   rebalanceValuesList: RebalanceValues[];
@@ -53,22 +44,15 @@ export default class ResultPage extends React.Component<Props, State> implements
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
   private chartsAlreadyPrepared: boolean = false;
+  private calculation: RebalanceHistoryHelper;
 
   constructor(props: Props) {
     super(props);
 
     this.portfolioManager.subscribeToProgress(this);
+    this.calculation = new RebalanceHistoryHelper(this.portfolioManager);
 
     this.state = {
-      amount: this.portfolioManager.getAmount(),
-      arbiterCap: this.portfolioManager.getAmount(),
-      arbiterProfit: 0,
-      arbiterTotalTxFee: 0,
-      arbitrationList: [],
-      btcCount: 0,
-      btcUSDT: this.portfolioManager.getAmount(),
-      calculateRangeDateIndex: [0, 1],
-      cap: this.portfolioManager.getAmount(),
       historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
       rebalanceValuesList: [],
@@ -141,26 +125,32 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calcCountDays()} days / ROI annual:
+                ROI {this.calculation.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result_big' + this.getModif(this.profitWithRebalance())}
+                className={
+                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitWithRebalance())
+                }
               >
-                ${this.capWithRebalance()}
+                ${this.calculation.capWithRebalance()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result_big' + this.getModif(this.profitWithRebalance())}
+                className={
+                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitWithRebalance())
+                }
               >
-                ${this.profitWithRebalance()}
+                ${this.calculation.profitWithRebalance()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result_big' + this.getModif(this.profitPercentWithRebalance())}>
-                {this.profitPercentWithRebalance()}% / {this.profitPercentYearWithRebalance()}%
+                className={
+                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitPercentWithRebalance())
+                }>
+                {this.calculation.profitPercentWithRebalance()}% / {this.calculation.profitPercentYearWithRebalance()}%
               </Col>
             </Row>
           </div>
@@ -177,27 +167,30 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calcCountDays()} days / ROI annual:
+                ROI {this.calculation.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.profitWithoutRebalance())}
+                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitWithoutRebalance())}
               >
-                ${this.capWithoutRebalance()}
+                ${this.calculation.capWithoutRebalance()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.profitWithoutRebalance())}
+                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitWithoutRebalance())}
               >
-                ${this.profitWithoutRebalance()}
+                ${this.calculation.profitWithoutRebalance()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.profitPercentWithoutRebalance())}
+                className={
+                  'ResultPage__content-text-result' + this.getModif(this.calculation.profitPercentWithoutRebalance())
+                }
               >
-                {this.profitPercentWithoutRebalance()}% / {this.profitPercentYearWithoutRebalance()}%
+                {this.calculation.profitPercentWithoutRebalance()}%
+                / {this.calculation.profitPercentYearWithoutRebalance()}%
               </Col>
             </Row>
           </div>
@@ -217,24 +210,24 @@ export default class ResultPage extends React.Component<Props, State> implements
                 Profit for the period:
               </Col>
               <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calcCountDays()} days / ROI annual:
+                ROI {this.calculation.calcCountDays()} days / ROI annual:
               </Col>
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                ${this.capBtc()}
+                ${this.calculation.capBtc()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.profitBtc())}
+                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitBtc())}
               >
-                ${this.profitBtc()}
+                ${this.calculation.profitBtc()}
               </Col>
               <Col
                 span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.profitPercentBtc())}
+                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitPercentBtc())}
               >
-                {this.profitPercentBtc()}% / {this.profitPercentYearBtc()}%
+                {this.calculation.profitPercentBtc()}% / {this.calculation.profitPercentYearBtc()}%
               </Col>
             </Row>
           </div>
@@ -267,13 +260,13 @@ export default class ResultPage extends React.Component<Props, State> implements
             </Row>
             <Row>
               <Col span={8} className="ResultPage__content-text-result">
-                {this.getArbitrageListLen()}
+                {this.calculation.getArbitrageListLen()}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
-                ${this.totalEthFee()}
+                ${this.calculation.totalEthFee()}
               </Col>
               <Col span={8} className="ResultPage__content-text-result">
-                ${this.avgEthFee()}
+                ${this.calculation.avgEthFee()}
               </Col>
             </Row>
           </div>
@@ -297,7 +290,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                   Total arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
-                  ${this.totalArbiterProfit()}
+                  ${this.calculation.totalArbiterProfit()}
                 </div>
               </Col>
 
@@ -306,7 +299,7 @@ export default class ResultPage extends React.Component<Props, State> implements
                   The average arbitrage profit:
                 </div>
                 <div className="ResultPage__content-text-result">
-                  ${this.avgArbiterProfit()}
+                  ${this.calculation.avgArbiterProfit()}
                 </div>
               </Col>
             </Row>
@@ -511,77 +504,6 @@ export default class ResultPage extends React.Component<Props, State> implements
       500);
   }
 
-  private capWithRebalance(): string {
-    return this.formatCurrency(this.state.arbiterCap.toFixed(0));
-  }
-
-  private profitWithRebalance(): string {
-    return this.formatCurrency((this.state.arbiterCap - this.state.amount).toFixed(0));
-  }
-
-  private profitPercentWithRebalance(): string {
-    return ((this.state.arbiterCap - this.state.amount) / this.state.amount * 100).toFixed(0);
-  }
-
-  private profitPercentYearWithRebalance(): string {
-    const percents: number = (this.state.arbiterCap - this.state.amount) / this.state.amount * 100;
-    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
-  }
-
-  private capWithoutRebalance(): string {
-    return this.formatCurrency(this.state.cap.toFixed(0));
-  }
-
-  private profitWithoutRebalance(): string {
-    return this.formatCurrency((this.state.cap - this.state.amount).toFixed(0));
-  }
-
-  private profitPercentWithoutRebalance(): string {
-    return ((this.state.cap - this.state.amount) / this.state.amount * 100).toFixed(0);
-  }
-
-  private profitPercentYearWithoutRebalance(): string {
-    const percents: number = (this.state.cap - this.state.amount) / this.state.amount * 100;
-    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
-  }
-
-  private totalEthFee(): string {
-    return this.formatCurrency(this.state.arbiterTotalTxFee.toFixed(0));
-  }
-
-  private avgEthFee(): string {
-    return this.formatCurrency(((this.state.arbiterTotalTxFee / (this.getArbitrageListLen() || 1))).toFixed(3));
-  }
-
-  private capBtc(): string {
-    return this.formatCurrency(this.state.btcUSDT.toFixed(0));
-  }
-
-  private profitBtc(): string {
-    return this.formatCurrency((this.state.btcUSDT - this.state.amount).toFixed(0));
-  }
-
-  private profitPercentBtc(): string {
-    return ((this.state.btcUSDT - this.state.amount) / this.state.amount * 100).toFixed(0);
-  }
-
-  private profitPercentYearBtc(): string {
-    const percents: number = (this.state.btcUSDT - this.state.amount) / this.state.amount * 100;
-    return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
-  }
-
-  private totalArbiterProfit(): string {
-    return this.formatCurrency(this.state.arbiterProfit.toFixed(3));
-  }
-
-  private avgArbiterProfit(): string {
-    return this.formatCurrency((this.state.arbiterProfit / (this.getArbitrageListLen() || 1)).toFixed(3));
-  }
-
-  private formatCurrency(value: string): string {
-    return parseFloat(value).toLocaleString();
-  }
-
   private getModif(value: string): string {
     const numb: number = parseFloat(value.replace(' ', ''));
     if (numb > 0) {
@@ -594,20 +516,8 @@ export default class ResultPage extends React.Component<Props, State> implements
     return '_warn';
   }
 
-  private calcCountDays(): number {
-    const min: number = this.state.calculateRangeDateIndex[0];
-    const max: number = this.state.calculateRangeDateIndex[1];
-
-    return Math.floor(((max - min) / (60 / this.portfolioManager.getStepSec())) / 60 / 24);
-  }
-
-  private getArbitrageListLen(): number {
-    return Math.max(0, this.state.arbitrationList.length);
-  }
-
   private onSyncTokens(tokens: Map<string, string>) {
     this.setState({
-      calculateRangeDateIndex: this.portfolioManager.getCalculationDate(),
       historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
       tokensHistory: this.portfolioManager.getPriceHistory(),
     });
@@ -616,17 +526,12 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private processCalculate() {
-    const btcusdt: TokenPriceHistory[] = this.portfolioManager.getBtcPrice();
-    const count: number = this.state.amount / btcusdt[this.state.historyChartRangeDateIndex[0]].value;
-    const btcUsdt: number = count * btcusdt[this.state.historyChartRangeDateIndex[1]].value;
-
-    this.setState({btcCount: count, btcUSDT: btcUsdt});
-
     this.portfolioManager.calculateInitialAmounts()
       .then(() => this.portfolioManager.calculate())
       .then((result: RebalanceHistory) => {
+        this.calculation.calculateRebalanceHistory(result);
+
         this.setState({
-          arbitrationList: result.arbitrage,
           rebalanceValuesList: this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE
             ? result.getCapByArbitrage()
             : result.rebalanceValues
@@ -634,22 +539,7 @@ export default class ResultPage extends React.Component<Props, State> implements
 
         console.log(result);
 
-        let profit: number = 0;
-        let totalTxPrice: number = 0;
-
-        result.arbitrage.forEach(value => {
-          profit += value.arbiterProfit;
-          totalTxPrice += value.txPrice;
-        });
-
         this.setState({
-          arbiterProfit: profit,
-          arbiterTotalTxFee: totalTxPrice,
-        });
-
-        this.setState({
-          arbiterCap: result.getRebalancedCap(),
-          cap: result.getCap(),
           showCalculationProgress: false,
         });
       });
