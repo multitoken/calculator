@@ -13,8 +13,8 @@ import { ManualRebalancerExecutor } from './executors/ManualRebalancerExecutor';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
 import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
 import { Multitoken } from './multitoken/Multitoken';
+import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
-import { TokenManager } from './TokenManager';
 
 export enum TokenType {
   AUTO_REBALANCE,
@@ -24,7 +24,7 @@ export enum TokenType {
 }
 
 @injectable()
-export default class TokenManagerImpl implements TokenManager, ProgressListener {
+export default class PortfolioManagerImpl implements PortfolioManager, ProgressListener {
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
@@ -203,7 +203,7 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
     this.listener = listener || this;
   }
 
-  public async calculateArbitration(): Promise<RebalanceHistory> {
+  public async calculate(): Promise<RebalanceHistory> {
     const historyInTimeLine: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcAmount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
@@ -302,10 +302,6 @@ export default class TokenManagerImpl implements TokenManager, ProgressListener 
 
   public getStepSec(): number {
     return this.cryptocurrencyRepository.getStepSec();
-  }
-
-  public setupRepository(repo: CryptocurrencyRepository): void {
-    this.cryptocurrencyRepository = repo;
   }
 
   public setExchangeAmount(value: number): void {

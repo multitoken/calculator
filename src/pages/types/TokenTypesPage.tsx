@@ -3,8 +3,8 @@ import * as React from 'react';
 import PageHeader from '../../components/page-header/PageHeader';
 import TokenTypeHolder from '../../components/token-type/TokenTypeHolder';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/multitoken/TokenManager';
-import { TokenType } from '../../manager/multitoken/TokenManagerImpl';
+import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import ImgBalance from '../../res/icons/balance.svg';
 import ImgBalanceCustom from '../../res/icons/balance_custom.svg';
 import ImgBalanceOff from '../../res/icons/balance_off.svg';
@@ -12,11 +12,11 @@ import './TokenTypesPage.less';
 
 export default class TokenTypesPage extends React.Component<any, {}> {
 
-  @lazyInject(Services.TOKEN_MANAGER)
-  public tokenManager: TokenManager;
+  @lazyInject(Services.PORTFOLIO_MANAGER)
+  public portfolioManager: PortfolioManager;
 
   public componentDidMount(): void {
-    if (this.tokenManager.getPriceHistory().size === 0) {
+    if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
       window.location.replace('/simulator');
     }
@@ -61,7 +61,7 @@ export default class TokenTypesPage extends React.Component<any, {}> {
   }
 
   private onTokenTypeSelected(type: TokenType): void {
-    this.tokenManager.setTokenType(type);
+    this.portfolioManager.setTokenType(type);
     const {history} = this.props;
     history.push('calculator');
   }

@@ -10,14 +10,14 @@ import { ManualRebalancerExecutorImpl } from './manager/multitoken/executors/Man
 import { TimeLineExecutor } from './manager/multitoken/executors/TimeLineExecutor';
 import { Multitoken } from './manager/multitoken/multitoken/Multitoken';
 import { MultitokenImpl } from './manager/multitoken/multitoken/MultitokenImpl';
-import { TokenManager } from './manager/multitoken/TokenManager';
-import TokenManagerImpl from './manager/multitoken/TokenManagerImpl';
+import { PortfolioManager } from './manager/multitoken/PortfolioManager';
+import PortfolioManagerImpl from './manager/multitoken/PortfolioManagerImpl';
 import { CryptocurrencyRepository } from './repository/cryptocurrency/CryptocurrencyRepository';
 import { CryptocurrencyTokensRepositoryImpl } from './repository/cryptocurrency/CryptocurrencyTokensRepositoryImpl';
 import { RebalanceHistory } from './repository/models/RebalanceHistory';
 
 export enum Services {
-  TOKEN_MANAGER = 'TokenManager'
+  PORTFOLIO_MANAGER = 'PortfolioManager'
 }
 
 const kernel = new Container();
@@ -48,11 +48,11 @@ const arbitrageurs: TimeLineExecutor = new ArbitrageursExecutor(multitoken, 9);
 const manualRebalancer: ManualRebalancerExecutor = new ManualRebalancerExecutorImpl(multitoken, 8);
 const capCalculator: TimeLineExecutor = new CapCalculatorExecutor([multitoken, standardMultitoken], 7);
 
-const tokenManager: TokenManager = new TokenManagerImpl(
+const portfolioManager: PortfolioManager = new PortfolioManagerImpl(
   cryptocurrencyRepository,
   [multitoken, standardMultitoken],
   [exchanger, arbitrageurs, manualRebalancer, capCalculator]
 );
 
-kernel.bind<TokenManager>(Services.TOKEN_MANAGER)
-  .toConstantValue(tokenManager);
+kernel.bind<PortfolioManager>(Services.PORTFOLIO_MANAGER)
+  .toConstantValue(portfolioManager);

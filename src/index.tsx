@@ -3,11 +3,13 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'react-input-range/lib/css/index.css';
 import { HashRouter as Router, Route } from 'react-router-dom';
+import Config from './Config';
 import ConfiguratorPage from './pages/calculator/ConfiguratorPage';
 import ResultPage from './pages/result/ResultPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
 import TokenTypesPage from './pages/types/TokenTypesPage';
 import './res/styles/Theme.less';
+import { Intercom } from './utils/Intercom';
 
 // const GH_PAGES_PREFIX_URL = 'simulator';
 
@@ -18,6 +20,7 @@ ReactDOM.render(
       <Route exact={true} path="/types" component={TokenTypesPage}/>
       <Route exact={true} path="/calculator" component={ConfiguratorPage}/>
       <Route exact={true} path="/calculator/result" component={ResultPage}/>
+      <Intercom appId={Config.getIntercomAppId()}/>
     </div>
   </Router>,
   document.getElementById('root') as HTMLElement

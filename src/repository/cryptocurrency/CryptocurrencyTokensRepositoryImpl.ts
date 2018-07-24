@@ -120,7 +120,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
       }
 
     } catch (e) {
-      console.log(e);
+      console.log('name: ', name, e);
     }
 
     return result;

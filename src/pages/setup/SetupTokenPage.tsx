@@ -6,7 +6,7 @@ import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
-import { TokenManager } from '../../manager/multitoken/TokenManager';
+import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 
@@ -21,8 +21,8 @@ interface State {
 
 export default class SetupTokenPage extends React.Component<Props, State> {
 
-  @lazyInject(Services.TOKEN_MANAGER)
-  public tokenManager: TokenManager;
+  @lazyInject(Services.PORTFOLIO_MANAGER)
+  public portfolioManager: PortfolioManager;
   public availableTokensMap: Map<string, string>;
 
   constructor(props: Props) {
@@ -38,7 +38,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   }
 
   public componentDidMount(): void {
-    this.tokenManager
+    this.portfolioManager
       .getAvailableTokens()
       .then(result => this.onSyncTokens(result))
       .catch(reason => alert(reason.message));
@@ -104,7 +104,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
     this.state.selectedTokenNames.sort();
 
-    this.tokenManager.setupTokens(this.state.selectedTokenNames)
+    this.portfolioManager.setupTokens(this.state.selectedTokenNames)
       .then(() => history.push('types'))
       .catch(reason => {
         console.error(reason);
