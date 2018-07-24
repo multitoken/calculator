@@ -8,4 +8,8 @@ export default class Config {
     return 'https://api.icex.ch';
   }
 
+  public static getIntercomAppId(): string {
+    return 'q14mislj';
+  }
+
 }
