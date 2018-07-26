@@ -2,6 +2,8 @@ export interface Multitoken {
 
   setup(amounts: Map<string, number>, weights: Map<string, number>): void;
 
+  setFixedCommission(percents: number): void;
+
   /**
    * @param {string} fromSymbol name of cheap token.
    * @param {string} toSymbol name of expensive token.

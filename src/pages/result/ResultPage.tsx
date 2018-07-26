@@ -419,6 +419,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           </span>
         </div>
         {this.getCommissionPercent()}
+        {this.getExchangeAmount()}
         {this.getTokensProportions()}
         {this.getManualRebalanceList()}
       </div>
@@ -427,19 +428,17 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   private getTitleOfType(): string {
     if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
-      return 'Fix proportions:';
+      return 'Auto rebalance:';
 
     } else if (this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE) {
       return 'Manual rebalance:';
 
     } else {
-      return 'Auto rebalance:';
+      return 'Fix proportions:';
     }
   }
 
   private getCommissionPercent(): React.ReactNode {
-    return '';
-
     if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
       return (
         <div>
@@ -456,6 +455,21 @@ export default class ResultPage extends React.Component<Props, State> implements
     }
 
     return '';
+  }
+
+  private getExchangeAmount(): React.ReactNode {
+    return (
+      <div>
+        <div className="ResultPage__tooltip_param">
+          <span className="ResultPage__tooltip_param_name">
+            Exchange amount:
+          </span>
+          <span className="ResultPage__tooltip_param_value">
+            $ {this.portfolioManager.getExchangeAmount().toLocaleString()}
+          </span>
+        </div>
+      </div>
+    );
   }
 
   private getTokensProportions(): React.ReactNode {
