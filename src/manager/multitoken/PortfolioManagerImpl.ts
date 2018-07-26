@@ -19,10 +19,10 @@ import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
 
 export enum TokenType {
-  AUTO_REBALANCE,
-  FIX_PROPORTIONS,
-  MANUAL_REBALANCE,
-  UNDEFINED,
+  AUTO_REBALANCE = 'AUTO_REBALANCE',
+  FIX_PROPORTIONS = 'FIX_PROPORTIONS',
+  MANUAL_REBALANCE = 'MANUAL_REBALANCE',
+  UNDEFINED = 'UNDEFINED',
 }
 
 @injectable()

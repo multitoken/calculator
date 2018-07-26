@@ -9,6 +9,9 @@ interface Properties extends AbstractProperties<TokenItemEntity> {
   disabled: boolean;
 
   onCheck(checkedValue: string[]): void;
+
+  onChange(name: string, checked: boolean): void;
+
 }
 
 interface State {
@@ -53,6 +56,7 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
 
     this.setState({checkedSet: this.state.checkedSet});
     this.props.onCheck(Array.from(this.state.checkedSet.keys()));
+    this.props.onChange(model.name, this.state.checkedSet.has(model.name));
   }
 
 }

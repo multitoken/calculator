@@ -2,6 +2,9 @@ import { Container } from 'inversify';
 import getDecorators from 'inversify-inject-decorators';
 import 'reflect-metadata';
 import Config from './Config';
+import { AnalyticsManager } from './manager/analytics/AnalyticsManager';
+import { AnalyticsManagerImpl } from './manager/analytics/AnalyticsManagerImpl';
+import { GoogleAnalyticsImpl } from './manager/analytics/GoogleAnalitycsImpl';
 import { ArbitrageursExecutor } from './manager/multitoken/executors/ArbitrageurExecutor';
 import { CapCalculatorExecutor } from './manager/multitoken/executors/CapCalculatorExecutor';
 import { ExchangerExecutorImpl } from './manager/multitoken/executors/ExchangerExecutorImpl';
@@ -16,7 +19,8 @@ import { CryptocurrencyTokensRepositoryImpl } from './repository/cryptocurrency/
 import { RebalanceHistory } from './repository/models/RebalanceHistory';
 
 export enum Services {
-  PORTFOLIO_MANAGER = 'PortfolioManager'
+  PORTFOLIO_MANAGER = 'PortfolioManager',
+  ANALYTICS_MANAGER = 'AnalyticsManager'
 }
 
 const kernel = new Container();
@@ -55,3 +59,11 @@ const portfolioManager: PortfolioManager = new PortfolioManagerImpl(
 
 kernel.bind<PortfolioManager>(Services.PORTFOLIO_MANAGER)
   .toConstantValue(portfolioManager);
+
+const googleAnalytics: GoogleAnalyticsImpl =
+  new GoogleAnalyticsImpl(Config.getGoogleAnalyticsTrackId(), Config.isDebug());
+
+const analyticsManager: AnalyticsManager = new AnalyticsManagerImpl([googleAnalytics]);
+
+kernel.bind<AnalyticsManager>(Services.ANALYTICS_MANAGER)
+  .toConstantValue(analyticsManager);

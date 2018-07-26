@@ -2,7 +2,6 @@ import { Button, InputNumber, Layout, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
 import { ChartType } from '../../components/charts/AbstractChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { WeightChart } from '../../components/charts/WeightChart';
@@ -12,6 +11,7 @@ import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
+import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { Token } from '../../repository/models/Token';
@@ -47,9 +47,13 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
+  @lazyInject(Services.ANALYTICS_MANAGER)
+  private analyticsManager: AnalyticsManager;
 
   constructor(props: Props) {
     super(props);
+
+    this.analyticsManager.trackPage('/configuration-page');
 
     this.state = {
       amount: this.portfolioManager.getAmount(),
@@ -111,11 +115,17 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
               formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
-              onChange={value =>
+              onChange={value => {
+                const valueResult: number = Math.max(0, parseInt((value || '0').toString(), 10) || 0);
                 this.setState({
-                  exchangeAmount: Math.max(0, parseInt((value || '0').toString(), 10) || 0)
-                })
-              }
+                  exchangeAmount: valueResult
+                });
+                this.analyticsManager.trackEvent(
+                  'input',
+                  'exchange-amount',
+                  valueResult.toLocaleString()
+                );
+              }}
               style={{width: '100%'}}
             />
 
@@ -129,7 +139,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               parser={value => parseFloat((value || '0').replace('%', ''))}
               max={99.99}
               min={0.0}
-              onChange={value => this.onFeeChange(value)}
+              onChange={value => this.onCommissionChange(value)}
               style={{
                 width: '100%',
               }}
@@ -156,6 +166,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                   value={this.state.calculateRangeDateIndex}
                   onChange={value => this.setState({calculateRangeDateIndex: value})}
                   onAfterChange={(value: SliderValue) => {
+                    this.analyticsManager.trackEvent('slider', 'change-date-range', '');
                     this.setState({historyChartRangeDateIndex: this.state.calculateRangeDateIndex});
                     this.portfolioManager.changeCalculationDate(value[0], value[1]);
                   }}
@@ -222,12 +233,15 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                   Calculate
                 </Button>
                 <span className="m-2"/>
-                <Link
+                <span
                   className="ConfiguratorPage__content-button-start"
-                  to={'/'}
+                  onClick={e => {
+                    this.props.history.push('/');
+                    this.analyticsManager.trackEvent('button', 'click', 'to-new');
+                  }}
                 >
                   Start new
-                </Link>
+                </span>
               </div>
             </PageContent>
             <PageContent className="ConfiguratorPage__content-bottom">
@@ -284,6 +298,12 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       ? weightList[weightList.length - 1].index
       : this.state.calculateRangeDateIndex[0];
 
+    this.analyticsManager.trackEvent(
+      'button',
+      'click',
+      'change-weight-' + (model ? 'edit' : 'add')
+    );
+
     this.setState({
       changeWeightMinDates: [model ? model.index : minDateIndex + 1, this.state.calculateRangeDateIndex[1]],
       tokenDialogOpen: true,
@@ -295,12 +315,19 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   private onDeleteTokenWeightClick(position: number): void {
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
 
+    this.analyticsManager.trackEvent('button', 'click', 'weights-delete-item');
     list.splice(position, 1);
 
     this.setState({tokensWeightList: list});
   }
 
   private onTokenDialogOkClick(model: TokenWeight, oldModel: TokenWeight | undefined) {
+    this.analyticsManager.trackEvent(
+      'button',
+      'click',
+      'weights-accept-item' + (oldModel === undefined ? 'add' : 'edit')
+    );
+
     this.setState({tokenDialogOpen: false});
     const list: TokenWeight [] = this.state.tokensWeightList.slice(0, this.state.tokensWeightList.length);
     if (oldModel === undefined) {
@@ -327,6 +354,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     const result: TokenProportion[] = this.state.proportionList.slice(0, this.state.proportionList.length);
     result[position].weight = value;
     this.setState({proportionList: result});
+    this.analyticsManager.trackEvent('slider', 'change-proportion', name);
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
@@ -360,18 +388,21 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
     if (valueNumber > 0) {
       this.setState({amount: valueNumber});
+      this.analyticsManager.trackEvent('input', 'change-amount', valueNumber.toString());
     }
   }
 
-  private onFeeChange(value: number | string | undefined) {
+  private onCommissionChange(value: number | string | undefined) {
     const valueNumber = Math.max(0.0, Math.min(99.99, Number(value)));
 
     if (valueNumber >= 0) {
       this.setState({commissionPercents: valueNumber});
+      this.analyticsManager.trackEvent('input', 'change-commission', valueNumber.toString());
     }
   }
 
   private onCalculateClick() {
+    this.analyticsManager.trackEvent('button', 'click', 'configuration-to-calculate');
     this.portfolioManager.setExchangeAmount(this.state.exchangeAmount || 0);
     this.portfolioManager.changeProportions(this.state.proportionList);
 

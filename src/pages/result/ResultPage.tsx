@@ -12,6 +12,7 @@ import { TokenWeightSimpleList } from '../../components/lists/weight-simple/Toke
 import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
+import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
@@ -43,11 +44,16 @@ export default class ResultPage extends React.Component<Props, State> implements
 
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
+  @lazyInject(Services.ANALYTICS_MANAGER)
+  private analyticsManager: AnalyticsManager;
+
   private chartsAlreadyPrepared: boolean = false;
   private calculation: RebalanceHistoryHelper;
 
   constructor(props: Props) {
     super(props);
+
+    this.analyticsManager.trackPage('/result-page');
 
     this.portfolioManager.subscribeToProgress(this);
     this.calculation = new RebalanceHistoryHelper(this.portfolioManager);
@@ -311,6 +317,7 @@ export default class ResultPage extends React.Component<Props, State> implements
               type="primary"
               onClick={() => {
                 const {history} = this.props;
+                this.analyticsManager.trackEvent('button', 'click', 'to-back');
                 history.goBack();
               }}
             >
@@ -320,6 +327,7 @@ export default class ResultPage extends React.Component<Props, State> implements
             <Button
               type="primary"
               onClick={() => {
+                this.analyticsManager.trackEvent('button', 'click', 'to-new');
                 window.location.replace('/simulator');
               }}
             >
@@ -333,6 +341,11 @@ export default class ResultPage extends React.Component<Props, State> implements
                   this.setState({showMessageDialog: checked});
                   setTimeout(
                     () => {
+                      this.analyticsManager.trackEvent(
+                        'switch',
+                        checked ? 'check' : 'uncheck',
+                        'charts'
+                      );
                       this.setState({showCharts: checked});
                       this.setState({showMessageDialog: false});
                     },

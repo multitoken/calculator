@@ -29,7 +29,6 @@ export class ArbitrageursExecutor extends AbstractExecutor {
                  timestamp: number,
                  btcAmount: number,
                  txPrice: number): ExecuteResult | undefined {
-
     let profit: ArbiterProfit = ArbiterProfit.empty();
 
     const tokensAmount: Map<string, number> = this.multitoken.getAmounts();
