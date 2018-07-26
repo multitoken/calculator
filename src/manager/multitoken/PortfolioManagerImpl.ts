@@ -256,28 +256,17 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
       txPrice = Math.sin(i / 1000) * 0.5 + 1;
 
       let executeResult: ExecuteResult | undefined;
-      let successArbitration: boolean = false;
 
       for (const executor of executorsByType) {
         // add only first/last days and step every one day
         if (executor.getType() === ExecutorType.CAP_CLAMP &&
           (i % skipStep) !== 0 &&
           i !== this.startCalculationIndex &&
-          i !== this.endCalculationIndex &&
-          !successArbitration) {
+          i !== this.endCalculationIndex) {
           continue;
         }
 
         executeResult = executor.execute(i, historyInTimeLine, timestamp, btcAmount, txPrice);
-
-        // add reblance info in arbitration time
-        if (executor.getType() === ExecutorType.CAP_CLAMP) {
-          successArbitration = false;
-        }
-
-        if (executor.getType() === ExecutorType.ARBITRAGEUR && executeResult !== undefined) {
-          successArbitration = true;
-        }
 
         if (executeResult !== undefined) {
           (result.get(executor.getType()) || []).push(executeResult);
