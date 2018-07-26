@@ -262,7 +262,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         timestamp = value[i].time;
       });
 
-      txPrice = Math.sin(i / 1000) * 0.5 + 1;
+      txPrice = 0.047 + 2.3 * Math.abs(Math.sin(i / 1000)); // gas 70k; 0.047 - 1.4 Gwei. 2.3 ~ 70 Gwei.
 
       let executeResult: ExecuteResult | undefined;
 
