@@ -9,9 +9,9 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX'],
     ['Populous', 'PPT'], ['Hshare', 'HSR'], ['IOST', 'IOST'], ['Monero', 'XMR'], ['Dash', 'DASH'],
     ['Eth Classic', 'ETC'], ['NEM', 'XEM'], ['Zcash', 'ZEC'], ['Qtum', 'QTUM'], ['Bytecoin', 'BCN'], ['Lisk', 'LSK'],
-    ['BitShares', 'BTS'], ['Ontology', 'ONT'], ['BTC Gold', 'BTG'], ['Siacoin', 'SC'], ['Steem', 'STEEM'],
-    ['Verge', 'XVG'], ['Nano', 'NANO'], ['BAT', 'BAT'], ['Augur', 'REP'], ['BTC Diamond', 'BCD'], ['Golem', 'GNT'],
-    ['Pundi X', 'NPXS'], ['Stratis', 'STRAT'], ['Waves', 'WAVES'], ['Waltonchain', 'WTC'], ['Status', 'SNT'],
+    ['BitShares', 'BTS'], ['Ontology', 'ONT'], ['BTC Gold', 'BTG'], ['Steem', 'STEEM'],
+    ['Verge', 'XVG'], ['Nano', 'NANO'], ['BAT', 'BAT'], ['BTC Diamond', 'BCD'],
+    ['Stratis', 'STRAT'], ['Waves', 'WAVES'], ['Waltonchain', 'WTC'], ['Status', 'SNT'],
     ['Wanchain', 'WAN'], ['Stellar', 'XLM'], ['NEO', 'NEO'], ['Litecoin', 'lTC'], ['Cardano', 'ADA']
   ]);
 
@@ -21,9 +21,9 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     ['Aeternity', 'aeusd'], ['0x', 'zrxusd'], ['Populous', 'pptusd'], ['Hshare', 'hsrusd'],
     ['IOST', 'iostusd'], ['Monero', 'xmrusd'], ['Dash', 'dashusd'], ['Eth Classic', 'etcusd'], ['NEM', 'xemusd'],
     ['Zcash', 'zecusd'], ['Qtum', 'qtumusd'], ['Bytecoin', 'bcnusd'], ['Lisk', 'lskusd'], ['BitShares', 'btsusd'],
-    ['Ontology', 'ontusd'], ['BTC Gold', 'btgusd'], ['Siacoin', 'scusd'], ['Steem', 'steemusd'], ['Verge', 'xvgusd'],
-    ['Nano', 'nanousd'], ['BAT', 'batusd'], ['Augur', 'repusd'], ['BTC Diamond', 'bcdusd'], ['Golem', 'gntusd'],
-    ['Pundi X', 'npxsusd'], ['Stratis', 'stratusd'], ['Waves', 'wavesusd'], ['Waltonchain', 'wtcusd'],
+    ['Ontology', 'ontusd'], ['BTC Gold', 'btgusd'], ['Steem', 'steemusd'], ['Verge', 'xvgusd'],
+    ['Nano', 'nanousd'], ['BAT', 'batusd'], ['BTC Diamond', 'bcdusd'],
+    ['Stratis', 'stratusd'], ['Waves', 'wavesusd'], ['Waltonchain', 'wtcusd'],
     ['Status', 'sntusd'], ['Wanchain', 'wanusd'], ['Stellar', 'xlmusd'], ['NEO', 'neousd'], ['Litecoin', 'ltcusd'],
     ['Cardano', 'adausd']
   ]);

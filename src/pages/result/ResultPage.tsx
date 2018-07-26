@@ -532,9 +532,7 @@ export default class ResultPage extends React.Component<Props, State> implements
         this.calculation.calculateRebalanceHistory(result);
 
         this.setState({
-          rebalanceValuesList: this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE
-            ? result.getCapByArbitrage()
-            : result.rebalanceValues
+          rebalanceValuesList: result.rebalanceValues
         });
 
         console.log(result);

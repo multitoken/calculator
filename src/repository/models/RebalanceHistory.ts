@@ -35,21 +35,4 @@ export class RebalanceHistory {
       .get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || 0;
   }
 
-  public getCapByArbitrage(): RebalanceValues[] {
-    let arbitrageIndex: number = 0;
-
-    return this.rebalanceValues.filter((value, index) => {
-      arbitrageIndex = Math.min(arbitrageIndex, this.arbitrage.length - 1);
-
-      if (arbitrageIndex >= 0 && this.arbitrage[arbitrageIndex].timestamp === value.timestamp) {
-        arbitrageIndex++;
-        return true;
-      }
-
-      return index === 0 ||
-        index === this.rebalanceValues.length - 1 ||
-        (arbitrageIndex >= 0 && value.timestamp > this.arbitrage[arbitrageIndex].timestamp);
-    });
-  }
-
 }
