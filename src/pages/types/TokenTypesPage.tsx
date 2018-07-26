@@ -3,6 +3,7 @@ import * as React from 'react';
 import PageHeader from '../../components/page-header/PageHeader';
 import TokenTypeHolder from '../../components/token-type/TokenTypeHolder';
 import { lazyInject, Services } from '../../Injections';
+import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import ImgBalance from '../../res/icons/balance.svg';
@@ -13,7 +14,15 @@ import './TokenTypesPage.less';
 export default class TokenTypesPage extends React.Component<any, {}> {
 
   @lazyInject(Services.PORTFOLIO_MANAGER)
-  public portfolioManager: PortfolioManager;
+  private portfolioManager: PortfolioManager;
+  @lazyInject(Services.ANALYTICS_MANAGER)
+  private analyticsManager: AnalyticsManager;
+
+  constructor(props: any, context: any) {
+    super(props, context);
+
+    this.analyticsManager.trackPage('/select-type-page');
+  }
 
   public componentDidMount(): void {
     if (this.portfolioManager.getPriceHistory().size === 0) {
@@ -61,6 +70,7 @@ export default class TokenTypesPage extends React.Component<any, {}> {
   }
 
   private onTokenTypeSelected(type: TokenType): void {
+    this.analyticsManager.trackEvent('button', 'click', type);
     this.portfolioManager.setTokenType(type);
     const {history} = this.props;
     history.push('calculator');

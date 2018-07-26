@@ -6,6 +6,7 @@ import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
+import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
@@ -22,13 +23,14 @@ interface State {
 export default class SetupTokenPage extends React.Component<Props, State> {
 
   @lazyInject(Services.PORTFOLIO_MANAGER)
-  public portfolioManager: PortfolioManager;
-  public availableTokensMap: Map<string, string>;
+  private portfolioManager: PortfolioManager;
+  @lazyInject(Services.ANALYTICS_MANAGER)
+  private analyticsManager: AnalyticsManager;
 
   constructor(props: Props) {
     super(props);
 
-    this.availableTokensMap = new Map();
+    this.analyticsManager.trackPage('/select-tokens-page');
 
     this.state = {
       availableTokenNames: [],
@@ -63,6 +65,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           <TokensNamesList
             data={this.state.availableTokenNames}
             onCheck={result => this.onCheckToken(result)}
+            onChange={(name: string, checked: boolean) => this.onChangeTokens(name, checked)}
             disabled={this.state.isTokenLoading}
           />
 
@@ -84,8 +87,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
-    this.availableTokensMap = tokens;
-
     const entities: TokenItemEntity[] = Array.from(tokens.keys())
       .map(value => new TokenItemEntity(TokensHelper.getIcon(value), value));
 
@@ -98,11 +99,17 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     });
   }
 
+  private onChangeTokens(name: string, checked: boolean) {
+    this.analyticsManager.trackEvent('checkbox', checked ? 'check' : 'uncheck', name);
+  }
+
   private onNextClick() {
     this.setState({isTokenLoading: true});
     const {history} = this.props;
 
     this.state.selectedTokenNames.sort();
+
+    this.analyticsManager.trackEvent('button', 'click', 'setup-to-next');
 
     this.portfolioManager.setupTokens(this.state.selectedTokenNames)
       .then(() => history.push('types'))
