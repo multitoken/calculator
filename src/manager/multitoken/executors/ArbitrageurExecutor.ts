@@ -17,6 +17,7 @@ export class ArbitrageursExecutor extends AbstractExecutor {
   }
 
   public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
+                            timeLineStep: number,
                             amount: number,
                             startTime: number,
                             endTime: number): void {

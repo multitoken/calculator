@@ -9,6 +9,8 @@ import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { ExchangerExecutor } from './executors/ExchangerExecutor';
+import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutor } from './executors/ManualRebalancerExecutor';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
 import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
@@ -220,16 +222,23 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     );
     let txPrice: number = 1; // parseFloat((Math.random() * (1.101 - 0.9) + 0.9).toFixed(2)); // min $0.9 max $1.10;
 
-    this.multitokens.forEach(multitoken => multitoken.setup(this.tokensAmount, this.tokensWeight));
+    this.multitokens.forEach(multitoken => {
+      multitoken.setup(this.tokensAmount, this.tokensWeight);
+      multitoken.setFixedCommission(this.commissionPercent);
+    });
 
     // prepare initial state for executors
     executorsByType.forEach(executor => {
       executor.prepareCalculation(
-        this.btcHistoryPrice, this.exchangeAmount, this.startCalculationIndex, this.endCalculationIndex
+        this.btcHistoryPrice, this.cryptocurrencyRepository.getStepSec(), this.exchangeAmount,
+        this.startCalculationIndex, this.endCalculationIndex
       );
 
       if (executor instanceof ManualRebalancerExecutorImpl) {
         (executor as ManualRebalancerExecutor).setExchangeWeights(this.rebalanceWeights);
+
+      } else if (executor instanceof ExchangerExecutorImpl) {
+        (executor as ExchangerExecutor).setExchangeAmount(this.exchangeAmount);
       }
 
       result.set(executor.getType(), []);
@@ -253,7 +262,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         timestamp = value[i].time;
       });
 
-      txPrice = Math.sin(i / 1000) * 0.5 + 1;
+      txPrice = 0.047 + 2.3 * Math.abs(Math.sin(i / 1000)); // gas 70k; 0.047 - 1.4 Gwei. 2.3 ~ 70 Gwei.
 
       let executeResult: ExecuteResult | undefined;
 
@@ -313,10 +322,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   private resetDefaultValues(): void {
     this.setAmount(10000);
-    this.setCommission(0);
+    this.setCommission(0.1);
     this.setRebalanceWeights([]);
     this.changeProportions([]);
-    this.setExchangeAmount(0);
+    this.setExchangeAmount(150000);
     this.setTokenType(TokenType.UNDEFINED);
 
     this.startCalculationIndex = 0;

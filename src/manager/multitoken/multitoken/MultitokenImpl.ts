@@ -7,6 +7,7 @@ export class MultitokenImpl implements Multitoken {
   private tokensAmount: Map<string, number> = new Map();
   private maxWeight: number;
   private name: string;
+  private commissionPercents: number;
 
   constructor(name: string) {
     this.name = name;
@@ -20,26 +21,22 @@ export class MultitokenImpl implements Multitoken {
     weights.forEach(value => this.maxWeight += value);
   }
 
+  public setFixedCommission(percents: number): void {
+    this.commissionPercents = 1 - percents / 100;
+  }
+
   public preCalculateExchange(fromSymbol: string, toSymbol: string, amount: number): [number, number] {
     const fromBalance: number = this.tokensAmount.get(fromSymbol) || 0;
     const fromWeight: number = this.tokensWeight.get(fromSymbol) || 0;
     const toBalance: number = this.tokensAmount.get(toSymbol) || 0;
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
-    const from = (fromBalance / ((fromWeight / this.maxWeight) * 100)) * 100;
-    const to = (toBalance / ((toWeight / this.maxWeight) * 100)) * 100;
-    let percent = (from - to) / (from + to + amount);
-
-    if (percent <= 0) {
-      percent = 1 - -percent;
-    }
-
     return [
       toBalance *
       amount *
       fromWeight /
-      ((fromBalance + amount) * toWeight) * percent,
-      percent
+      ((fromBalance + amount) * toWeight) * this.commissionPercents,
+      this.commissionPercents
     ];
   }
 

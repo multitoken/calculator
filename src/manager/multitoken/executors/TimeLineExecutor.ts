@@ -10,7 +10,8 @@ export enum ExecutorType {
 
 export interface TimeLineExecutor {
 
-  prepareCalculation(btcHistoryPrice: TokenPriceHistory[], amount: number, startTime: number, endTime: number): void;
+  prepareCalculation(btcHistoryPrice: TokenPriceHistory[], timeLineStep: number, amount: number, startIndex: number,
+                     endIndex: number): void;
 
   execute(timeLineIndex: number,
           historyPriceInTime: Map<string, number>,

@@ -29,6 +29,7 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
   }
 
   public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
+                            timeLineStep: number,
                             amount: number,
                             startTime: number,
                             endTime: number): void {

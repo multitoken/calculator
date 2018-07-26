@@ -105,7 +105,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               style={{width: '100%'}}
             />
 
-            <div className="CalculatorPage__options-title">Exchange Amount (Optional):&nbsp;</div>
+            <div className="ConfiguratorPage__options-title">Exchange Amount / day:&nbsp;</div>
             <InputNumber
               value={this.state.exchangeAmount}
               step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
@@ -113,19 +113,13 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
               onChange={value =>
                 this.setState({
-                  exchangeAmount:
-                    Math.min(this.state.amount, Math.max(0, parseInt((value || '0').toString(), 10) || 0))
+                  exchangeAmount: Math.max(0, parseInt((value || '0').toString(), 10) || 0)
                 })
               }
               style={{width: '100%'}}
             />
 
-            <div
-              className="ConfiguratorPage__options-title"
-              style={{
-                display: 'none',
-              }}
-            >
+            <div className="ConfiguratorPage__options-title">
               Commission percents:&nbsp;
             </div>
             <InputNumber
@@ -134,10 +128,9 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               formatter={value => `${value || '0'}%`}
               parser={value => parseFloat((value || '0').replace('%', ''))}
               max={99.99}
-              min={0.01}
+              min={0.0}
               onChange={value => this.onFeeChange(value)}
               style={{
-                display: 'none',
                 width: '100%',
               }}
             />
@@ -371,9 +364,9 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   }
 
   private onFeeChange(value: number | string | undefined) {
-    const valueNumber = Math.max(0.01, Math.min(99.99, Number(value)));
+    const valueNumber = Math.max(0.0, Math.min(99.99, Number(value)));
 
-    if (valueNumber > 0) {
+    if (valueNumber >= 0) {
       this.setState({commissionPercents: valueNumber});
     }
   }
