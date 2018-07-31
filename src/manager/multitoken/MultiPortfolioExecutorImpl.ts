@@ -38,10 +38,20 @@ export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, Progr
 
   public async executeCalculation(): Promise<RebalanceHistory[]> {
     const result: RebalanceHistory[] = [];
+    let rebalanceHistory: RebalanceHistory;
+    let rebalanceResult: RebalanceResult;
 
     for (const portfolio of this.portfoliosMap.keys()) {
       await portfolio.calculateInitialAmounts();
-      result.push(await portfolio.calculate());
+      rebalanceHistory = await portfolio.calculate();
+      result.push(rebalanceHistory);
+      rebalanceResult = new RebalanceResultImpl(portfolio);
+      rebalanceResult.calculateRebalanceHistory(rebalanceHistory);
+
+      this.portfoliosMap.set(portfolio, rebalanceResult);
+
+      rebalanceResult.calculateRebalanceHistory(rebalanceHistory);
+
       this.progressValue += 100;
     }
 
@@ -56,7 +66,7 @@ export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, Progr
 
   public onProgress(percents: number): void {
     if (this.progressListener) {
-      this.progressListener.onProgress((this.progressValue + percents) / this.portfoliosMap.size);
+      this.progressListener.onProgress(Math.trunc((this.progressValue + percents) / this.portfoliosMap.size));
     }
   }
 
