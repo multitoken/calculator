@@ -7,6 +7,7 @@ import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
+import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
@@ -22,6 +23,8 @@ interface State {
 
 export default class SetupTokenPage extends React.Component<Props, State> {
 
+  @lazyInject(Services.PORTFOLIOS_EXECUTOR)
+  private portfolioExecutor: MultiPortfolioExecutor;
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
   @lazyInject(Services.ANALYTICS_MANAGER)
@@ -118,6 +121,8 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         alert('something went wrong');
         this.setState({isTokenLoading: false});
       });
+    this.portfolioExecutor.removeAllPortfolios();
+    this.portfolioExecutor.addPortfolioManager(this.portfolioManager);
   }
 
   private checkActiveNext(): boolean {
