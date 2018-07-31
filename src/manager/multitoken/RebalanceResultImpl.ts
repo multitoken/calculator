@@ -1,8 +1,9 @@
-import { PortfolioManager } from '../manager/multitoken/PortfolioManager';
-import { RebalanceHistory } from '../repository/models/RebalanceHistory';
-import { TokenPriceHistory } from '../repository/models/TokenPriceHistory';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import { PortfolioManager } from './PortfolioManager';
+import { RebalanceResult } from './RebalanceResult';
 
-export class RebalanceHistoryHelper {
+export class RebalanceResultImpl implements RebalanceResult {
 
   private dateMinIndex: number;
   private dateMaxIndex: number;
