@@ -1,71 +1,42 @@
-import { BackTop, Button, Col, Layout, Row, Switch } from 'antd';
-import { SliderValue } from 'antd/es/slider';
-import Tooltip from 'antd/lib/tooltip';
+import { BackTop, Layout } from 'antd';
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { RouteComponentProps } from 'react-router';
-import { BalancesCapChart } from '../../components/charts/BalancesCapChart';
-import { HistoryChart } from '../../components/charts/HistoryChart';
+import { CalculationResult } from '../../components/calculation-result/CalculationResult';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
-import { TokenWeightSimpleList } from '../../components/lists/weight-simple/TokenWeightSimpleList';
-import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
-import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
-import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
+import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
-import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
-import { RebalanceValues } from '../../repository/models/RebalanceValues';
-import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
-import IcoInfo from '../../res/icons/ico_info.svg';
-import { RebalanceHistoryHelper } from '../../utils/RebalanceHistoryHelper';
-import { TokensHelper } from '../../utils/TokensHelper';
-
-import './ResultPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  historyChartRangeDateIndex: SliderValue;
   progressPercents: number;
-  rebalanceValuesList: RebalanceValues[];
   showCalculationProgress: boolean;
-  showCharts: boolean;
   showMessageDialog: boolean;
-  tokensHistory: Map<string, TokenPriceHistory[]>;
 }
 
 export default class ResultPage extends React.Component<Props, State> implements ProgressListener {
 
-  private refsElements: { chart?: HTMLDivElement | null; } = {};
-
-  @lazyInject(Services.PORTFOLIO_MANAGER)
-  private portfolioManager: PortfolioManager;
+  @lazyInject(Services.PORTFOLIOS_EXECUTOR)
+  private portfolioExecutor: MultiPortfolioExecutor;
   @lazyInject(Services.ANALYTICS_MANAGER)
   private analyticsManager: AnalyticsManager;
-
-  private chartsAlreadyPrepared: boolean = false;
-  private calculation: RebalanceHistoryHelper;
 
   constructor(props: Props) {
     super(props);
 
     this.analyticsManager.trackPage('/result-page');
 
-    this.portfolioManager.subscribeToProgress(this);
-    this.calculation = new RebalanceHistoryHelper(this.portfolioManager);
+    this.portfolioExecutor.subscribeToProgress(this);
 
     this.state = {
-      historyChartRangeDateIndex: [0, 1],
       progressPercents: 0,
-      rebalanceValuesList: [],
       showCalculationProgress: true,
-      showCharts: false,
       showMessageDialog: false,
-      tokensHistory: new Map(),
     };
   }
 
@@ -78,17 +49,13 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   public componentDidMount(): void {
-    if (this.portfolioManager.getPriceHistory().size === 0) {
+    if (this.portfolioExecutor.getPortfolios().size === 0) {
       // Redirect to root
       window.location.replace('/simulator');
     }
 
-    this.portfolioManager
-      .getAvailableTokens()
-      .then(this.onSyncTokens.bind(this))
-      .catch(reason => {
-        console.log(reason);
-      });
+    this.portfolioExecutor.executeCalculation()
+      .then(() => this.setState({showCalculationProgress: false}));
   }
 
   public render() {
@@ -99,265 +66,8 @@ export default class ResultPage extends React.Component<Props, State> implements
         }}
       >
         <PageHeader/>
-        <PageContent className="ResultPage__content">
 
-          <Tooltip title={this.getTooltipInfo()} placement={'rightTop'}>
-            <img src={IcoInfo} alt={'i'} className="ResultPage__content-info"/>
-          </Tooltip>
-
-          <div
-            className="ResultPage__content-text-caption"
-            style={{
-              display: this.portfolioManager.getTokenType() === TokenType.FIX_PROPORTIONS
-                ? 'none'
-                : 'block',
-            }}
-          >
-            The results of the portfolio with rebalancing
-          </div>
-          <div
-            className="ResultPage__content-block-profit"
-            style={{
-              display: this.portfolioManager.getTokenType() === TokenType.FIX_PROPORTIONS
-                ? 'none'
-                : 'block',
-            }}
-          >
-            <Row>
-              <Col span={8} className="ResultPage__content-text-title">
-                Portfolio capitalization:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                Profit for the period:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calculation.calcCountDays()} days / ROI annual:
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                span={8}
-                className={
-                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitWithRebalance())
-                }
-              >
-                ${this.calculation.capWithRebalance()}
-              </Col>
-              <Col
-                span={8}
-                className={
-                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitWithRebalance())
-                }
-              >
-                ${this.calculation.profitWithRebalance()}
-              </Col>
-              <Col
-                span={8}
-                className={
-                  'ResultPage__content-text-result_big' + this.getModif(this.calculation.profitPercentWithRebalance())
-                }>
-                {this.calculation.profitPercentWithRebalance()}% / {this.calculation.profitPercentYearWithRebalance()}%
-              </Col>
-            </Row>
-          </div>
-
-          {/*----------3------------*/}
-
-          <div className="ResultPage__content-text-caption">The results of the portfolio without rebalancing</div>
-          <div className="ResultPage__content-block">
-            <Row>
-              <Col span={8} className="ResultPage__content-text-title">
-                Portfolio capitalization:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                Profit for the period:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calculation.calcCountDays()} days / ROI annual:
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitWithoutRebalance())}
-              >
-                ${this.calculation.capWithoutRebalance()}
-              </Col>
-              <Col
-                span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitWithoutRebalance())}
-              >
-                ${this.calculation.profitWithoutRebalance()}
-              </Col>
-              <Col
-                span={8}
-                className={
-                  'ResultPage__content-text-result' + this.getModif(this.calculation.profitPercentWithoutRebalance())
-                }
-              >
-                {this.calculation.profitPercentWithoutRebalance()}%
-                / {this.calculation.profitPercentYearWithoutRebalance()}%
-              </Col>
-            </Row>
-          </div>
-
-          {/*----------4------------*/}
-
-          <div className="ResultPage__content-text-caption">
-            Portfolio Bitcoin only
-            <br/>(It shows investor will get by investing in bitcoin the same amount of cash)
-          </div>
-          <div className="ResultPage__content-block">
-            <Row>
-              <Col span={8} className="ResultPage__content-text-title">
-                Portfolio capitalization:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                Profit for the period:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                ROI {this.calculation.calcCountDays()} days / ROI annual:
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8} className="ResultPage__content-text-result">
-                ${this.calculation.capBtc()}
-              </Col>
-              <Col
-                span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitBtc())}
-              >
-                ${this.calculation.profitBtc()}
-              </Col>
-              <Col
-                span={8}
-                className={'ResultPage__content-text-result' + this.getModif(this.calculation.profitPercentBtc())}
-              >
-                {this.calculation.profitPercentBtc()}% / {this.calculation.profitPercentYearBtc()}%
-              </Col>
-            </Row>
-          </div>
-
-          {/*------------5-----------*/}
-          <div
-            className="ResultPage__content-text-caption"
-            style={{
-              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-            }}
-          >
-            Arbitrage transactions
-          </div>
-          <div
-            className="ResultPage__content-block"
-            style={{
-              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-            }}
-          >
-            <Row>
-              <Col span={8} className="ResultPage__content-text-title">
-                Transactions count:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                Total Ethereum fee:
-              </Col>
-              <Col span={8} className="ResultPage__content-text-title">
-                Average Ethereum fee:
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8} className="ResultPage__content-text-result">
-                {this.calculation.getArbitrageListLen()}
-              </Col>
-              <Col span={8} className="ResultPage__content-text-result">
-                ${this.calculation.totalEthFee()}
-              </Col>
-              <Col span={8} className="ResultPage__content-text-result">
-                ${this.calculation.avgEthFee()}
-              </Col>
-            </Row>
-          </div>
-
-          {/*-----------------------*/}
-
-          <div
-            className="ResultPage__content-block"
-            style={{
-              display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-              marginLeft: '32.45%',
-            }}
-          >
-            <Row
-              style={{
-                display: this.portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-              }}
-            >
-              <Col span={12}>
-                <div className="ResultPage__content-text-title">
-                  Total arbitrage profit:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  ${this.calculation.totalArbiterProfit()}
-                </div>
-              </Col>
-
-              <Col span={12}>
-                <div className="ResultPage__content-text-title">
-                  The average arbitrage profit:
-                </div>
-                <div className="ResultPage__content-text-result">
-                  ${this.calculation.avgArbiterProfit()}
-                </div>
-              </Col>
-            </Row>
-          </div>
-          {/*-----------------------*/}
-
-          <div style={{textAlign: 'center', margin: '20px'}}>
-            <Button
-              type="primary"
-              onClick={() => {
-                const {history} = this.props;
-                this.analyticsManager.trackEvent('button', 'click', 'to-back');
-                history.goBack();
-              }}
-            >
-              Edit options
-            </Button>
-            <span className="m-2"/>
-            <Button
-              type="primary"
-              onClick={() => {
-                this.analyticsManager.trackEvent('button', 'click', 'to-new');
-                window.location.replace('/simulator');
-              }}
-            >
-              Start new
-            </Button>
-
-            <div className="ResultPage__content-switch-block">
-              <span className="ResultPage__content-switch-block-text">Show Charts</span>
-              <Switch
-                onChange={checked => {
-                  this.setState({showMessageDialog: checked});
-                  setTimeout(
-                    () => {
-                      this.analyticsManager.trackEvent(
-                        'switch',
-                        checked ? 'check' : 'uncheck',
-                        'charts'
-                      );
-                      this.setState({showCharts: checked});
-                      this.setState({showMessageDialog: false});
-                    },
-                    1000
-                  );
-                }}
-              />
-            </div>
-          </div>
-        </PageContent>
-
-        {this.prepareChartsComponents()}
+        {this.prepareCalculationResults()}
         <ProgressDialog
           openDialog={this.state.showCalculationProgress}
           percentProgress={this.state.progressPercents}
@@ -374,200 +84,61 @@ export default class ResultPage extends React.Component<Props, State> implements
     );
   }
 
-  private prepareChartsComponents(): any {
-    if (!this.state.showCharts && !this.chartsAlreadyPrepared) {
-      return null;
-    }
-    this.chartsAlreadyPrepared = true;
+  private prepareCalculationResults(): React.ReactNode[] {
+    const result: React.ReactNode[] = [];
 
-    return (
-      <div style={{overflow: 'hidden', height: this.chartsAlreadyPrepared && !this.state.showCharts ? '0' : '100%'}}>
-        <PageContent className="ResultPage__content">
-          <div ref={(div) => this.refsElements.chart = div} className="ResultPage__result-chart">
-            <span className="ResultPage__result-chart-title">Currency price history $:</span>
-            <HistoryChart
-              data={this.state.tokensHistory}
-              colors={TokensHelper.COLORS}
-              timeStep={this.portfolioManager.getStepSec()}
-              isDebugMode={false}
-              start={this.state.historyChartRangeDateIndex[0]}
-              end={this.state.historyChartRangeDateIndex[1]}
-              showRange={false}
-              showLegendCheckBox={true}
-            />
-          </div>
-        </PageContent>
-
-        <PageContent className="ResultPage__content">
-          <div className="ResultPage__result-chart">
-            <span className="ResultPage__result-chart-title">
-              Portfolio capitalization:
-            </span>
-            <BalancesCapChart
-              showRebalanceCap={this.portfolioManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
-              isDebugMode={false}
-              applyScale={true}
-              data={this.state.rebalanceValuesList}
-              colors={TokensHelper.COLORS}
-              showRange={false}
-              showLegendCheckBox={true}
-            />
-          </div>
-        </PageContent>
-        {this.scrollToCharts()}
-      </div>
-    );
-  }
-
-  private getTooltipInfo(): React.ReactNode {
-    return (
-      <div className="ResultPage__tooltip">
-        <div className="ResultPage__tooltip_title">{this.getTitleOfType()}</div>
-        <div className="ResultPage__tooltip_param">
-          <span className="ResultPage__tooltip_param_name">
-            Amount of money:
-          </span>
-          <span className="ResultPage__tooltip_param_value">
-            $ {this.portfolioManager.getAmount().toLocaleString()}
-          </span>
-        </div>
-        {this.getCommissionPercent()}
-        {this.getExchangeAmount()}
-        {this.getTokensProportions()}
-        {this.getManualRebalanceList()}
-      </div>
-    );
-  }
-
-  private getTitleOfType(): string {
-    if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
-      return 'Auto rebalance:';
-
-    } else if (this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE) {
-      return 'Manual rebalance:';
-
-    } else {
-      return 'Fix proportions:';
-    }
-  }
-
-  private getCommissionPercent(): React.ReactNode {
-    if (this.portfolioManager.getTokenType() === TokenType.AUTO_REBALANCE) {
-      return (
-        <div>
-          <div className="ResultPage__tooltip_param">
-          <span className="ResultPage__tooltip_param_name">
-            Commission percent:
-          </span>
-            <span className="ResultPage__tooltip_param_value">
-            $ {this.portfolioManager.getCommission().toLocaleString()}
-          </span>
-          </div>
-        </div>
-      );
-    }
-
-    return '';
-  }
-
-  private getExchangeAmount(): React.ReactNode {
-    return (
-      <div>
-        <div className="ResultPage__tooltip_param">
-          <span className="ResultPage__tooltip_param_name">
-            Exchange amount:
-          </span>
-          <span className="ResultPage__tooltip_param_value">
-            $ {this.portfolioManager.getExchangeAmount().toLocaleString()}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  private getTokensProportions(): React.ReactNode {
-    return this.portfolioManager.getProportions().map(value => {
-      return (
-        <div key={value.name}>
-          <div className="ResultPage__tooltip_param">
-          <span className="ResultPage__tooltip_param_name">
-            {value.name} weight:
-          </span>
-            <span className="ResultPage__tooltip_param_value">
-            {value.weight}
-          </span>
-          </div>
-        </div>
-      );
+    let index: number;
+    this.portfolioExecutor.getPortfolios().forEach((rebalanceResult, portfolio) => {
+      index++;
+      result.push((
+        <CalculationResult
+          key={index}
+          portfolioManager={portfolio}
+          rebalanceResult={rebalanceResult}
+          showCharts={this.portfolioExecutor.getPortfolios().size <= 1}
+          showEditButton={this.portfolioExecutor.getPortfolios().size <= 1}
+          showExchangeAmountInfo={this.portfolioExecutor.getPortfolios().size <= 1}
+          onEditClick={() => this.onEditClick()}
+          onBackClick={() => this.onBackClick()}
+          onSwitchChartsChange={(checked) => this.onSwitchChartsChange(checked)}
+        />
+      ));
     });
+
+    return result;
   }
 
-  private getManualRebalanceList(): React.ReactNode {
-    if (this.portfolioManager.getTokenType() === TokenType.MANUAL_REBALANCE) {
-      return <TokenWeightSimpleList
-        data={this.portfolioManager.getRebalanceWeights()}
-      />;
+  private onEditClick(): void {
+    this.analyticsManager.trackEvent('button', 'click', 'to-new');
+
+    if (this.portfolioExecutor.getPortfolios().size <= 1) {
+      window.location.replace('/simulator');
+    } else {
+      window.location.replace('/simulator/simple');
     }
-    return '';
   }
 
-  private scrollToCharts() {
-    if (!this.state.showCharts) {
-      return;
-    }
+  private onBackClick(): void {
+    const {history} = this.props;
+    this.analyticsManager.trackEvent('button', 'click', 'to-back');
+    history.goBack();
+  }
+
+  private onSwitchChartsChange(checked: boolean): void {
+    this.setState({showMessageDialog: true});
+
+    this.analyticsManager.trackEvent(
+      'switch',
+      checked ? 'check' : 'uncheck',
+      'charts'
+    );
 
     setTimeout(
       () => {
-        if (this.refsElements.chart) {
-          const chart = ReactDOM.findDOMNode(this.refsElements.chart);
-          if (chart !== null) {
-            (chart as HTMLDivElement).scrollIntoView({block: 'center', behavior: 'smooth'});
-          }
-        } else {
-          this.scrollToCharts();
-        }
-      }
-      ,
-      500);
-  }
-
-  private getModif(value: string): string {
-    const numb: number = parseFloat(value.replace(' ', ''));
-    if (numb > 0) {
-      return '_success';
-
-    } else if (numb === 0) {
-      return '';
-    }
-
-    return '_warn';
-  }
-
-  private onSyncTokens(tokens: Map<string, string>) {
-    this.setState({
-      historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
-      tokensHistory: this.portfolioManager.getPriceHistory(),
-    });
-
-    this.processCalculate();
-  }
-
-  private processCalculate() {
-    this.portfolioManager.calculateInitialAmounts()
-      .then(() => this.portfolioManager.calculate())
-      .then((result: RebalanceHistory) => {
-        this.calculation.calculateRebalanceHistory(result);
-
-        this.setState({
-          rebalanceValuesList: result.rebalanceValues
-        });
-
-        console.log(result);
-
-        this.setState({
-          showCalculationProgress: false,
-        });
-      });
+        this.setState({showMessageDialog: false});
+      },
+      1000
+    );
   }
 
 }
