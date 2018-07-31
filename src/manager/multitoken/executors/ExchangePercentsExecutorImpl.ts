@@ -30,7 +30,7 @@ export class ExchangerPercentsExecutorImpl extends AbstractExecutor implements E
   }
 
   public setExchangeAmount(value: number): void {
-    throw new Error('Can not use this method')
+    throw new Error('Can not use this method');
   }
 
   public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
