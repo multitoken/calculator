@@ -19,6 +19,7 @@ export interface Props {
   rebalanceResult: RebalanceResult;
   showCharts: boolean;
   showEditButton: boolean;
+  showExchangeAmountInfo: boolean;
 
   onBackClick(): void;
 
@@ -450,6 +451,10 @@ export class CalculationResult extends React.Component<Props, State> {
   }
 
   private getExchangeAmount(): React.ReactNode {
+    if (!this.props.showExchangeAmountInfo) {
+      return null;
+    }
+
     return (
       <div>
         <div className="CalculationResult__tooltip_param">
