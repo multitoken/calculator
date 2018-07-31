@@ -7,6 +7,7 @@ import Config from './Config';
 import ConfiguratorPage from './pages/calculator/ConfiguratorPage';
 import ResultPage from './pages/result/ResultPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
+import SimpleSetupTokenPage from './pages/simple-setup/SimpleSetupTokenPage';
 import TokenTypesPage from './pages/types/TokenTypesPage';
 import './res/styles/Theme.less';
 import { Intercom } from './utils/Intercom';
@@ -17,6 +18,7 @@ ReactDOM.render(
   <Router>
     <div className="router">
       <Route exact={true} path="/" component={SetupTokenPage}/>
+      <Route exact={true} path="/simple" component={SimpleSetupTokenPage}/>
       <Route exact={true} path="/types" component={TokenTypesPage}/>
       <Route exact={true} path="/calculator" component={ConfiguratorPage}/>
       <Route exact={true} path="/calculator/result" component={ResultPage}/>
