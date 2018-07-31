@@ -4,7 +4,7 @@ import { CryptocurrencyTokensRepositoryImpl } from '../../repository/cryptocurre
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { ArbitrageursExecutor } from './executors/ArbitrageurExecutor';
 import { CapCalculatorExecutor } from './executors/CapCalculatorExecutor';
-import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
+import { ExchangerPercentsExecutorImpl } from './executors/ExchangePercentsExecutorImpl';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
 import { TimeLineExecutor } from './executors/TimeLineExecutor';
 import { Multitoken } from './multitoken/Multitoken';
@@ -21,7 +21,7 @@ export class PortfolioFactory {
     const multitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_REBALANCE);
     const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_STANDARD);
 
-    const exchanger: TimeLineExecutor = new ExchangerExecutorImpl(multitoken, 10);
+    const exchanger: TimeLineExecutor = new ExchangerPercentsExecutorImpl(multitoken, 10);
     const arbitrageurs: TimeLineExecutor = new ArbitrageursExecutor(multitoken, 9);
     const manualRebalancer: TimeLineExecutor = new ManualRebalancerExecutorImpl(multitoken, 8);
     const capCalculator: TimeLineExecutor = new CapCalculatorExecutor([multitoken, standardMultitoken], 7);
