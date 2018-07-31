@@ -15,6 +15,7 @@ export class RebalanceResultImpl implements RebalanceResult {
   private arbitrageLen: number;
   private arbiterProfit: number;
   private arbiterTotalTxFee: number;
+  private rebalanceHistory: RebalanceHistory;
 
   constructor(portfolioManager: PortfolioManager) {
     this.dateMinIndex = portfolioManager.getCalculationDate()[0];
@@ -42,9 +43,12 @@ export class RebalanceResultImpl implements RebalanceResult {
     this.arbiterCap = portfolioManager.getAmount();
     this.arbiterProfit = 0;
     this.arbiterTotalTxFee = 0;
+    this.rebalanceHistory = new RebalanceHistory([], [], []);
   }
 
   public calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void {
+    this.rebalanceHistory = rebalanceHistory;
+
     this.arbiterCap = rebalanceHistory.getRebalancedCap();
     this.cap = rebalanceHistory.getCap();
 
@@ -55,6 +59,10 @@ export class RebalanceResultImpl implements RebalanceResult {
     this.arbitrageLen = rebalanceHistory.arbitrage.length;
   }
 
+  public getRebalanceHistory(): RebalanceHistory {
+    return this.rebalanceHistory;
+  }
+
   public capWithRebalance(): string {
     return this.formatCurrency(this.arbiterCap.toFixed(0));
   }
@@ -63,11 +71,11 @@ export class RebalanceResultImpl implements RebalanceResult {
     return this.formatCurrency((this.arbiterCap - this.amount).toFixed(0));
   }
 
-  public profitPercentWithRebalance(): string {
+  public roiWithRebalance(): string {
     return ((this.arbiterCap - this.amount) / this.amount * 100).toFixed(0);
   }
 
-  public profitPercentYearWithRebalance(): string {
+  public roiYearWithRebalance(): string {
     const percents: number = (this.arbiterCap - this.amount) / this.amount * 100;
     return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
   }
@@ -80,11 +88,11 @@ export class RebalanceResultImpl implements RebalanceResult {
     return this.formatCurrency((this.cap - this.amount).toFixed(0));
   }
 
-  public profitPercentWithoutRebalance(): string {
+  public roiWithoutRebalance(): string {
     return ((this.cap - this.amount) / this.amount * 100).toFixed(0);
   }
 
-  public profitPercentYearWithoutRebalance(): string {
+  public roiYearWithoutRebalance(): string {
     const percents: number = (this.cap - this.amount) / this.amount * 100;
     return ((percents / this.calcCountDays() * 365) || 0).toFixed(0);
   }
@@ -130,7 +138,7 @@ export class RebalanceResultImpl implements RebalanceResult {
     const min: number = this.dateMinIndex;
     const max: number = this.dateMaxIndex;
 
-    return Math.floor(((max - min) / (60 / this.stepSec)) / 60 / 24);
+    return Math.max(1, Math.floor(((max - min) / (60 / this.stepSec)) / 60 / 24));
   }
 
   private formatCurrency(value: string): string {

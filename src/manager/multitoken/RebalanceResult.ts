@@ -4,21 +4,23 @@ export interface RebalanceResult {
 
   calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void;
 
+  getRebalanceHistory(): RebalanceHistory;
+
   capWithRebalance(): string;
 
   profitWithRebalance(): string;
 
-  profitPercentWithRebalance(): string;
+  roiWithRebalance(): string;
 
-  profitPercentYearWithRebalance(): string;
+  roiYearWithRebalance(): string;
 
   capWithoutRebalance(): string;
 
   profitWithoutRebalance(): string;
 
-  profitPercentWithoutRebalance(): string;
+  roiWithoutRebalance(): string;
 
-  profitPercentYearWithoutRebalance(): string;
+  roiYearWithoutRebalance(): string;
 
   totalEthFee(): string;
 
