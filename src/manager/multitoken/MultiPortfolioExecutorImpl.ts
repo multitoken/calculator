@@ -2,27 +2,44 @@ import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { MultiPortfolioExecutor } from './MultiPortfolioExecutor';
 import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
+import { RebalanceResult } from './RebalanceResult';
+import { RebalanceResultImpl } from './RebalanceResultImpl';
 
 export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, ProgressListener {
 
-  private portfoliosSet: Set<PortfolioManager>;
+  private portfoliosMap: Map<PortfolioManager, RebalanceResult>;
+
   private progressListener: ProgressListener | undefined;
   private progressValue: number;
 
   constructor() {
-    this.portfoliosSet = new Set();
+    this.portfoliosMap = new Map();
     this.progressValue = 0;
   }
 
   public addPortfolioManager(portfolioManager: PortfolioManager): void {
-    this.portfoliosSet.add(portfolioManager);
-    portfolioManager.subscribeToProgress(this);
+    if (!this.portfoliosMap.has(portfolioManager)) {
+      this.portfoliosMap.set(portfolioManager, new RebalanceResultImpl(portfolioManager));
+      portfolioManager.subscribeToProgress(this);
+    }
+  }
+
+  public getPortfolios(): Map<PortfolioManager, RebalanceResult> {
+    const result: Map<PortfolioManager, RebalanceResult> = new Map();
+    this.portfoliosMap.forEach((value, key) => result.set(key, value));
+
+    return result;
+  }
+
+  public removeAllPortfolios(): void {
+    this.portfoliosMap.forEach((value, key) => key.subscribeToProgress());
+    this.portfoliosMap.clear();
   }
 
   public async executeCalculation(): Promise<RebalanceHistory[]> {
     const result: RebalanceHistory[] = [];
 
-    for (const portfolio of this.portfoliosSet) {
+    for (const portfolio of this.portfoliosMap.keys()) {
       await portfolio.calculateInitialAmounts();
       result.push(await portfolio.calculate());
       this.progressValue += 100;
@@ -39,7 +56,7 @@ export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, Progr
 
   public onProgress(percents: number): void {
     if (this.progressListener) {
-      this.progressListener.onProgress((this.progressValue + percents) / this.portfoliosSet.size);
+      this.progressListener.onProgress((this.progressValue + percents) / this.portfoliosMap.size);
     }
   }
 
