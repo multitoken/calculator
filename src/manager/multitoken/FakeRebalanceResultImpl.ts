@@ -1,5 +1,4 @@
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
-import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { FakeRebalanceData } from '../../utils/FakeRebalanceData';
 import { PortfolioManager } from './PortfolioManager';
 import { RebalanceResultImpl } from './RebalanceResultImpl';
@@ -37,19 +36,14 @@ export class FakeRebalanceResultImpl extends RebalanceResultImpl {
       return;
     }
 
-    this.dateMinIndex = this.portfolioManager.getCalculationDate()[0];
-    this.dateMaxIndex = this.portfolioManager.getCalculationDate()[1];
+    this.dateMinIndex = 0;
+    this.dateMaxIndex = this.data[5];
     this.amount = this.portfolioManager.getAmount();
     this.stepSec = this.portfolioManager.getStepSec();
 
-    const btcusdtHistory: TokenPriceHistory[] = this.portfolioManager.getBtcPrice();
-    const btcusdtStartValue: number = btcusdtHistory.length > this.dateMinIndex
-      ? btcusdtHistory[this.dateMinIndex].value
-      : 1;
+    const btcusdtStartValue: number = this.data[6];
 
-    const btcusdtEndValue: number = btcusdtHistory.length > this.dateMaxIndex
-      ? btcusdtHistory[this.dateMaxIndex].value
-      : 0;
+    const btcusdtEndValue: number = 6224.2;
 
     const btcCount: number = this.amount / btcusdtStartValue;
 
