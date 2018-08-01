@@ -28,9 +28,10 @@ export enum TokenType {
 @injectable()
 export default class PortfolioManagerImpl implements PortfolioManager, ProgressListener {
 
+  protected selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
+  protected btcHistoryPrice: TokenPriceHistory[] = [];
+
   private cryptocurrencyRepository: CryptocurrencyRepository;
-  private selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
-  private btcHistoryPrice: TokenPriceHistory[] = [];
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
   private multitokens: Multitoken[];
@@ -92,6 +93,8 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
     this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
     this.endCalculationIndex = this.maxCalculationIndex - 1;
+
+    console.log(`${this.endCalculationIndex}, ${this.btcHistoryPrice[0].value}`);
 
     if (!btcAlreadyExist) {
       this.selectedTokensHistory.delete('Bitcoin');
