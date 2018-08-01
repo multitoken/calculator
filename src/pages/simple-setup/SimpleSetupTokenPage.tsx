@@ -81,17 +81,28 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
             formatter={value => Math.min(99999999, parseFloat((value || '0').toString())).toFixed(8)}
             defaultValue={1.00000000}
             onChange={value => this.onAmountChange(parseFloat((value || '0.0000001').toString()))}
-            style={{width: '30%'}}
+            style={{width: '200px'}}
           />
 
-          <Button
-            type="primary"
-            onClick={() => this.onNextClick()}
-            loading={this.state.isTokenLoading}
-            style={{marginTop: 30}}
-          >
-            Next
-          </Button>
+          <div>
+            <Button
+              type="primary"
+              onClick={() => this.onCalculateClick()}
+              loading={this.state.isTokenLoading}
+              style={{marginTop: 30}}
+            >
+              Calculate
+            </Button>
+            <span
+              className="SimpleSetupTokenPage__content-button-back"
+              onClick={e => {
+                this.props.history.push('/');
+                this.analyticsManager.trackEvent('button', 'click', 'to-new');
+              }}
+            >
+              Start new
+            </span>
+          </div>
         </div>
         <PageFooter/>
       </Layout>
@@ -112,9 +123,9 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
     return Math.random() * (max - min) + min;
   }
 
-  private onNextClick() {
+  private onCalculateClick() {
     this.setState({isTokenLoading: true});
-    this.analyticsManager.trackEvent('button', 'click', 'setup-to-next');
+    this.analyticsManager.trackEvent('button', 'click', 'setup-to-calculate');
 
     this.preparePortfolios()
       .then(() => {
