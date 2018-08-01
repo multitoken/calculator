@@ -31,9 +31,13 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
 
   private host: string;
+  private cache: Map<string, TokenPriceHistory[]>;
+  private interpolation: boolean;
 
-  constructor(host: string) {
+  constructor(host: string, interpolation: boolean) {
     this.host = host;
+    this.interpolation = interpolation;
+    this.cache = new Map();
   }
 
   public async getAvailableCurrencies(): Promise<Map<string, string>> {
@@ -69,7 +73,10 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     selectedTokensHistory.forEach((value, key) => {
       let result = value.filter((history, index) => history.time >= minDate && history.time <= maxDate);
 
-      result = this.interpolateValues(result);
+      if (this.interpolation) {
+        result = this.interpolateValues(result);
+      }
+
       selectedTokensHistory.set(key, result);
     });
 
@@ -77,7 +84,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   }
 
   public getStepSec(): number {
-    return 5;
+    return this.interpolation ? 5 : 60;
   }
 
   private interpolateValues(history: TokenPriceHistory[]): TokenPriceHistory[] {
@@ -107,6 +114,10 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   }
 
   private async getPrices(name: string): Promise<TokenPriceHistory[]> {
+    if (this.cache.has(name)) {
+      return (this.cache.get(name) || []).slice();
+    }
+
     const result: TokenPriceHistory[] = [];
 
     try {
@@ -118,6 +129,8 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
       for (let i = 0; i < data.length; i += 2) {
         result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1])));
       }
+
+      this.cache.set(name, result);
 
     } catch (e) {
       console.log('name: ', name, e);

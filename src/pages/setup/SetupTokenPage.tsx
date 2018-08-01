@@ -7,7 +7,9 @@ import PageHeader from '../../components/page-header/PageHeader';
 import { TokenItemEntity } from '../../entities/TokenItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
+import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { RebalanceResultImpl } from '../../manager/multitoken/RebalanceResultImpl';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 
@@ -22,6 +24,8 @@ interface State {
 
 export default class SetupTokenPage extends React.Component<Props, State> {
 
+  @lazyInject(Services.PORTFOLIOS_EXECUTOR)
+  private portfolioExecutor: MultiPortfolioExecutor;
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
   @lazyInject(Services.ANALYTICS_MANAGER)
@@ -69,17 +73,29 @@ export default class SetupTokenPage extends React.Component<Props, State> {
             disabled={this.state.isTokenLoading}
           />
 
-          <Button
-            type="primary"
-            onClick={() => this.onNextClick()}
-            disabled={!this.checkActiveNext()}
-            loading={this.state.isTokenLoading}
-            style={{
-              marginTop: 30
-            }}
-          >
-            Next
-          </Button>
+          <div>
+            <Button
+              type="primary"
+              onClick={() => this.onNextClick()}
+              disabled={!this.checkActiveNext()}
+              loading={this.state.isTokenLoading}
+              style={{
+                marginRight: '15px',
+                marginTop: 30,
+              }}
+            >
+              Next
+            </Button>
+            <span
+              className="SetupTokenPage__content-button-simple"
+              onClick={e => {
+                this.props.history.push('/simple');
+                this.analyticsManager.trackEvent('button', 'click', 'to-simple');
+              }}
+            >
+              Simple simulation
+            </span>
+          </div>
         </div>
         <PageFooter/>
       </Layout>
@@ -118,6 +134,8 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         alert('something went wrong');
         this.setState({isTokenLoading: false});
       });
+    this.portfolioExecutor.removeAllPortfolios();
+    this.portfolioExecutor.addPortfolioManager(this.portfolioManager, new RebalanceResultImpl(this.portfolioManager));
   }
 
   private checkActiveNext(): boolean {

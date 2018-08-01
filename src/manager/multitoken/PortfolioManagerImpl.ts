@@ -310,17 +310,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.exchangeAmount;
   }
 
-  private getExecutorsByType(type: TokenType): TimeLineExecutor[] {
-    return this.executors.filter(executor =>
-      (type === TokenType.FIX_PROPORTIONS &&
-        executor.getType() !== ExecutorType.MANUAL_REBALANCER &&
-        executor.getType() !== ExecutorType.ARBITRAGEUR) ||
-      (type === TokenType.AUTO_REBALANCE && executor.getType() !== ExecutorType.MANUAL_REBALANCER) ||
-      (type === TokenType.MANUAL_REBALANCE && executor.getType() !== ExecutorType.ARBITRAGEUR)
-    ).sort(((a, b) => b.getPriority() - a.getPriority()));
-  }
-
-  private resetDefaultValues(): void {
+  protected resetDefaultValues(): void {
     this.setAmount(10000);
     this.setCommission(0.1);
     this.setRebalanceWeights([]);
@@ -331,6 +321,16 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;
+  }
+
+  private getExecutorsByType(type: TokenType): TimeLineExecutor[] {
+    return this.executors.filter(executor =>
+      (type === TokenType.FIX_PROPORTIONS &&
+        executor.getType() !== ExecutorType.MANUAL_REBALANCER &&
+        executor.getType() !== ExecutorType.ARBITRAGEUR) ||
+      (type === TokenType.AUTO_REBALANCE && executor.getType() !== ExecutorType.MANUAL_REBALANCER) ||
+      (type === TokenType.MANUAL_REBALANCE && executor.getType() !== ExecutorType.ARBITRAGEUR)
+    ).sort(((a, b) => b.getPriority() - a.getPriority()));
   }
 
 }
