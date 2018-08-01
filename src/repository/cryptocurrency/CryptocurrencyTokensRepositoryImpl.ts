@@ -32,9 +32,11 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
 
   private host: string;
   private cache: Map<string, TokenPriceHistory[]>;
+  private interpolation: boolean;
 
-  constructor(host: string) {
+  constructor(host: string, interpolation: boolean) {
     this.host = host;
+    this.interpolation = interpolation;
     this.cache = new Map();
   }
 
@@ -71,7 +73,10 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     selectedTokensHistory.forEach((value, key) => {
       let result = value.filter((history, index) => history.time >= minDate && history.time <= maxDate);
 
-      result = this.interpolateValues(result);
+      if (this.interpolation) {
+        result = this.interpolateValues(result);
+      }
+
       selectedTokensHistory.set(key, result);
     });
 
@@ -79,7 +84,7 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
   }
 
   public getStepSec(): number {
-    return 5;
+    return this.interpolation ? 5 : 60;
   }
 
   private interpolateValues(history: TokenPriceHistory[]): TokenPriceHistory[] {
