@@ -47,11 +47,6 @@ export class CalculationResult extends React.Component<Props, State> {
     };
   }
 
-  public shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, nextContext: any): boolean {
-    return this.props.portfolioManager !== nextProps.portfolioManager ||
-      this.props.rebalanceResult !== nextProps.rebalanceResult || this.state.showCharts !== nextState.showCharts;
-  }
-
   public render(): React.ReactNode {
     const {portfolioManager, rebalanceResult} = this.props;
 
