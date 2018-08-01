@@ -5,6 +5,7 @@ import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services, } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
+import { FakeRebalanceResultImpl } from '../../manager/multitoken/FakeRebalanceResultImpl';
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioFactory } from '../../manager/multitoken/PortfolioFactory';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
@@ -51,7 +52,7 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
     this.analyticsManager.trackPage('/simple-setup-page');
 
     this.state = {
-      amountBtc: 0.00000001,
+      amountBtc: 1.00000000,
       isTokenLoading: false,
     };
   }
@@ -75,10 +76,11 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
 
           <InputNumber
             value={this.state.amountBtc}
-            min={0.00000001}
             max={99999999}
             step={0.00000001}
-            onChange={value => this.onAmountChange(parseFloat((value || 0.00000001).toString()))}
+            formatter={value => Math.min(99999999, parseFloat((value || '0').toString())).toFixed(8)}
+            defaultValue={1.00000000}
+            onChange={value => this.onAmountChange(parseFloat((value || '0.0000001').toString()))}
             style={{width: '30%'}}
           />
 
@@ -98,17 +100,6 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
 
   private onAmountChange(value: number) {
     this.setState({amountBtc: value});
-  }
-
-  private wait(): Promise<void> {
-    return new Promise(resolve => {
-      setTimeout(
-        () => {
-          resolve();
-        },
-        1
-      );
-    });
   }
 
   private getIdByCoins(coins: string[]): string {
@@ -152,8 +143,9 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
     }
 
     const coinsList: string[][] = Array.from(coinsResult.values());
+
     for (const items of coinsList) {
-      portfolio = PortfolioFactory.createDynamicPercentExchangePortfolio();
+      portfolio = PortfolioFactory.createFakePortfolio();
       await portfolio.setupTokens(items);
       portfolio.setTokenType(TokenType.AUTO_REBALANCE);
       portfolio.setCommission(0.5);
@@ -163,8 +155,7 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
       portfolio.setAmount(this.state.amountBtc * portfolio.getBtcPrice()[0].value);
       await portfolio.calculateInitialAmounts();
 
-      await this.wait();
-      this.portfolioExecutor.addPortfolioManager(portfolio);
+      this.portfolioExecutor.addPortfolioManager(portfolio, new FakeRebalanceResultImpl(portfolio));
     }
   }
 
