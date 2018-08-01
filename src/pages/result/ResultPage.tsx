@@ -87,7 +87,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   private prepareCalculationResults(): React.ReactNode[] {
     const result: React.ReactNode[] = [];
 
-    let index: number;
+    let index: number = 0;
     this.portfolioExecutor.getPortfolios().forEach((rebalanceResult, portfolio) => {
       index++;
       result.push((
@@ -114,7 +114,7 @@ export default class ResultPage extends React.Component<Props, State> implements
     if (this.portfolioExecutor.getPortfolios().size <= 1) {
       window.location.replace('/simulator');
     } else {
-      window.location.replace('/simulator/simple');
+      this.props.history.goBack();
     }
   }
 
