@@ -5,7 +5,7 @@ import { RebalanceResult } from './RebalanceResult';
 
 export interface MultiPortfolioExecutor {
 
-  addPortfolioManager(portfolioManager: PortfolioManager): void;
+  addPortfolioManager(portfolioManager: PortfolioManager, rebalanceResult: RebalanceResult): void;
 
   getPortfolios(): Map<PortfolioManager, RebalanceResult>;
 

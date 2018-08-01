@@ -8,6 +8,7 @@ import { ExchangerPercentsExecutorImpl } from './executors/ExchangePercentsExecu
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
 import { TimeLineExecutor } from './executors/TimeLineExecutor';
+import { FakePortfolioManagerImpl } from './FakePortfolioManagerImpl';
 import { Multitoken } from './multitoken/Multitoken';
 import { MultitokenImpl } from './multitoken/MultitokenImpl';
 import { PortfolioManager } from './PortfolioManager';
@@ -17,7 +18,7 @@ export class PortfolioFactory {
 
   public static createDefaultPortfolio(): PortfolioManager {
     const cryptocurrencyRepository: CryptocurrencyRepository =
-      new CryptocurrencyTokensRepositoryImpl(Config.getStatic());
+      new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), true);
 
     const multitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_REBALANCE);
     const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_STANDARD);
@@ -36,7 +37,7 @@ export class PortfolioFactory {
 
   public static createDynamicPercentExchangePortfolio(): PortfolioManager {
     const cryptocurrencyRepository: CryptocurrencyRepository =
-      new CryptocurrencyTokensRepositoryImpl(Config.getStatic());
+      new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), true);
 
     const multitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_REBALANCE);
     const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_STANDARD);
@@ -51,6 +52,13 @@ export class PortfolioFactory {
       [multitoken, standardMultitoken],
       [exchanger, arbitrageurs, manualRebalancer, capCalculator]
     );
+  }
+
+  public static createFakePortfolio(): PortfolioManager {
+    const cryptocurrencyRepository: CryptocurrencyRepository =
+      new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), false);
+
+    return new FakePortfolioManagerImpl(cryptocurrencyRepository, [], []);
   }
 
 }

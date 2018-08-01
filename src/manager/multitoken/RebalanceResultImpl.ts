@@ -5,48 +5,26 @@ import { RebalanceResult } from './RebalanceResult';
 
 export class RebalanceResultImpl implements RebalanceResult {
 
-  private dateMinIndex: number;
-  private dateMaxIndex: number;
-  private amount: number;
-  private btcUsdt: number;
-  private stepSec: number;
-  private arbiterCap: number;
-  private cap: number;
-  private arbitrageLen: number;
-  private arbiterProfit: number;
-  private arbiterTotalTxFee: number;
-  private rebalanceHistory: RebalanceHistory;
+  protected dateMinIndex: number;
+  protected dateMaxIndex: number;
+  protected amount: number;
+  protected btcUsdt: number;
+  protected stepSec: number;
+  protected arbiterCap: number;
+  protected cap: number;
+  protected arbitrageLen: number;
+  protected arbiterProfit: number;
+  protected arbiterTotalTxFee: number;
+  protected rebalanceHistory: RebalanceHistory;
+  protected portfolioManager: PortfolioManager;
 
   constructor(portfolioManager: PortfolioManager) {
-    this.dateMinIndex = portfolioManager.getCalculationDate()[0];
-    this.dateMaxIndex = portfolioManager.getCalculationDate()[1];
-    this.amount = portfolioManager.getAmount();
-    this.stepSec = portfolioManager.getStepSec();
-
-    this.arbiterProfit = 0;
-    this.arbiterTotalTxFee = 0;
-
-    const btcusdtHistory: TokenPriceHistory[] = portfolioManager.getBtcPrice();
-    const btcusdtStartValue: number = btcusdtHistory.length > this.dateMinIndex
-      ? btcusdtHistory[this.dateMinIndex].value
-      : 1;
-
-    const btcusdtEndValue: number = btcusdtHistory.length > this.dateMaxIndex
-      ? btcusdtHistory[this.dateMaxIndex].value
-      : 0;
-
-    const btcCount: number = this.amount / btcusdtStartValue;
-    this.btcUsdt = btcCount * btcusdtEndValue;
-
-    this.arbitrageLen = 0;
-    this.cap = portfolioManager.getAmount();
-    this.arbiterCap = portfolioManager.getAmount();
-    this.arbiterProfit = 0;
-    this.arbiterTotalTxFee = 0;
-    this.rebalanceHistory = new RebalanceHistory([], [], []);
+    this.portfolioManager = portfolioManager;
+    this.calculatePortfolioData();
   }
 
   public calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void {
+    this.calculatePortfolioData();
     this.rebalanceHistory = rebalanceHistory;
 
     this.arbiterCap = rebalanceHistory.getRebalancedCap();
@@ -139,6 +117,32 @@ export class RebalanceResultImpl implements RebalanceResult {
     const max: number = this.dateMaxIndex;
 
     return Math.max(1, Math.floor(((max - min) / (60 / this.stepSec)) / 60 / 24));
+  }
+
+  protected calculatePortfolioData(): void {
+    this.dateMinIndex = this.portfolioManager.getCalculationDate()[0];
+    this.dateMaxIndex = this.portfolioManager.getCalculationDate()[1];
+    this.amount = this.portfolioManager.getAmount();
+    this.stepSec = this.portfolioManager.getStepSec();
+
+    const btcusdtHistory: TokenPriceHistory[] = this.portfolioManager.getBtcPrice();
+    const btcusdtStartValue: number = btcusdtHistory.length > this.dateMinIndex
+      ? btcusdtHistory[this.dateMinIndex].value
+      : 1;
+
+    const btcusdtEndValue: number = btcusdtHistory.length > this.dateMaxIndex
+      ? btcusdtHistory[this.dateMaxIndex].value
+      : 0;
+
+    const btcCount: number = this.amount / btcusdtStartValue;
+    this.btcUsdt = btcCount * btcusdtEndValue;
+
+    this.arbitrageLen = 0;
+    this.cap = this.portfolioManager.getAmount();
+    this.arbiterCap = this.portfolioManager.getAmount();
+    this.arbiterProfit = 0;
+    this.arbiterTotalTxFee = 0;
+    this.rebalanceHistory = new RebalanceHistory([], [], []);
   }
 
   private formatCurrency(value: string): string {

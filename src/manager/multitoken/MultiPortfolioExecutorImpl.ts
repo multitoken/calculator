@@ -3,7 +3,6 @@ import { MultiPortfolioExecutor } from './MultiPortfolioExecutor';
 import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
 import { RebalanceResult } from './RebalanceResult';
-import { RebalanceResultImpl } from './RebalanceResultImpl';
 
 export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, ProgressListener {
 
@@ -17,9 +16,9 @@ export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, Progr
     this.progressValue = 0;
   }
 
-  public addPortfolioManager(portfolioManager: PortfolioManager): void {
+  public addPortfolioManager(portfolioManager: PortfolioManager, rebalanceResult: RebalanceResult): void {
     if (!this.portfoliosMap.has(portfolioManager)) {
-      this.portfoliosMap.set(portfolioManager, new RebalanceResultImpl(portfolioManager));
+      this.portfoliosMap.set(portfolioManager, rebalanceResult);
       portfolioManager.subscribeToProgress(this);
     }
   }
@@ -39,16 +38,11 @@ export class MultiPortfolioExecutorImpl implements MultiPortfolioExecutor, Progr
   public async executeCalculation(): Promise<RebalanceHistory[]> {
     const result: RebalanceHistory[] = [];
     let rebalanceHistory: RebalanceHistory;
-    let rebalanceResult: RebalanceResult;
 
-    for (const portfolio of this.portfoliosMap.keys()) {
+    for (const [portfolio, rebalanceResult] of this.portfoliosMap) {
       await portfolio.calculateInitialAmounts();
       rebalanceHistory = await portfolio.calculate();
       result.push(rebalanceHistory);
-      rebalanceResult = new RebalanceResultImpl(portfolio);
-      rebalanceResult.calculateRebalanceHistory(rebalanceHistory);
-
-      this.portfoliosMap.set(portfolio, rebalanceResult);
 
       rebalanceResult.calculateRebalanceHistory(rebalanceHistory);
 
