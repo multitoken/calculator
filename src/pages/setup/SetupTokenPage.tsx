@@ -74,27 +74,27 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           />
 
           <div>
+             <span
+               className="SetupTokenPage__content-button-simple"
+               onClick={e => {
+                 this.props.history.push('/simple');
+                 this.analyticsManager.trackEvent('button', 'click', 'to-simple');
+               }}
+             >
+              Simple simulation
+            </span>
             <Button
               type="primary"
               onClick={() => this.onNextClick()}
               disabled={!this.checkActiveNext()}
               loading={this.state.isTokenLoading}
               style={{
-                marginRight: '15px',
+                marginLeft: '15px',
                 marginTop: 30,
               }}
             >
               Next
             </Button>
-            <span
-              className="SetupTokenPage__content-button-simple"
-              onClick={e => {
-                this.props.history.push('/simple');
-                this.analyticsManager.trackEvent('button', 'click', 'to-simple');
-              }}
-            >
-              Simple simulation
-            </span>
           </div>
         </div>
         <PageFooter/>
