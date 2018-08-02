@@ -81,11 +81,11 @@ export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implement
       amount += value * (historyPriceInTime.get(key) || 0);
     });
 
+    amount = Math.max(amount - txPrice * countCoins, 0);
+
     if (amount <= 0) {
       return undefined;
     }
-
-    amount = Math.max(amount - txPrice * countCoins, 0);
 
     weights.forEach((value, key) => maxProportions += value);
 
