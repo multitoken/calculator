@@ -62,7 +62,7 @@ export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implement
       }
     });
 
-    if ((upPercentDiff - downPercentDiff) * 100 < this.percent) {
+    if ((upPercentDiff / downPercentDiff - 1) * 100 < this.percent) {
       return undefined;
     }
 
