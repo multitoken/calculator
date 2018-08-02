@@ -54,7 +54,7 @@ export class CalculationResult extends React.Component<Props, State> {
       <div>
         <PageContent className="CalculationResult__content">
 
-          <Tooltip title={this.getTooltipInfo()} placement={'rightTop'} visible={true}>
+          <Tooltip title={this.getTooltipInfo()} placement={'rightTop'} defaultVisible={true}>
             <img src={IcoInfo} alt={'i'} className="CalculationResult__content-info"/>
           </Tooltip>
 
