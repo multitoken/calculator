@@ -53,4 +53,8 @@ export interface PortfolioManager {
 
   getExchangeAmount(): number;
 
+  setRebalancePeriod(seconds: number): void;
+
+  getRebalancePeriod(): number;
+
 }

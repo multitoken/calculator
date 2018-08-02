@@ -13,6 +13,7 @@ import { ExchangerExecutor } from './executors/ExchangerExecutor';
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutor } from './executors/ManualRebalancerExecutor';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
+import { PeriodRebalanceExecutorImpl } from './executors/PeriodRebalanceExecutorImpl';
 import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
 import { Multitoken } from './multitoken/Multitoken';
 import { PortfolioManager } from './PortfolioManager';
@@ -22,6 +23,7 @@ export enum TokenType {
   AUTO_REBALANCE = 'AUTO_REBALANCE',
   FIX_PROPORTIONS = 'FIX_PROPORTIONS',
   MANUAL_REBALANCE = 'MANUAL_REBALANCE',
+  PERIOD_REBALANCE = 'PERIOD_REBALANCE',
   UNDEFINED = 'UNDEFINED',
 }
 
@@ -35,7 +37,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
   private multitokens: Multitoken[];
-  private executors: TimeLineExecutor[];
+  private executors: Map<ExecutorType, TimeLineExecutor>;
 
   private startCalculationIndex: number;
   private endCalculationIndex: number;
@@ -49,6 +51,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   private rebalanceWeights: TokenWeight[];
 
   private tokenType: TokenType;
+  private rebalancePeriod: number;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository,
               multitokens: Multitoken[],
@@ -56,7 +59,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.resetDefaultValues();
     this.cryptocurrencyRepository = cryptocurrencyRepository;
     this.multitokens = multitokens;
-    this.executors = executors;
+    this.executors = new Map();
+
+    executors.forEach(executor => this.executors.set(executor.getType(), executor));
+
     this.listener = this;
   }
 
@@ -242,6 +248,9 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
       } else if (executor instanceof ExchangerExecutorImpl) {
         (executor as ExchangerExecutor).setExchangeAmount(this.exchangeAmount);
+
+      } else if (executor instanceof PeriodRebalanceExecutorImpl) {
+        (executor as PeriodRebalanceExecutorImpl).setupPeriod(this.rebalancePeriod);
       }
 
       result.set(executor.getType(), []);
@@ -313,6 +322,14 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.exchangeAmount;
   }
 
+  public setRebalancePeriod(seconds: number): void {
+    this.rebalancePeriod = seconds;
+  }
+
+  public getRebalancePeriod(): number {
+    return this.rebalancePeriod;
+  }
+
   protected resetDefaultValues(): void {
     this.setAmount(10000);
     this.setCommission(0.1);
@@ -320,6 +337,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.changeProportions([]);
     this.setExchangeAmount(150000);
     this.setTokenType(TokenType.UNDEFINED);
+    this.setRebalancePeriod(604800);
 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
@@ -327,13 +345,48 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   }
 
   private getExecutorsByType(type: TokenType): TimeLineExecutor[] {
-    return this.executors.filter(executor =>
-      (type === TokenType.FIX_PROPORTIONS &&
-        executor.getType() !== ExecutorType.MANUAL_REBALANCER &&
-        executor.getType() !== ExecutorType.ARBITRAGEUR) ||
-      (type === TokenType.AUTO_REBALANCE && executor.getType() !== ExecutorType.MANUAL_REBALANCER) ||
-      (type === TokenType.MANUAL_REBALANCE && executor.getType() !== ExecutorType.ARBITRAGEUR)
-    ).sort(((a, b) => b.getPriority() - a.getPriority()));
+    const result: TimeLineExecutor[] = [];
+    switch (type) {
+      case TokenType.AUTO_REBALANCE:
+        result.push(
+          this.getExecutorByType(ExecutorType.EXCHANGER),
+          this.getExecutorByType(ExecutorType.ARBITRAGEUR)
+        );
+        break;
+
+      case TokenType.FIX_PROPORTIONS:
+
+        break;
+
+      case TokenType.MANUAL_REBALANCE:
+        result.push(
+          this.getExecutorByType(ExecutorType.EXCHANGER),
+          this.getExecutorByType(ExecutorType.MANUAL_REBALANCER)
+        );
+        break;
+
+      case TokenType.PERIOD_REBALANCE:
+        result.push(
+          this.getExecutorByType(ExecutorType.PERIOD_REBALANCER)
+        );
+        break;
+
+      default:
+        throw new Error('unknown token type!');
+    }
+
+    result.push(this.getExecutorByType(ExecutorType.CAP_CLAMP));
+
+    return result.sort((a, b) => b.getPriority() - a.getPriority());
+  }
+
+  private getExecutorByType(type: ExecutorType): TimeLineExecutor {
+    const executor: TimeLineExecutor | undefined = this.executors.get(type);
+    if (executor === undefined) {
+      throw new Error('unknown type of executor');
+    }
+
+    return executor;
   }
 
 }
