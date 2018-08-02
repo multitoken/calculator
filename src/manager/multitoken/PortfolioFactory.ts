@@ -4,6 +4,7 @@ import { CryptocurrencyTokensRepositoryImpl } from '../../repository/cryptocurre
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { ArbitrageursExecutor } from './executors/ArbitrageurExecutor';
 import { CapCalculatorExecutor } from './executors/CapCalculatorExecutor';
+import { DiffPercentRebalanceExecutorImpl } from './executors/DiffPercentRebalanceExecutorImpl';
 import { ExchangerPercentsExecutorImpl } from './executors/ExchangePercentsExecutorImpl';
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
@@ -28,12 +29,13 @@ export class PortfolioFactory {
     const arbitrageurs: TimeLineExecutor = new ArbitrageursExecutor(multitoken, 9);
     const manualRebalancer: TimeLineExecutor = new ManualRebalancerExecutorImpl(multitoken, 8);
     const periodRebalancer: TimeLineExecutor = new PeriodRebalanceExecutorImpl(multitoken, 7);
+    const diffPercentRebalancer: TimeLineExecutor = new DiffPercentRebalanceExecutorImpl(multitoken, 6);
     const capCalculator: TimeLineExecutor = new CapCalculatorExecutor([multitoken, standardMultitoken], 0);
 
     return new PortfolioManagerImpl(
       cryptocurrencyRepository,
       [multitoken, standardMultitoken],
-      [exchanger, arbitrageurs, manualRebalancer, periodRebalancer, capCalculator]
+      [exchanger, arbitrageurs, manualRebalancer, periodRebalancer, diffPercentRebalancer, capCalculator]
     );
   }
 
@@ -48,12 +50,13 @@ export class PortfolioFactory {
     const arbitrageurs: TimeLineExecutor = new ArbitrageursExecutor(multitoken, 9);
     const manualRebalancer: TimeLineExecutor = new ManualRebalancerExecutorImpl(multitoken, 8);
     const periodRebalancer: TimeLineExecutor = new PeriodRebalanceExecutorImpl(multitoken, 7);
+    const diffPercentRebalancer: TimeLineExecutor = new DiffPercentRebalanceExecutorImpl(multitoken, 6);
     const capCalculator: TimeLineExecutor = new CapCalculatorExecutor([multitoken, standardMultitoken], 0);
 
     return new PortfolioManagerImpl(
       cryptocurrencyRepository,
       [multitoken, standardMultitoken],
-      [exchanger, arbitrageurs, manualRebalancer, periodRebalancer, capCalculator]
+      [exchanger, arbitrageurs, manualRebalancer, periodRebalancer, diffPercentRebalancer, capCalculator]
     );
   }
 

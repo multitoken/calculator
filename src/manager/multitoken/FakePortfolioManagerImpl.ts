@@ -1,9 +1,14 @@
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { FakeRebalanceData } from '../../utils/FakeRebalanceData';
+import { ExecutorType } from './executors/TimeLineExecutor';
 import PortfolioManagerImpl, { TokenType } from './PortfolioManagerImpl';
 
 export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
+
+  public getExecutorsByTokenType(): string[] {
+    return [ExecutorType.CAP_CLAMP, ExecutorType.ARBITRAGEUR];
+  }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
     this.resetDefaultValues();

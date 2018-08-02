@@ -9,6 +9,7 @@ import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { DiffPercentRebalanceExecutorImpl } from './executors/DiffPercentRebalanceExecutorImpl';
 import { ExchangerExecutor } from './executors/ExchangerExecutor';
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutor } from './executors/ManualRebalancerExecutor';
@@ -24,6 +25,7 @@ export enum TokenType {
   FIX_PROPORTIONS = 'FIX_PROPORTIONS',
   MANUAL_REBALANCE = 'MANUAL_REBALANCE',
   PERIOD_REBALANCE = 'PERIOD_REBALANCE',
+  DIFF_PERCENT_REBALANCE = 'DIFF_PERCENT_REBALANCE',
   UNDEFINED = 'UNDEFINED',
 }
 
@@ -52,6 +54,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   private tokenType: TokenType;
   private rebalancePeriod: number;
+  private rebalanceDiffPercent: number;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository,
               multitokens: Multitoken[],
@@ -68,6 +71,11 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   public getBtcPrice(): TokenPriceHistory[] {
     return this.btcHistoryPrice;
+  }
+
+  public getExecutorsByTokenType(): string[] {
+    return this.getExecutorsByType(this.tokenType)
+      .map(value => value.getType().toString());
   }
 
   public setAmount(amount: number): void {
@@ -251,6 +259,9 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
       } else if (executor instanceof PeriodRebalanceExecutorImpl) {
         (executor as PeriodRebalanceExecutorImpl).setupPeriod(this.rebalancePeriod);
+
+      } else if (executor instanceof DiffPercentRebalanceExecutorImpl) {
+        (executor as DiffPercentRebalanceExecutorImpl).setupDiffPercent(this.rebalanceDiffPercent);
       }
 
       result.set(executor.getType(), []);
@@ -330,6 +341,14 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.rebalancePeriod;
   }
 
+  public setRebalanceDiffPercent(percent: number): void {
+    this.rebalanceDiffPercent = percent;
+  }
+
+  public getRebalanceDiffPercent(): number {
+    return this.rebalanceDiffPercent;
+  }
+
   protected resetDefaultValues(): void {
     this.setAmount(10000);
     this.setCommission(0.1);
@@ -338,6 +357,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.setExchangeAmount(150000);
     this.setTokenType(TokenType.UNDEFINED);
     this.setRebalancePeriod(604800);
+    this.setRebalanceDiffPercent(40.0);
 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
@@ -346,6 +366,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   private getExecutorsByType(type: TokenType): TimeLineExecutor[] {
     const result: TimeLineExecutor[] = [];
+
     switch (type) {
       case TokenType.AUTO_REBALANCE:
         result.push(
@@ -355,7 +376,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         break;
 
       case TokenType.FIX_PROPORTIONS:
-
+        result.push(this.getExecutorByType(ExecutorType.EXCHANGER));
         break;
 
       case TokenType.MANUAL_REBALANCE:
@@ -366,9 +387,11 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         break;
 
       case TokenType.PERIOD_REBALANCE:
-        result.push(
-          this.getExecutorByType(ExecutorType.PERIOD_REBALANCER)
-        );
+        result.push(this.getExecutorByType(ExecutorType.PERIOD_REBALANCER));
+        break;
+
+      case TokenType.DIFF_PERCENT_REBALANCE:
+        result.push(this.getExecutorByType(ExecutorType.DIFF_PERCENT_REBALANCER));
         break;
 
       default:
