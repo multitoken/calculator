@@ -357,7 +357,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.setExchangeAmount(150000);
     this.setTokenType(TokenType.UNDEFINED);
     this.setRebalancePeriod(604800);
-    this.setRebalanceDiffPercent(40.0);
+    this.setRebalanceDiffPercent(50.0);
 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;

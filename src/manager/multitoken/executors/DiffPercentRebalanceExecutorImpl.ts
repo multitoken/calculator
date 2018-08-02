@@ -46,27 +46,23 @@ export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implement
       return undefined;
     }
 
-    let down: number = 0;
-    let up: number = 0;
     let downPercentDiff: number = 0;
     let upPercentDiff: number = 0;
     let diff: number = 0;
 
     historyPriceInTime.forEach((price, name) => {
-      diff = price - (this.oldCoinsPrice.get(name) || 0);
+      diff = price / (this.oldCoinsPrice.get(name) || 0);
 
-      if (down > diff && diff < 0) {
-        down = diff;
-        downPercentDiff = (this.oldCoinsPrice.get(name) || 0) / price  - 1;
+      if (downPercentDiff === 0 || downPercentDiff > diff) {
+        downPercentDiff = diff;
       }
 
-      if (up < diff && diff > 0) {
-        up = diff;
-        upPercentDiff = price / (this.oldCoinsPrice.get(name) || 0) - 1;
+      if (upPercentDiff === 0 || upPercentDiff < diff) {
+        upPercentDiff = diff;
       }
     });
 
-    if (upPercentDiff < 0 || downPercentDiff < 0 || (upPercentDiff + downPercentDiff) * 100 < this.percent) {
+    if ((upPercentDiff - downPercentDiff) * 100 < this.percent) {
       return undefined;
     }
 
