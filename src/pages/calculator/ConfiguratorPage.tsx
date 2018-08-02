@@ -1,4 +1,4 @@
-import { Button, InputNumber, Layout, Slider } from 'antd';
+import { Button, InputNumber, Layout, Select, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -22,6 +22,8 @@ import { DateUtils } from '../../utils/DateUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './ConfiguratorPage.less';
 
+const Option = Select.Option;
+
 interface Props extends RouteComponentProps<{}> {
 }
 
@@ -34,6 +36,7 @@ interface State {
   exchangeAmount: number;
   historyChartRangeDateIndex: SliderValue;
   proportionList: TokenProportion[];
+  rebalancePeriod: RebalancePeriodType;
   tokenDialogOpen: boolean;
   tokenLatestWeights: Map<string, number>;
   tokenNames: Map<string, boolean>;
@@ -41,6 +44,13 @@ interface State {
   tokensHistory: Map<string, TokenPriceHistory[]>;
   tokensWeightEditItem: TokenWeight | undefined;
   tokensWeightList: TokenWeight[];
+}
+
+export enum RebalancePeriodType {
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  SOME_CUSTOM = 'SOME_CUSTOM',
 }
 
 export default class ConfiguratorPage extends React.Component<Props, State> {
@@ -64,6 +74,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       exchangeAmount: this.portfolioManager.getExchangeAmount(),
       historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
       proportionList: [],
+      rebalancePeriod: this.getRebalanceTypeByPeriod(this.portfolioManager.getRebalancePeriod()),
       tokenDialogOpen: false,
       tokenLatestWeights: new Map(),
       tokenNames: new Map(),
@@ -109,42 +120,55 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               style={{width: '100%'}}
             />
 
-            <div className="ConfiguratorPage__options-title">Exchange Amount / day:&nbsp;</div>
-            <InputNumber
-              value={this.state.exchangeAmount}
-              step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
-              formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
-              onChange={value => {
-                const valueResult: number = Math.max(0, parseInt((value || '0').toString(), 10) || 0);
-                this.setState({
-                  exchangeAmount: valueResult
-                });
-                this.analyticsManager.trackEvent(
-                  'input',
-                  'exchange-amount',
-                  valueResult.toLocaleString()
-                );
-              }}
-              style={{width: '100%'}}
-            />
-
-            <div className="ConfiguratorPage__options-title">
-              Commission percents:&nbsp;
+            <div style={{display: this.rebalancePeriodVisibility() ? 'block' : 'none'}}>
+              <div className="ConfiguratorPage__options-title">Rebalance every:&nbsp;</div>
+              <Select
+                onChange={value => this.onRebalancePeriodChange(RebalancePeriodType[value.toString()])}
+                value={this.state.rebalancePeriod}
+              >
+                {this.preparePeriodValues()}
+              </Select>
             </div>
-            <InputNumber
-              value={this.state.commissionPercents}
-              step={0.01}
-              formatter={value => `${value || '0'}%`}
-              parser={value => parseFloat((value || '0').replace('%', ''))}
-              max={99.99}
-              min={0.0}
-              onChange={value => this.onCommissionChange(value)}
-              style={{
-                width: '100%',
-              }}
-            />
 
+            <div style={{display: this.exchangeAmountVisibility() ? 'block' : 'none'}}>
+              <div className="ConfiguratorPage__options-title">Exchange Amount / day:&nbsp;</div>
+              <InputNumber
+                value={this.state.exchangeAmount}
+                step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
+                formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
+                onChange={value => {
+                  const valueResult: number = Math.max(0, parseInt((value || '0').toString(), 10) || 0);
+                  this.setState({
+                    exchangeAmount: valueResult
+                  });
+                  this.analyticsManager.trackEvent(
+                    'input',
+                    'exchange-amount',
+                    valueResult.toLocaleString()
+                  );
+                }}
+                style={{width: '100%'}}
+              />
+            </div>
+
+            <div style={{display: this.commissionPercentsVisibility() ? 'block' : 'none'}}>
+              <div className="ConfiguratorPage__options-title">
+                Commission percents:&nbsp;
+              </div>
+              <InputNumber
+                value={this.state.commissionPercents}
+                step={0.01}
+                formatter={value => `${value || '0'}%`}
+                parser={value => parseFloat((value || '0').replace('%', ''))}
+                max={99.99}
+                min={0.0}
+                onChange={value => this.onCommissionChange(value)}
+                style={{
+                  width: '100%',
+                }}
+              />
+            </div>
             <div>
               <div className="ConfiguratorPage__options-title">
                 Period:
@@ -274,6 +298,50 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
       </Layout>
     );
+  }
+
+  private rebalancePeriodVisibility(): boolean {
+    return this.portfolioManager.getTokenType() === TokenType.PERIOD_REBALANCE;
+  }
+
+  private exchangeAmountVisibility(): boolean {
+    return this.portfolioManager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+  }
+
+  private commissionPercentsVisibility(): boolean {
+    return this.portfolioManager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+  }
+
+  private onRebalancePeriodChange(period: RebalancePeriodType): void {
+    console.log('period', period);
+
+    if (period === RebalancePeriodType.HOUR) {
+      this.portfolioManager.setRebalancePeriod(3600);
+    } else if (period === RebalancePeriodType.DAY) {
+      this.portfolioManager.setRebalancePeriod(86400);
+    } else if (period === RebalancePeriodType.WEEK) {
+      this.portfolioManager.setRebalancePeriod(604800);
+    }
+
+    this.setState({rebalancePeriod: period});
+  }
+
+  private getRebalanceTypeByPeriod(seconds: number): RebalancePeriodType {
+    if (seconds === 3600) {
+      return RebalancePeriodType.HOUR;
+    } else if (seconds === 86400) {
+      return RebalancePeriodType.DAY;
+    } else if (seconds === 604800) {
+      return RebalancePeriodType.WEEK;
+    }
+
+    return RebalancePeriodType.SOME_CUSTOM;
+  }
+
+  private preparePeriodValues(): React.ReactNode {
+    const periods: string[] = [RebalancePeriodType.HOUR, RebalancePeriodType.DAY, RebalancePeriodType.WEEK];
+
+    return periods.map(name => <Option key={name}>{name}</Option>);
   }
 
   private onChangeTokenExchangeWeightClick(position: number, model?: TokenWeight): void {

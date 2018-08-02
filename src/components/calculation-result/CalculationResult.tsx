@@ -19,7 +19,9 @@ export interface Props {
   rebalanceResult: RebalanceResult;
   showCharts: boolean;
   showEditButton: boolean;
-  showExchangeAmountInfo: boolean;
+  toolTipExchangeAmountVisibility: boolean;
+  toolTipRebalancePeriodVisibility: boolean;
+  toolTipCommissionVisibility: boolean;
 
   onBackClick(): void;
 
@@ -402,8 +404,9 @@ export class CalculationResult extends React.Component<Props, State> {
             $ {this.props.portfolioManager.getAmount().toLocaleString()}
           </span>
         </div>
-        {this.getCommissionPercent()}
+        {this.getRebalancePeriodAmount()}
         {this.getExchangeAmount()}
+        {this.getCommissionPercent()}
         {this.getTokensProportions()}
         {this.getManualRebalanceList()}
       </div>
@@ -427,7 +430,7 @@ export class CalculationResult extends React.Component<Props, State> {
   private getCommissionPercent(): React.ReactNode {
     const manager: PortfolioManager = this.props.portfolioManager;
 
-    if (manager.getTokenType() === TokenType.AUTO_REBALANCE) {
+    if (this.props.toolTipCommissionVisibility) {
       return (
         <div>
           <div className="CalculationResult__tooltip_param">
@@ -446,22 +449,53 @@ export class CalculationResult extends React.Component<Props, State> {
   }
 
   private getExchangeAmount(): React.ReactNode {
-    if (!this.props.showExchangeAmountInfo) {
-      return null;
-    }
-
-    return (
-      <div>
-        <div className="CalculationResult__tooltip_param">
+    if (this.props.toolTipExchangeAmountVisibility) {
+      return (
+        <div>
+          <div className="CalculationResult__tooltip_param">
           <span className="CalculationResult__tooltip_param_name">
             Exchange amount:
           </span>
-          <span className="CalculationResult__tooltip_param_value">
+            <span className="CalculationResult__tooltip_param_value">
             $ {this.props.portfolioManager.getExchangeAmount().toLocaleString()}
           </span>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    return '';
+  }
+
+  private getRebalancePeriodAmount(): React.ReactNode {
+    if (this.props.toolTipRebalancePeriodVisibility) {
+      return (
+        <div>
+          <div className="CalculationResult__tooltip_param">
+          <span className="CalculationResult__tooltip_param_name">
+            Rebalance period:
+          </span>
+            <span className="CalculationResult__tooltip_param_value">
+            {this.getRebalanceByPeriod(this.props.portfolioManager.getRebalancePeriod())}
+          </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private getRebalanceByPeriod(seconds: number): string {
+    if (seconds === 3600) {
+      return 'HOUR';
+    } else if (seconds === 86400) {
+      return 'DAY';
+    } else if (seconds === 604800) {
+      return 'WEEK';
+    }
+
+    return 'SOME_CUSTOM';
   }
 
   private getTokensProportions(): React.ReactNode {
