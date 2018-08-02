@@ -1,54 +1,72 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
-import Pair from '../../../repository/models/Pair';
-import { Token } from '../../../repository/models/Token';
 import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
-import { TokenWeight } from '../../../repository/models/TokenWeight';
 import { Multitoken } from '../multitoken/Multitoken';
 import { AbstractExecutor } from './AbstractExecutor';
-import { ManualRebalancerExecutor } from './ManualRebalancerExecutor';
+import { DiffPercentRebalanceExecutor } from './DiffPercentRebalanceExecutor';
 import { ExecutorType } from './TimeLineExecutor';
 
-export class ManualRebalancerExecutorImpl extends AbstractExecutor implements ManualRebalancerExecutor {
+export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implements DiffPercentRebalanceExecutor {
 
-  private tokensWeightTimeLine: Map<number, Pair<Token, Token>>;
   private multitoken: Multitoken;
+  private percent: number;
+  private readonly oldCoinsPrice: Map<string, number>;
 
   constructor(multitoken: Multitoken, priority: number) {
     super([multitoken], priority);
 
-    this.tokensWeightTimeLine = new Map();
     this.multitoken = multitoken;
+    this.percent = 0;
+    this.oldCoinsPrice = new Map();
   }
 
-  public setExchangeWeights(tokenWeights: TokenWeight[]): void {
-    this.tokensWeightTimeLine.clear();
-
-    tokenWeights.forEach((weights) => {
-      this.tokensWeightTimeLine.set(weights.index, weights.tokens);
-    });
+  public setupDiffPercent(percent: number): void {
+    console.log('set diff percent', percent);
+    this.percent = percent;
   }
 
   public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
                             timeLineStep: number,
                             amount: number,
-                            startTime: number,
-                            endTime: number): void {
-    // not use
+                            startIndex: number,
+                            endIndex: number): void {
+    this.oldCoinsPrice.clear();
   }
 
   public execute(timeLineIndex: number,
                  historyPriceInTime: Map<string, number>,
                  timestamp: number,
                  btcAmount: number,
-                 txPrice: number): ExecuteResult | undefined {
-    const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeLine.get(timeLineIndex);
+                 txPrice: number): ExecuteResult | any {
+    const weights: Map<string, number> = this.multitoken.getWeights();
+    const amounts: Map<string, number> = this.multitoken.getAmounts();
 
-    if (!proportions) {
+    if (this.oldCoinsPrice.size === 0) {
+      historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
+
       return undefined;
     }
 
-    const weights: Map<string, number> = this.multitoken.getWeights();
-    const amounts: Map<string, number> = this.multitoken.getAmounts();
+    let downPercentDiff: number = 0;
+    let upPercentDiff: number = 0;
+    let diff: number = 0;
+
+    historyPriceInTime.forEach((price, name) => {
+      diff = price / (this.oldCoinsPrice.get(name) || 0);
+
+      if (downPercentDiff === 0 || downPercentDiff > diff) {
+        downPercentDiff = diff;
+      }
+
+      if (upPercentDiff === 0 || upPercentDiff < diff) {
+        upPercentDiff = diff;
+      }
+    });
+
+    if ((upPercentDiff - downPercentDiff) * 100 < this.percent) {
+      return undefined;
+    }
+
+    historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
 
     let amount: number = 0;
     let countCoins: number = 0;
@@ -65,9 +83,6 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
       return undefined;
     }
 
-    proportions.toArray()
-      .forEach(token => weights.set(token.name, token.weight));
-
     weights.forEach((value, key) => maxProportions += value);
 
     historyPriceInTime.forEach((value, key) => {
@@ -76,13 +91,6 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
       const amountPerCurrency = weight / maxProportions * amount;
 
       const count: number = amountPerCurrency / value;
-
-      console.log(
-        'recalc weights, name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency,
-        count,
-        value,
-        count * value
-      );
 
       amounts.set(key, count);
     });
@@ -93,7 +101,7 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
   }
 
   public getType(): ExecutorType {
-    return ExecutorType.MANUAL_REBALANCER;
+    return ExecutorType.DIFF_PERCENT_REBALANCER;
   }
 
 }

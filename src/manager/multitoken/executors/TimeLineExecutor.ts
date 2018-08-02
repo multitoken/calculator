@@ -2,10 +2,12 @@ import { ExecuteResult } from '../../../repository/models/ExecuteResult';
 import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
 
 export enum ExecutorType {
-  ARBITRAGEUR = 'arbitrageur',
-  EXCHANGER = 'exchanger',
-  MANUAL_REBALANCER = 'manualrebalancer',
-  CAP_CLAMP = 'capclamp'
+  ARBITRAGEUR = 'ARBITRAGEUR',
+  EXCHANGER = 'EXCHANGER',
+  MANUAL_REBALANCER = 'MANUAL_REBALANCER',
+  CAP_CLAMP = 'CAP_CLAMP',
+  PERIOD_REBALANCER = 'PERIOD_REBALANCER',
+  DIFF_PERCENT_REBALANCER = 'DIFF_PERCENT_REBALANCER',
 }
 
 export interface TimeLineExecutor {

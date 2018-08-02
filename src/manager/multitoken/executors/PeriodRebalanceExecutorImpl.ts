@@ -1,54 +1,47 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
-import Pair from '../../../repository/models/Pair';
-import { Token } from '../../../repository/models/Token';
 import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
-import { TokenWeight } from '../../../repository/models/TokenWeight';
 import { Multitoken } from '../multitoken/Multitoken';
 import { AbstractExecutor } from './AbstractExecutor';
-import { ManualRebalancerExecutor } from './ManualRebalancerExecutor';
+import { PeriodRebalanceExecutor } from './PeriodRebalanceExecutor';
 import { ExecutorType } from './TimeLineExecutor';
 
-export class ManualRebalancerExecutorImpl extends AbstractExecutor implements ManualRebalancerExecutor {
+export class PeriodRebalanceExecutorImpl extends AbstractExecutor implements PeriodRebalanceExecutor {
 
-  private tokensWeightTimeLine: Map<number, Pair<Token, Token>>;
   private multitoken: Multitoken;
+  private period: number;
+  private timeLineStep: number;
 
   constructor(multitoken: Multitoken, priority: number) {
     super([multitoken], priority);
 
-    this.tokensWeightTimeLine = new Map();
     this.multitoken = multitoken;
+    this.period = 0;
   }
 
-  public setExchangeWeights(tokenWeights: TokenWeight[]): void {
-    this.tokensWeightTimeLine.clear();
-
-    tokenWeights.forEach((weights) => {
-      this.tokensWeightTimeLine.set(weights.index, weights.tokens);
-    });
+  public setupPeriod(sec: number): void {
+    console.log('set period', sec);
+    this.period = sec;
   }
 
   public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
                             timeLineStep: number,
                             amount: number,
-                            startTime: number,
-                            endTime: number): void {
-    // not use
+                            startIndex: number,
+                            endIndex: number): void {
+    this.timeLineStep = timeLineStep;
   }
 
   public execute(timeLineIndex: number,
                  historyPriceInTime: Map<string, number>,
                  timestamp: number,
                  btcAmount: number,
-                 txPrice: number): ExecuteResult | undefined {
-    const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeLine.get(timeLineIndex);
-
-    if (!proportions) {
-      return undefined;
-    }
-
+                 txPrice: number): ExecuteResult | any {
     const weights: Map<string, number> = this.multitoken.getWeights();
     const amounts: Map<string, number> = this.multitoken.getAmounts();
+
+    if ((this.timeLineStep * timeLineIndex) % this.period !== 0) {
+      return undefined;
+    }
 
     let amount: number = 0;
     let countCoins: number = 0;
@@ -65,9 +58,6 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
       return undefined;
     }
 
-    proportions.toArray()
-      .forEach(token => weights.set(token.name, token.weight));
-
     weights.forEach((value, key) => maxProportions += value);
 
     historyPriceInTime.forEach((value, key) => {
@@ -76,13 +66,6 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
       const amountPerCurrency = weight / maxProportions * amount;
 
       const count: number = amountPerCurrency / value;
-
-      console.log(
-        'recalc weights, name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency,
-        count,
-        value,
-        count * value
-      );
 
       amounts.set(key, count);
     });
@@ -93,7 +76,7 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
   }
 
   public getType(): ExecutorType {
-    return ExecutorType.MANUAL_REBALANCER;
+    return ExecutorType.PERIOD_REBALANCER;
   }
 
 }

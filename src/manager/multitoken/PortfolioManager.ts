@@ -9,6 +9,8 @@ export interface PortfolioManager {
 
   getBtcPrice(): TokenPriceHistory[];
 
+  getExecutorsByTokenType(): string[];
+
   setAmount(amount: number): void;
 
   getAmount(): number;
@@ -52,5 +54,13 @@ export interface PortfolioManager {
   setExchangeAmount(value: number): void;
 
   getExchangeAmount(): number;
+
+  setRebalancePeriod(seconds: number): void;
+
+  getRebalancePeriod(): number;
+
+  setRebalanceDiffPercent(seconds: number): void;
+
+  getRebalanceDiffPercent(): number;
 
 }

@@ -9,10 +9,12 @@ import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { DiffPercentRebalanceExecutorImpl } from './executors/DiffPercentRebalanceExecutorImpl';
 import { ExchangerExecutor } from './executors/ExchangerExecutor';
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
 import { ManualRebalancerExecutor } from './executors/ManualRebalancerExecutor';
 import { ManualRebalancerExecutorImpl } from './executors/ManualRebalancerExecutorImpl';
+import { PeriodRebalanceExecutorImpl } from './executors/PeriodRebalanceExecutorImpl';
 import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
 import { Multitoken } from './multitoken/Multitoken';
 import { PortfolioManager } from './PortfolioManager';
@@ -22,6 +24,8 @@ export enum TokenType {
   AUTO_REBALANCE = 'AUTO_REBALANCE',
   FIX_PROPORTIONS = 'FIX_PROPORTIONS',
   MANUAL_REBALANCE = 'MANUAL_REBALANCE',
+  PERIOD_REBALANCE = 'PERIOD_REBALANCE',
+  DIFF_PERCENT_REBALANCE = 'DIFF_PERCENT_REBALANCE',
   UNDEFINED = 'UNDEFINED',
 }
 
@@ -35,7 +39,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
   private multitokens: Multitoken[];
-  private executors: TimeLineExecutor[];
+  private executors: Map<ExecutorType, TimeLineExecutor>;
 
   private startCalculationIndex: number;
   private endCalculationIndex: number;
@@ -49,6 +53,8 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   private rebalanceWeights: TokenWeight[];
 
   private tokenType: TokenType;
+  private rebalancePeriod: number;
+  private rebalanceDiffPercent: number;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository,
               multitokens: Multitoken[],
@@ -56,12 +62,20 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.resetDefaultValues();
     this.cryptocurrencyRepository = cryptocurrencyRepository;
     this.multitokens = multitokens;
-    this.executors = executors;
+    this.executors = new Map();
+
+    executors.forEach(executor => this.executors.set(executor.getType(), executor));
+
     this.listener = this;
   }
 
   public getBtcPrice(): TokenPriceHistory[] {
     return this.btcHistoryPrice;
+  }
+
+  public getExecutorsByTokenType(): string[] {
+    return this.getExecutorsByType(this.tokenType)
+      .map(value => value.getType().toString());
   }
 
   public setAmount(amount: number): void {
@@ -242,6 +256,12 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
       } else if (executor instanceof ExchangerExecutorImpl) {
         (executor as ExchangerExecutor).setExchangeAmount(this.exchangeAmount);
+
+      } else if (executor instanceof PeriodRebalanceExecutorImpl) {
+        (executor as PeriodRebalanceExecutorImpl).setupPeriod(this.rebalancePeriod);
+
+      } else if (executor instanceof DiffPercentRebalanceExecutorImpl) {
+        (executor as DiffPercentRebalanceExecutorImpl).setupDiffPercent(this.rebalanceDiffPercent);
       }
 
       result.set(executor.getType(), []);
@@ -313,6 +333,22 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.exchangeAmount;
   }
 
+  public setRebalancePeriod(seconds: number): void {
+    this.rebalancePeriod = seconds;
+  }
+
+  public getRebalancePeriod(): number {
+    return this.rebalancePeriod;
+  }
+
+  public setRebalanceDiffPercent(percent: number): void {
+    this.rebalanceDiffPercent = percent;
+  }
+
+  public getRebalanceDiffPercent(): number {
+    return this.rebalanceDiffPercent;
+  }
+
   protected resetDefaultValues(): void {
     this.setAmount(10000);
     this.setCommission(0.1);
@@ -320,6 +356,8 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.changeProportions([]);
     this.setExchangeAmount(150000);
     this.setTokenType(TokenType.UNDEFINED);
+    this.setRebalancePeriod(604800);
+    this.setRebalanceDiffPercent(50.0);
 
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
@@ -327,13 +365,51 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   }
 
   private getExecutorsByType(type: TokenType): TimeLineExecutor[] {
-    return this.executors.filter(executor =>
-      (type === TokenType.FIX_PROPORTIONS &&
-        executor.getType() !== ExecutorType.MANUAL_REBALANCER &&
-        executor.getType() !== ExecutorType.ARBITRAGEUR) ||
-      (type === TokenType.AUTO_REBALANCE && executor.getType() !== ExecutorType.MANUAL_REBALANCER) ||
-      (type === TokenType.MANUAL_REBALANCE && executor.getType() !== ExecutorType.ARBITRAGEUR)
-    ).sort(((a, b) => b.getPriority() - a.getPriority()));
+    const result: TimeLineExecutor[] = [];
+
+    switch (type) {
+      case TokenType.AUTO_REBALANCE:
+        result.push(
+          this.getExecutorByType(ExecutorType.EXCHANGER),
+          this.getExecutorByType(ExecutorType.ARBITRAGEUR)
+        );
+        break;
+
+      case TokenType.FIX_PROPORTIONS:
+        result.push(this.getExecutorByType(ExecutorType.EXCHANGER));
+        break;
+
+      case TokenType.MANUAL_REBALANCE:
+        result.push(
+          this.getExecutorByType(ExecutorType.EXCHANGER),
+          this.getExecutorByType(ExecutorType.MANUAL_REBALANCER)
+        );
+        break;
+
+      case TokenType.PERIOD_REBALANCE:
+        result.push(this.getExecutorByType(ExecutorType.PERIOD_REBALANCER));
+        break;
+
+      case TokenType.DIFF_PERCENT_REBALANCE:
+        result.push(this.getExecutorByType(ExecutorType.DIFF_PERCENT_REBALANCER));
+        break;
+
+      default:
+        throw new Error('unknown token type!');
+    }
+
+    result.push(this.getExecutorByType(ExecutorType.CAP_CLAMP));
+
+    return result.sort((a, b) => b.getPriority() - a.getPriority());
+  }
+
+  private getExecutorByType(type: ExecutorType): TimeLineExecutor {
+    const executor: TimeLineExecutor | undefined = this.executors.get(type);
+    if (executor === undefined) {
+      throw new Error('unknown type of executor');
+    }
+
+    return executor;
   }
 
 }

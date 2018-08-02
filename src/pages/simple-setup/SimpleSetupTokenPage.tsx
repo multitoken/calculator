@@ -85,14 +85,6 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
           />
 
           <div>
-            <Button
-              type="primary"
-              onClick={() => this.onCalculateClick()}
-              loading={this.state.isTokenLoading}
-              style={{marginTop: 30}}
-            >
-              Calculate
-            </Button>
             <span
               className="SimpleSetupTokenPage__content-button-back"
               onClick={e => {
@@ -102,6 +94,16 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
             >
               Start new
             </span>
+            <Button
+              type="primary"
+              onClick={() => this.onCalculateClick()}
+              loading={this.state.isTokenLoading}
+              style={{
+                marginLeft: 15,
+                marginTop: 30}}
+            >
+              Calculate
+            </Button>
           </div>
         </div>
         <PageFooter/>
