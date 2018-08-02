@@ -63,6 +63,12 @@ export default class TokenTypesPage extends React.Component<any, {}> {
             desc={<span>Change the proportion of assets manually after creating a multitoken.</span>}
             onItemClick={() => this.onTokenTypeSelected(TokenType.MANUAL_REBALANCE)}
           />
+          <TokenTypeHolder
+            title="Period rebalance"
+            img={ImgBalanceCustom}
+            desc={<span>Change the proportion of assets by time period after creating a multitoken.</span>}
+            onItemClick={() => this.onTokenTypeSelected(TokenType.PERIOD_REBALANCE)}
+          />
         </div>
 
       </Layout>
