@@ -22,6 +22,7 @@ export interface Props {
   toolTipExchangeAmountVisibility: boolean;
   toolTipRebalancePeriodVisibility: boolean;
   toolTipCommissionVisibility: boolean;
+  toolTipRebalanceDiffPercentVisibility: boolean;
 
   onBackClick(): void;
 
@@ -404,7 +405,8 @@ export class CalculationResult extends React.Component<Props, State> {
             $ {this.props.portfolioManager.getAmount().toLocaleString()}
           </span>
         </div>
-        {this.getRebalancePeriodAmount()}
+        {this.getRebalancePeriod()}
+        {this.getRebalanceDiffPercent()}
         {this.getExchangeAmount()}
         {this.getCommissionPercent()}
         {this.getTokensProportions()}
@@ -467,7 +469,7 @@ export class CalculationResult extends React.Component<Props, State> {
     return '';
   }
 
-  private getRebalancePeriodAmount(): React.ReactNode {
+  private getRebalancePeriod(): React.ReactNode {
     if (this.props.toolTipRebalancePeriodVisibility) {
       return (
         <div>
@@ -477,6 +479,25 @@ export class CalculationResult extends React.Component<Props, State> {
           </span>
             <span className="CalculationResult__tooltip_param_value">
             {this.getRebalanceByPeriod(this.props.portfolioManager.getRebalancePeriod())}
+          </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private getRebalanceDiffPercent(): React.ReactNode {
+    if (this.props.toolTipRebalanceDiffPercentVisibility) {
+      return (
+        <div>
+          <div className="CalculationResult__tooltip_param">
+          <span className="CalculationResult__tooltip_param_name">
+            Rebalance diff:
+          </span>
+            <span className="CalculationResult__tooltip_param_value">
+            {this.props.portfolioManager.getRebalanceDiffPercent()}%
           </span>
           </div>
         </div>

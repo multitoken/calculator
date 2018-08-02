@@ -7,9 +7,9 @@ import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
+import { ExecutorType } from '../../manager/multitoken/executors/TimeLineExecutor';
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
-import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
 
 interface Props extends RouteComponentProps<{}> {
@@ -107,6 +107,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolio)}
           toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolio)}
           toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolio)}
+          toolTipRebalanceDiffPercentVisibility={this.diffPercentPercentsRebalanceVisibility(portfolio)}
           onEditClick={() => this.onEditClick()}
           onBackClick={() => this.onBackClick()}
           onSwitchChartsChange={(checked) => this.onSwitchChartsChange(checked)}
@@ -118,15 +119,27 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private rebalancePeriodVisibility(manager: PortfolioManager): boolean {
-    return manager.getTokenType() === TokenType.PERIOD_REBALANCE;
+    return manager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.PERIOD_REBALANCER) > -1;
   }
 
   private exchangeAmountVisibility(manager: PortfolioManager): boolean {
-    return this.portfolioExecutor.getPortfolios().size <= 1 && manager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+    return manager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.EXCHANGER) > -1;
   }
 
   private commissionPercentsVisibility(manager: PortfolioManager): boolean {
-    return manager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+    const executors: string[] = manager.getExecutorsByTokenType();
+
+    return executors.indexOf(ExecutorType.EXCHANGER) > -1 || executors.indexOf(ExecutorType.ARBITRAGEUR) > -1;
+  }
+
+  private diffPercentPercentsRebalanceVisibility(manager: PortfolioManager): boolean {
+    return manager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.DIFF_PERCENT_REBALANCER) > -1;
   }
 
   private onEditClick(): void {

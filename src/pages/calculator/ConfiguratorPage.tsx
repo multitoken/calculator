@@ -12,6 +12,7 @@ import PageContent from '../../components/page-content/PageContent';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
+import { ExecutorType } from '../../manager/multitoken/executors/TimeLineExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { Token } from '../../repository/models/Token';
@@ -33,6 +34,7 @@ interface State {
   calculateRangeDateIndex: SliderValue;
   changeWeightMinDates: [number, number];
   commissionPercents: number;
+  diffPercentRebalance: number;
   exchangeAmount: number;
   historyChartRangeDateIndex: SliderValue;
   proportionList: TokenProportion[];
@@ -71,6 +73,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       calculateRangeDateIndex: this.portfolioManager.getCalculationDate(),
       changeWeightMinDates: this.portfolioManager.getCalculationDate() as [number, number],
       commissionPercents: this.portfolioManager.getCommission(),
+      diffPercentRebalance: this.portfolioManager.getRebalanceDiffPercent(),
       exchangeAmount: this.portfolioManager.getExchangeAmount(),
       historyChartRangeDateIndex: this.portfolioManager.getCalculationDate(),
       proportionList: [],
@@ -164,6 +167,23 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                 max={99.99}
                 min={0.0}
                 onChange={value => this.onCommissionChange(value)}
+                style={{
+                  width: '100%',
+                }}
+              />
+            </div>
+            <div style={{display: this.diffPercentPercentsRebalanceVisibility() ? 'block' : 'none'}}>
+              <div className="ConfiguratorPage__options-title">
+                Diff percent rebalance:&nbsp;
+              </div>
+              <InputNumber
+                value={this.state.diffPercentRebalance}
+                step={1.00}
+                formatter={value => `${value || '0'}%`}
+                parser={value => parseFloat((value || '0').replace('%', ''))}
+                max={100}
+                min={0.1}
+                onChange={value => this.onRebalanceDiffPercentChange((value || 0).toString())}
                 style={{
                   width: '100%',
                 }}
@@ -301,15 +321,27 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   }
 
   private rebalancePeriodVisibility(): boolean {
-    return this.portfolioManager.getTokenType() === TokenType.PERIOD_REBALANCE;
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.PERIOD_REBALANCER) > -1;
   }
 
   private exchangeAmountVisibility(): boolean {
-    return this.portfolioManager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.EXCHANGER) > -1;
   }
 
   private commissionPercentsVisibility(): boolean {
-    return this.portfolioManager.getTokenType() !== TokenType.PERIOD_REBALANCE;
+    const executors: string[] = this.portfolioManager.getExecutorsByTokenType();
+
+    return executors.indexOf(ExecutorType.EXCHANGER) > -1 || executors.indexOf(ExecutorType.ARBITRAGEUR) > -1;
+  }
+
+  private diffPercentPercentsRebalanceVisibility(): boolean {
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.DIFF_PERCENT_REBALANCER) > -1;
   }
 
   private onRebalancePeriodChange(period: RebalancePeriodType): void {
@@ -336,6 +368,16 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     }
 
     return RebalancePeriodType.SOME_CUSTOM;
+  }
+
+  private onRebalanceDiffPercentChange(value: string): void {
+    const valueNumber = Math.max(0.01, Math.min(100, parseFloat(value)));
+
+    if (valueNumber >= 0) {
+      this.setState({diffPercentRebalance: valueNumber});
+      this.portfolioManager.setRebalanceDiffPercent(valueNumber);
+      this.analyticsManager.trackEvent('input', 'change-rebalance-diff-percent', valueNumber.toString());
+    }
   }
 
   private preparePeriodValues(): React.ReactNode {
