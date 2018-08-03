@@ -104,6 +104,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           rebalanceResult={rebalanceResult}
           showCharts={this.portfolioExecutor.getPortfolios().size <= 1}
           showEditButton={this.portfolioExecutor.getPortfolios().size <= 1}
+          showArbitrageInfo={this.portfolioExecutor.getPortfolios().size <= 1}
           toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolio)}
           toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolio)}
           toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolio)}

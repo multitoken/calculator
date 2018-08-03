@@ -1,22 +1,18 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
-import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
 import { Multitoken } from '../multitoken/Multitoken';
-import { AbstractExecutor } from './AbstractExecutor';
+import { AbstractRebalanceExecutor } from './AbstractRebalanceExecutor';
 import { DiffPercentRebalanceExecutor } from './DiffPercentRebalanceExecutor';
 import { ExecutorType } from './TimeLineExecutor';
 
-export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implements DiffPercentRebalanceExecutor {
+export class DiffPercentRebalanceExecutorImpl extends AbstractRebalanceExecutor
+  implements DiffPercentRebalanceExecutor {
 
-  private multitoken: Multitoken;
   private percent: number;
-  private readonly oldCoinsPrice: Map<string, number>;
 
   constructor(multitoken: Multitoken, priority: number) {
-    super([multitoken], priority);
+    super(multitoken, priority);
 
-    this.multitoken = multitoken;
     this.percent = 0;
-    this.oldCoinsPrice = new Map();
   }
 
   public setupDiffPercent(percent: number): void {
@@ -24,27 +20,15 @@ export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implement
     this.percent = percent;
   }
 
-  public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
-                            timeLineStep: number,
-                            amount: number,
-                            startIndex: number,
-                            endIndex: number): void {
-    this.oldCoinsPrice.clear();
-  }
-
   public execute(timeLineIndex: number,
                  historyPriceInTime: Map<string, number>,
                  timestamp: number,
                  btcAmount: number,
                  txPrice: number): ExecuteResult | any {
+    super.execute(timeLineIndex, historyPriceInTime, timestamp, btcAmount, txPrice);
+
     const weights: Map<string, number> = this.multitoken.getWeights();
     const amounts: Map<string, number> = this.multitoken.getAmounts();
-
-    if (this.oldCoinsPrice.size === 0) {
-      historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
-
-      return undefined;
-    }
 
     let downPercentDiff: number = 0;
     let upPercentDiff: number = 0;
@@ -66,18 +50,18 @@ export class DiffPercentRebalanceExecutorImpl extends AbstractExecutor implement
       return undefined;
     }
 
-    historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
-
     let amount: number = 0;
-    let countCoins: number = 0;
     let maxProportions: number = 0;
 
     amounts.forEach((value, key) => {
-      countCoins++;
       amount += value * (historyPriceInTime.get(key) || 0);
     });
 
-    amount = Math.max(amount - txPrice * countCoins, 0);
+    const txFee: number = this.calculateTxFee(txPrice, historyPriceInTime);
+
+    historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
+
+    amount = Math.max(amount - txFee, 0);
 
     if (amount <= 0) {
       return undefined;

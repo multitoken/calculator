@@ -34,6 +34,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   protected selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
   protected btcHistoryPrice: TokenPriceHistory[] = [];
+  protected calculationTimeStamp: [number, number];
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private readonly tokensAmount: Map<string, number> = new Map();
@@ -105,8 +106,11 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
     this.btcHistoryPrice = this.selectedTokensHistory.get('Bitcoin') || [];
 
-    this.maxCalculationIndex = Array.from(this.selectedTokensHistory.values())[0].length - 1;
+    this.maxCalculationIndex = this.btcHistoryPrice.length - 1;
     this.endCalculationIndex = this.maxCalculationIndex - 1;
+    this.calculationTimeStamp = [this.btcHistoryPrice[0].time, this.btcHistoryPrice[this.endCalculationIndex].time];
+
+    console.log('timestamp range', this.calculationTimeStamp);
 
     console.log(`${this.endCalculationIndex}, ${this.btcHistoryPrice[0].value}`);
 
@@ -158,8 +162,12 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     }
   }
 
-  public getCalculationDate(): number | [number, number] {
+  public getCalculationDateIndex(): number | [number, number] {
     return [this.startCalculationIndex, this.endCalculationIndex];
+  }
+
+  public getCalculationTimestamp(): [number, number] {
+    return this.calculationTimeStamp;
   }
 
   public getMaxCalculationIndex(): number {
@@ -359,6 +367,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.setRebalancePeriod(604800);
     this.setRebalanceDiffPercent(45.0);
 
+    this.calculationTimeStamp = [0, 0];
     this.startCalculationIndex = 0;
     this.endCalculationIndex = 0;
     this.maxCalculationIndex = 0;

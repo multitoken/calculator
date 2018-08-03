@@ -6,8 +6,14 @@ import PortfolioManagerImpl, { TokenType } from './PortfolioManagerImpl';
 
 export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
 
+  private data: number[] = [];
+
   public getExecutorsByTokenType(): string[] {
     return [ExecutorType.CAP_CLAMP, ExecutorType.ARBITRAGEUR];
+  }
+
+  public getCalculationTimestamp(): [number, number] {
+    return [this.data[7], this.data[8]];
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
@@ -18,13 +24,13 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
       .sort()
       .join('/');
 
-    const data: number[] = FakeRebalanceData.DATA.get(name) || [];
+    this.data = FakeRebalanceData.DATA.get(name) || [];
 
-    if (data.length === 0) {
+    if (this.data.length === 0) {
       throw new Error('portfolio not found! ' + name);
     }
 
-    this.btcHistoryPrice = [new TokenPriceHistory(0, data[6])];
+    this.btcHistoryPrice = [new TokenPriceHistory(0, this.data[6])];
 
     return this.selectedTokensHistory;
   }

@@ -19,6 +19,7 @@ export interface Props {
   rebalanceResult: RebalanceResult;
   showCharts: boolean;
   showEditButton: boolean;
+  showArbitrageInfo: boolean;
   toolTipExchangeAmountVisibility: boolean;
   toolTipRebalancePeriodVisibility: boolean;
   toolTipCommissionVisibility: boolean;
@@ -202,77 +203,102 @@ export class CalculationResult extends React.Component<Props, State> {
             </Row>
           </div>
 
+          <div className="CalculationResult__content-text-caption">
+            Calculation date range
+          </div>
+          <div className="CalculationResult__content-block">
+            <Row>
+              <Col span={12} className="CalculationResult__content-text-title">
+                start date:
+              </Col>
+              <Col span={12} className="CalculationResult__content-text-title">
+                end date:
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12} className="CalculationResult__content-text-result">
+                {new Date(portfolioManager.getCalculationTimestamp()[0]).toDateString()}
+              </Col>
+              <Col span={12} className="CalculationResult__content-text-result">
+                {new Date(portfolioManager.getCalculationTimestamp()[1]).toDateString()}
+              </Col>
+            </Row>
+          </div>
+
           {/*------------5-----------*/}
-          <div
-            className="CalculationResult__content-text-caption"
-            style={{
-              display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-            }}
-          >
-            Arbitrage transactions
-          </div>
-          <div
-            className="CalculationResult__content-block"
-            style={{
-              display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-            }}
-          >
-            <Row>
-              <Col span={8} className="CalculationResult__content-text-title">
-                Transactions count:
-              </Col>
-              <Col span={8} className="CalculationResult__content-text-title">
-                Total Ethereum fee:
-              </Col>
-              <Col span={8} className="CalculationResult__content-text-title">
-                Average Ethereum fee:
-              </Col>
-            </Row>
-            <Row>
-              <Col span={8} className="CalculationResult__content-text-result">
-                {rebalanceResult.getArbitrageListLen()}
-              </Col>
-              <Col span={8} className="CalculationResult__content-text-result">
-                ${rebalanceResult.totalEthFee()}
-              </Col>
-              <Col span={8} className="CalculationResult__content-text-result">
-                ${rebalanceResult.avgEthFee()}
-              </Col>
-            </Row>
-          </div>
 
-          {/*-----------------------*/}
-
-          <div
-            className="CalculationResult__content-block"
-            style={{
-              display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
-              marginLeft: '32.45%',
-            }}
-          >
-            <Row
+          <div style={{display: this.props.showArbitrageInfo ? 'block' : 'none'}}>
+            <div
+              className="CalculationResult__content-text-caption"
               style={{
                 display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
               }}
             >
-              <Col span={12}>
-                <div className="CalculationResult__content-text-title">
-                  Total arbitrage profit:
-                </div>
-                <div className="CalculationResult__content-text-result">
-                  ${rebalanceResult.totalArbiterProfit()}
-                </div>
-              </Col>
+              Arbitrage transactions
+            </div>
+            <div
+              className="CalculationResult__content-block"
+              style={{
+                display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+              }}
+            >
+              <Row>
+                <Col span={8} className="CalculationResult__content-text-title">
+                  Transactions count:
+                </Col>
+                <Col span={8} className="CalculationResult__content-text-title">
+                  Total Ethereum fee:
+                </Col>
+                <Col span={8} className="CalculationResult__content-text-title">
+                  Average Ethereum fee:
+                </Col>
+              </Row>
+              <Row>
+                <Col span={8} className="CalculationResult__content-text-result">
+                  {rebalanceResult.getArbitrageListLen()}
+                </Col>
+                <Col span={8} className="CalculationResult__content-text-result">
+                  ${rebalanceResult.totalEthFee()}
+                </Col>
+                <Col span={8} className="CalculationResult__content-text-result">
+                  ${rebalanceResult.avgEthFee()}
+                </Col>
+              </Row>
+            </div>
 
-              <Col span={12}>
-                <div className="CalculationResult__content-text-title">
-                  The average arbitrage profit:
-                </div>
-                <div className="CalculationResult__content-text-result">
-                  ${rebalanceResult.avgArbiterProfit()}
-                </div>
-              </Col>
-            </Row>
+            {/*-----------------------*/}
+
+            <div
+              className="CalculationResult__content-block"
+              style={{
+                display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+                marginLeft: '32.45%',
+              }}
+            >
+              <Row
+                style={{
+                  display: portfolioManager.getTokenType() !== TokenType.AUTO_REBALANCE ? 'none' : 'block',
+                }}
+              >
+                <Col span={12}>
+                  <div className="CalculationResult__content-text-title">
+                    Total arbitrage profit:
+                  </div>
+                  <div className="CalculationResult__content-text-result">
+                    ${rebalanceResult.totalArbiterProfit()}
+                  </div>
+                </Col>
+
+                <Col span={12}>
+                  <div className="CalculationResult__content-text-title">
+                    The average arbitrage profit:
+                  </div>
+                  <div className="CalculationResult__content-text-result">
+                    ${rebalanceResult.avgArbiterProfit()}
+                  </div>
+                </Col>
+              </Row>
+            </div>
           </div>
           {/*-----------------------*/}
 
@@ -352,8 +378,8 @@ export class CalculationResult extends React.Component<Props, State> {
               colors={TokensHelper.COLORS}
               timeStep={portfolioManager.getStepSec()}
               isDebugMode={false}
-              start={portfolioManager.getCalculationDate()[0]}
-              end={portfolioManager.getCalculationDate()[1]}
+              start={portfolioManager.getCalculationDateIndex()[0]}
+              end={portfolioManager.getCalculationDateIndex()[1]}
               showRange={false}
               showLegendCheckBox={true}
             />

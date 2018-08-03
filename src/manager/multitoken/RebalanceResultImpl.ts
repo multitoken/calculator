@@ -120,8 +120,8 @@ export class RebalanceResultImpl implements RebalanceResult {
   }
 
   protected calculatePortfolioData(): void {
-    this.dateMinIndex = this.portfolioManager.getCalculationDate()[0];
-    this.dateMaxIndex = this.portfolioManager.getCalculationDate()[1];
+    this.dateMinIndex = this.portfolioManager.getCalculationDateIndex()[0];
+    this.dateMaxIndex = this.portfolioManager.getCalculationDateIndex()[1];
     this.amount = this.portfolioManager.getAmount();
     this.stepSec = this.portfolioManager.getStepSec();
 
