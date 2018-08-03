@@ -1,20 +1,18 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
 import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
 import { Multitoken } from '../multitoken/Multitoken';
-import { AbstractExecutor } from './AbstractExecutor';
+import { AbstractRebalanceExecutor } from './AbstractRebalanceExecutor';
 import { PeriodRebalanceExecutor } from './PeriodRebalanceExecutor';
 import { ExecutorType } from './TimeLineExecutor';
 
-export class PeriodRebalanceExecutorImpl extends AbstractExecutor implements PeriodRebalanceExecutor {
+export class PeriodRebalanceExecutorImpl extends AbstractRebalanceExecutor implements PeriodRebalanceExecutor {
 
-  private multitoken: Multitoken;
   private period: number;
   private timeLineStep: number;
 
   constructor(multitoken: Multitoken, priority: number) {
-    super([multitoken], priority);
+    super(multitoken, priority);
 
-    this.multitoken = multitoken;
     this.period = 0;
   }
 
@@ -28,6 +26,8 @@ export class PeriodRebalanceExecutorImpl extends AbstractExecutor implements Per
                             amount: number,
                             startIndex: number,
                             endIndex: number): void {
+    super.prepareCalculation(btcHistoryPrice, timeLineStep, amount, startIndex, endIndex);
+
     this.timeLineStep = timeLineStep;
   }
 
@@ -36,6 +36,8 @@ export class PeriodRebalanceExecutorImpl extends AbstractExecutor implements Per
                  timestamp: number,
                  btcAmount: number,
                  txPrice: number): ExecuteResult | any {
+    super.execute(timeLineIndex, historyPriceInTime, timestamp, btcAmount, txPrice);
+
     const weights: Map<string, number> = this.multitoken.getWeights();
     const amounts: Map<string, number> = this.multitoken.getAmounts();
 
@@ -44,15 +46,17 @@ export class PeriodRebalanceExecutorImpl extends AbstractExecutor implements Per
     }
 
     let amount: number = 0;
-    let countCoins: number = 0;
     let maxProportions: number = 0;
 
     amounts.forEach((value, key) => {
-      countCoins++;
       amount += value * (historyPriceInTime.get(key) || 0);
     });
 
-    amount = Math.max(amount - txPrice * countCoins, 0);
+    const txFee: number = this.calculateTxFee(txPrice, historyPriceInTime);
+
+    historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
+
+    amount = Math.max(amount - txFee, 0);
 
     if (amount <= 0) {
       return undefined;

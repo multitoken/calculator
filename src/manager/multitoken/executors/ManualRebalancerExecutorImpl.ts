@@ -1,23 +1,20 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
 import Pair from '../../../repository/models/Pair';
 import { Token } from '../../../repository/models/Token';
-import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
 import { TokenWeight } from '../../../repository/models/TokenWeight';
 import { Multitoken } from '../multitoken/Multitoken';
-import { AbstractExecutor } from './AbstractExecutor';
+import { AbstractRebalanceExecutor } from './AbstractRebalanceExecutor';
 import { ManualRebalancerExecutor } from './ManualRebalancerExecutor';
 import { ExecutorType } from './TimeLineExecutor';
 
-export class ManualRebalancerExecutorImpl extends AbstractExecutor implements ManualRebalancerExecutor {
+export class ManualRebalancerExecutorImpl extends AbstractRebalanceExecutor implements ManualRebalancerExecutor {
 
   private tokensWeightTimeLine: Map<number, Pair<Token, Token>>;
-  private multitoken: Multitoken;
 
   constructor(multitoken: Multitoken, priority: number) {
-    super([multitoken], priority);
+    super(multitoken, priority);
 
     this.tokensWeightTimeLine = new Map();
-    this.multitoken = multitoken;
   }
 
   public setExchangeWeights(tokenWeights: TokenWeight[]): void {
@@ -28,19 +25,13 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
     });
   }
 
-  public prepareCalculation(btcHistoryPrice: TokenPriceHistory[],
-                            timeLineStep: number,
-                            amount: number,
-                            startTime: number,
-                            endTime: number): void {
-    // not use
-  }
-
   public execute(timeLineIndex: number,
                  historyPriceInTime: Map<string, number>,
                  timestamp: number,
                  btcAmount: number,
                  txPrice: number): ExecuteResult | undefined {
+    super.execute(timeLineIndex, historyPriceInTime, timestamp, btcAmount, txPrice);
+
     const proportions: Pair<Token, Token> | undefined = this.tokensWeightTimeLine.get(timeLineIndex);
 
     if (!proportions) {
@@ -51,15 +42,17 @@ export class ManualRebalancerExecutorImpl extends AbstractExecutor implements Ma
     const amounts: Map<string, number> = this.multitoken.getAmounts();
 
     let amount: number = 0;
-    let countCoins: number = 0;
     let maxProportions: number = 0;
 
     amounts.forEach((value, key) => {
-      countCoins++;
       amount += value * (historyPriceInTime.get(key) || 0);
     });
 
-    amount = Math.max(amount - txPrice * countCoins, 0);
+    const txFee: number = this.calculateTxFee(txPrice, historyPriceInTime);
+
+    historyPriceInTime.forEach((value, key) => this.oldCoinsPrice.set(key, value));
+
+    amount = Math.max(amount - txFee, 0);
 
     if (amount <= 0) {
       return undefined;
