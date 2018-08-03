@@ -35,7 +35,9 @@ export interface PortfolioManager {
 
   changeCalculationDate(indexStart: number, indexEnd: number): void;
 
-  getCalculationDate(): number | [number, number];
+  getCalculationDateIndex(): number | [number, number];
+
+  getCalculationTimestamp(): [number, number];
 
   getMaxCalculationIndex(): number;
 
