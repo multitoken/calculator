@@ -34,8 +34,8 @@ export class MultitokenImpl implements Multitoken {
     return [
       toBalance *
       amount *
-      fromWeight /
-      ((fromBalance + amount) * toWeight) * this.commissionPercents,
+      toWeight /
+      ((fromBalance + amount) * fromWeight) * this.commissionPercents,
       this.commissionPercents
     ];
   }
@@ -47,7 +47,7 @@ export class MultitokenImpl implements Multitoken {
     const toResult: number = toAmounts - toAmount;
 
     if (fromResult <= 0 || toResult <= 0 || fromAmount <= 0 || toAmount <= 0) {
-      console.log(fromSymbol, toAmount, fromAmount, toAmount);
+      console.log(fromSymbol, fromAmount, toSymbol, toAmount);
       console.log(fromAmounts, fromResult);
       console.log(toAmounts, toResult);
       throw new Error('wrong calculation');
