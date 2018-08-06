@@ -32,10 +32,8 @@ export class MultitokenImpl implements Multitoken {
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
     return [
-      toBalance *
-      amount *
-      toWeight /
-      ((fromBalance + amount) * fromWeight) * this.commissionPercents,
+      amount * toBalance * fromWeight /
+      (amount * fromWeight * toWeight + fromBalance * toWeight) * this.commissionPercents,
       this.commissionPercents
     ];
   }
@@ -55,6 +53,10 @@ export class MultitokenImpl implements Multitoken {
 
     this.tokensAmount.set(fromSymbol, fromResult);
     this.tokensAmount.set(toSymbol, toResult);
+  }
+
+  public getCommission(): number {
+    return this.commissionPercents;
   }
 
   public getAmounts(): Map<string, number> {

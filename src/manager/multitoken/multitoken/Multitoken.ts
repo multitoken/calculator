@@ -15,6 +15,8 @@ export interface Multitoken {
 
   exchange(fromSymbol: string, toSymbol: string, fromAmount: number, toAmount: number): void;
 
+  getCommission(): number;
+
   getAmounts(): Map<string, number>;
 
   getWeights(): Map<string, number>;
