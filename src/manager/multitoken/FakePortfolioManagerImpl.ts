@@ -1,5 +1,6 @@
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
+import { TokenProportion } from '../../repository/models/TokenProportion';
 import { FakeRebalanceData } from '../../utils/FakeRebalanceData';
 import { ExecutorType } from './executors/TimeLineExecutor';
 import PortfolioManagerImpl, { TokenType } from './PortfolioManagerImpl';
@@ -19,6 +20,10 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
     this.resetDefaultValues();
     tokenSymbols.forEach(value => this.selectedTokensHistory.set(value, []));
+
+    const proportions: TokenProportion[] = tokenSymbols.map(value => new TokenProportion(value, 1, 1, 1));
+
+    this.changeProportions(proportions);
 
     const name: string = tokenSymbols
       .sort()

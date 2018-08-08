@@ -2,6 +2,7 @@ import { BackTop, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { CalculationResult } from '../../components/calculation-result/CalculationResult';
+import { CompareCalculationResult } from '../../components/compare-calculation-result/CompareCalculationResult';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import PageHeader from '../../components/page-header/PageHeader';
@@ -11,6 +12,7 @@ import { ExecutorType } from '../../manager/multitoken/executors/TimeLineExecuto
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
+import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -91,20 +93,23 @@ export default class ResultPage extends React.Component<Props, State> implements
     );
   }
 
-  private prepareCalculationResults(): React.ReactNode[] {
-    const result: React.ReactNode[] = [];
+  private prepareCalculationResults(): React.ReactNode {
+    const rebalanceResults: RebalanceResult[] = [];
+    const portfolioManagers: PortfolioManager[] = [];
+    this.portfolioExecutor.getPortfolios().forEach((rebalanceResult, portfolioManager) => {
+      rebalanceResults.push(rebalanceResult);
+      portfolioManagers.push(portfolioManager);
+    });
 
-    let index: number = 0;
-    this.portfolioExecutor.getPortfolios().forEach((rebalanceResult, portfolio) => {
-      index++;
-      result.push((
+    if (rebalanceResults.length === 1) {
+      const portfolio: PortfolioManager = portfolioManagers[0];
+      return (
         <CalculationResult
-          key={index}
           portfolioManager={portfolio}
-          rebalanceResult={rebalanceResult}
-          showCharts={this.portfolioExecutor.getPortfolios().size <= 1}
-          showEditButton={this.portfolioExecutor.getPortfolios().size <= 1}
-          showArbitrageInfo={this.portfolioExecutor.getPortfolios().size <= 1}
+          rebalanceResult={rebalanceResults[0]}
+          showCharts={true}
+          showEditButton={true}
+          showArbitrageInfo={true}
           toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolio)}
           toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolio)}
           toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolio)}
@@ -113,10 +118,15 @@ export default class ResultPage extends React.Component<Props, State> implements
           onBackClick={() => this.onBackClick()}
           onSwitchChartsChange={(checked) => this.onSwitchChartsChange(checked)}
         />
-      ));
-    });
+      );
+    }
 
-    return result;
+    return (
+      <CompareCalculationResult
+        rebalanceResult={rebalanceResults}
+        portfolioManager={portfolioManagers}
+      />
+    );
   }
 
   private rebalancePeriodVisibility(manager: PortfolioManager): boolean {
