@@ -26,6 +26,7 @@ export enum TokenType {
   MANUAL_REBALANCE = 'MANUAL_REBALANCE',
   PERIOD_REBALANCE = 'PERIOD_REBALANCE',
   DIFF_PERCENT_REBALANCE = 'DIFF_PERCENT_REBALANCE',
+  ADAPTIVE_PERCENT_EXCHANGER = 'ADAPTIVE_PERCENT_EXCHANGER',
   UNDEFINED = 'UNDEFINED',
 }
 
@@ -355,7 +356,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   protected resetDefaultValues(): void {
     this.setAmount(10000);
-    this.setCommission(0.1);
+    this.setCommission(0.5);
     this.setRebalanceWeights([]);
     this.changeProportions([]);
     this.setExchangeAmount(30000);
@@ -375,6 +376,13 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
       case TokenType.AUTO_REBALANCE:
         result.push(
           this.getExecutorByType(ExecutorType.EXCHANGER),
+          this.getExecutorByType(ExecutorType.ARBITRAGEUR)
+        );
+        break;
+
+      case TokenType.ADAPTIVE_PERCENT_EXCHANGER:
+        result.push(
+          this.getExecutorByType(ExecutorType.ADAPTIVE_EXCHANGER),
           this.getExecutorByType(ExecutorType.ARBITRAGEUR)
         );
         break;
