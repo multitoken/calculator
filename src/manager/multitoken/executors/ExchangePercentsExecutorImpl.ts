@@ -96,7 +96,7 @@ export class ExchangerPercentsExecutorImpl extends AbstractExecutor implements E
   }
 
   public getType(): ExecutorType {
-    return ExecutorType.EXCHANGER;
+    return ExecutorType.ADAPTIVE_EXCHANGER;
   }
 
   private calculateCap(historyPrice: Map<string, number>): number {

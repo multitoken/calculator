@@ -64,6 +64,12 @@ export default class TokenTypesPage extends React.Component<any, {}> {
             desc={<span>Keeps the specified ratio of portfolio proportions.</span>}
           />
           <TokenTypeHolder
+            title="Auto rebalance with dynamic exchange"
+            img={ImgBalance}
+            onItemClick={() => this.onTokenTypeSelected(TokenType.ADAPTIVE_PERCENT_EXCHANGER)}
+            desc={<span>Keeps the specified ratio of portfolio proportions. With adaptive exchange proportions</span>}
+          />
+          <TokenTypeHolder
             title="Fix proportions"
             img={ImgBalanceOff}
             desc={<span>The number of tokens in the portfolio will be constant.</span>}

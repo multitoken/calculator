@@ -4,6 +4,7 @@ import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory'
 export enum ExecutorType {
   ARBITRAGEUR = 'ARBITRAGEUR',
   EXCHANGER = 'EXCHANGER',
+  ADAPTIVE_EXCHANGER = 'ADAPTIVE_EXCHANGER',
   MANUAL_REBALANCER = 'MANUAL_REBALANCER',
   CAP_CLAMP = 'CAP_CLAMP',
   PERIOD_REBALANCER = 'PERIOD_REBALANCER',
