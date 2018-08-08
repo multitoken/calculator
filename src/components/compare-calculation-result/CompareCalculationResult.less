@@ -1,0 +1,47 @@
+@import "../../res/styles/Colors";
+
+.CompareCalculationResult__content {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  color: @text-color-dark;
+
+  max-width: 800px;
+  margin: 20px auto 20px;
+  padding: 10px;
+
+  .ant-row {
+    border-radius: 8px;
+    background-color: @content-color;
+    border: solid 1.1px @border-dark;
+    padding: 3px 11px;
+    margin-bottom: 10px;
+  }
+}
+.CompareCalculationResult__row-item {
+  font-size: 16px;
+}
+
+.CompareCalculationResult__row-item_success {
+  .CompareCalculationResult__row-item;
+  color: @text-color-success;
+}
+
+.CompareCalculationResult__row-item_warn {
+  .CompareCalculationResult__row-item;
+  color: @text-color-warn;
+}
+
+.CompareCalculationResult__row-type-separator {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  display: block;
+  margin: 15px 0;
+  color: @text-color-dark;
+  opacity: 0.4;
+}
