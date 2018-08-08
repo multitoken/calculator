@@ -1,6 +1,6 @@
 {
   "name": "simulator",
-  "version": "0.1.94",
+  "version": "0.1.95",
   "homepage": "./",
   "dependencies": {
     "@types/react-ga": "^2.3.0",
