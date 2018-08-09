@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { Layout } from 'antd';
 import * as React from 'react';
 import PageHeader from '../../components/page-header/PageHeader';
@@ -29,6 +30,10 @@ export default class TokenTypesPage extends React.Component<any, {}> {
       // Redirect to root
       window.location.replace('/simulator');
     }
+  }
+
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
   }
 
   public render() {
