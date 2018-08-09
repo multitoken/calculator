@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { Button, InputNumber, Layout, Select, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
@@ -88,6 +89,10 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     };
   }
 
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
+  }
+
   public componentDidMount(): void {
     if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
@@ -98,6 +103,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
       .catch(reason => {
+        Sentry.captureException(reason);
         console.log(reason);
         alert(reason.message);
       });

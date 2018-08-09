@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { BackTop, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -44,6 +45,10 @@ export default class ResultPage extends React.Component<Props, State> implements
     };
   }
 
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
+  }
+
   public onProgress(percents: number): void {
     if (!this.state.showCalculationProgress) {
       this.setState({showCalculationProgress: true});
@@ -64,7 +69,7 @@ export default class ResultPage extends React.Component<Props, State> implements
         this.setState({
           showCalculationProgress: false
         });
-      });
+      }).catch(error => Sentry.captureException(error));
   }
 
   public render() {
