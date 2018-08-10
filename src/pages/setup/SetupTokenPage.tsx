@@ -42,7 +42,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       isTokenLoading: false,
       selectedTokenNames: [],
     };
-    Sentry.captureException(new Error('test for disable notif'));
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
