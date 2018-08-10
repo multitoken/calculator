@@ -27,7 +27,7 @@ export interface Props {
 
   onBackClick(): void;
 
-  onEditClick(): void;
+  onResetClick(): void;
 
   onSwitchChartsChange(checked: boolean): void;
 }
@@ -306,7 +306,7 @@ export class CalculationResult extends React.Component<Props, State> {
             {this.prepareButtonEdit()}
             <Button
               type="primary"
-              onClick={() => this.props.onEditClick()}
+              onClick={() => this.props.onResetClick()}
             >
               Start new
             </Button>
