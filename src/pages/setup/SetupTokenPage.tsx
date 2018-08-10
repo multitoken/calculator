@@ -69,7 +69,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       >
         <PageHeader/>
         <header className="SetupTokenPage__header">
-          Select tokens to simulate multiToken (at least two)
+          Select tokens to calculate multiToken (at least two)
         </header>
 
         <div className="SetupTokenPage">
@@ -89,7 +89,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
                  this.analyticsManager.trackEvent('button', 'click', 'to-simple');
                }}
              >
-              Simple simulation
+              Simple calculation
             </span>
             <Button
               type="primary"

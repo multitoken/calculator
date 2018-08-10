@@ -28,7 +28,7 @@ export default class TokenTypesPage extends React.Component<any, {}> {
   public componentDidMount(): void {
     if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
-      window.location.replace('/simulator');
+      window.location.replace('/calculator');
     }
   }
 

@@ -96,7 +96,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   public componentDidMount(): void {
     if (this.portfolioManager.getPriceHistory().size === 0) {
       // Redirect to root
-      window.location.replace('/simulator');
+      window.location.replace('/calculator');
     }
 
     this.portfolioManager
