@@ -75,8 +75,14 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   }
 
   public getExecutorsByTokenType(): string[] {
-    return this.getExecutorsByType(this.tokenType)
-      .map(value => value.getType().toString());
+    try {
+      return this.getExecutorsByType(this.tokenType)
+        .map(value => value.getType().toString());
+    } catch (e) {
+      console.log(e);
+    }
+
+    return [];
   }
 
   public setAmount(amount: number): void {
