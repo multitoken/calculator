@@ -23,10 +23,10 @@ export default class PageHeader extends React.Component {
           <Link to="/" className="PageHeader__logo-text" onClick={e => this.onLogoLinkClick()}>Calculator</Link>
         </span>
         <span className="PageHeader__btn-block">
-          <a href="https://t.me/MetaOne" target="_blank" rel="noopener" onClick={e => this.onTelegramLinkClick()}>
+          <a href="https://t.me/MultiToken" target="_blank" rel="noopener" onClick={e => this.onTelegramLinkClick()}>
             <img className="PageHeader__btn" alt="group" src={Telegram}/>
           </a>
-          <a href="https://www.meta.one/" target="_blank" rel="noopener" onClick={e => this.onSiteLinkClick()}>
+          <a href="https://www.multitoken.com/" target="_blank" rel="noopener" onClick={e => this.onSiteLinkClick()}>
             <img className="PageHeader__btn" alt="site" src={Website}/>
           </a>
         </span>
