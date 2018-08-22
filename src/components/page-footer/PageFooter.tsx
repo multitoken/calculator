@@ -8,7 +8,7 @@ export default class PageFooter extends React.Component {
   public render() {
     const version = process.env.REACT_APP_VERSION;
     const versionText = version || 'undefined';
-    const versionLink = `https://github.com/MultiTKN/arbitrator-simulator/tree/v${version}`;
+    const versionLink = `https://github.com/MultiTKN/calculator/tree/v${version}`;
     return (
       <Footer className="PageFooter__content">
         Multitoken&nbsp;©2018&nbsp;

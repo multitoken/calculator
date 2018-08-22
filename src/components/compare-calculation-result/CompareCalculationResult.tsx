@@ -1,4 +1,4 @@
-import { Col, Row } from 'antd';
+import { Button, Col, Row } from 'antd';
 import * as React from 'react';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
@@ -8,6 +8,8 @@ import './CompareCalculationResult.less';
 export interface Properties {
   rebalanceResult: RebalanceResult[];
   portfolioManager: PortfolioManager[];
+
+  onResetClick(): void;
 }
 
 export class CompareCalculationResult extends React.Component<Properties, any> {
@@ -112,6 +114,16 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
             </Col>
             {this.getBtcROI()}
           </Row>
+
+          <div className="CompareCalculationResult__button-place">
+            <Button
+              type="primary"
+              onClick={() => this.props.onResetClick()}
+            >
+              Start new
+            </Button>
+          </div>
+
         </PageContent>
 
       </div>

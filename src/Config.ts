@@ -20,4 +20,8 @@ export default class Config {
     return !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
   }
 
+  public static getSenrtyConfigUrl(): string {
+    return 'https://b249c9bfeaa74ac7890da6843b4e259b@sentry.io/1259174';
+  }
+
 }

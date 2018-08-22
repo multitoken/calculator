@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -43,11 +44,18 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     };
   }
 
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
+  }
+
   public componentDidMount(): void {
     this.portfolioManager
       .getAvailableTokens()
       .then(result => this.onSyncTokens(result))
-      .catch(reason => alert(reason.message));
+      .catch((reason: Error) => {
+        Sentry.captureException(reason);
+        alert(reason.message);
+      });
   }
 
   public render() {
@@ -61,7 +69,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       >
         <PageHeader/>
         <header className="SetupTokenPage__header">
-          Select tokens to simulate multiToken (at least two)
+          Select tokens to calculate multiToken (at least two)
         </header>
 
         <div className="SetupTokenPage">
@@ -81,7 +89,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
                  this.analyticsManager.trackEvent('button', 'click', 'to-simple');
                }}
              >
-              Simple simulation
+              Simple calculation
             </span>
             <Button
               type="primary"
@@ -129,7 +137,8 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
     this.portfolioManager.setupTokens(this.state.selectedTokenNames)
       .then(() => history.push('types'))
-      .catch(reason => {
+      .catch((reason: Error) => {
+        Sentry.captureException(reason);
         console.error(reason);
         alert('something went wrong');
         this.setState({isTokenLoading: false});

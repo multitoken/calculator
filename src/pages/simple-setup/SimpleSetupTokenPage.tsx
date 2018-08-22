@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { Button, InputNumber, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -57,6 +58,10 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
     };
   }
 
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
+  }
+
   public render() {
     return (
       <Layout
@@ -100,7 +105,8 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
               loading={this.state.isTokenLoading}
               style={{
                 marginLeft: 15,
-                marginTop: 30}}
+                marginTop: 30
+              }}
             >
               Calculate
             </Button>
@@ -133,7 +139,7 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
       .then(() => {
         console.log('portfolios success created');
         this.props.history.push('calculator/result');
-      });
+      }).catch(error => Sentry.captureException(error));
   }
 
   private async preparePortfolios(): Promise<void> {

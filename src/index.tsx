@@ -1,3 +1,4 @@
+import { init } from '@sentry/browser';
 import 'bootstrap/dist/css/bootstrap.css';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -12,7 +13,9 @@ import TokenTypesPage from './pages/types/TokenTypesPage';
 import './res/styles/Theme.less';
 import { Intercom } from './utils/Intercom';
 
-// const GH_PAGES_PREFIX_URL = 'simulator';
+// const GH_PAGES_PREFIX_URL = 'calculator';
+
+init({dsn: Config.getSenrtyConfigUrl(), enabled: !Config.isDebug()});
 
 ReactDOM.render(
   <Router>

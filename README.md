@@ -1,4 +1,4 @@
-# simulator
+# calculator
 Start project in project dir:
 ```sh
 $ npm install

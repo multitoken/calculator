@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { BackTop, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -44,6 +45,10 @@ export default class ResultPage extends React.Component<Props, State> implements
     };
   }
 
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    Sentry.captureException(error);
+  }
+
   public onProgress(percents: number): void {
     if (!this.state.showCalculationProgress) {
       this.setState({showCalculationProgress: true});
@@ -55,7 +60,7 @@ export default class ResultPage extends React.Component<Props, State> implements
   public componentDidMount(): void {
     if (this.portfolioExecutor.getPortfolios().size === 0) {
       // Redirect to root
-      window.location.replace('/simulator');
+      window.location.replace('/calculator');
     }
 
     this.portfolioExecutor.executeCalculation()
@@ -64,7 +69,7 @@ export default class ResultPage extends React.Component<Props, State> implements
         this.setState({
           showCalculationProgress: false
         });
-      });
+      }).catch(error => Sentry.captureException(error));
   }
 
   public render() {
@@ -114,7 +119,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolio)}
           toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolio)}
           toolTipRebalanceDiffPercentVisibility={this.diffPercentPercentsRebalanceVisibility(portfolio)}
-          onEditClick={() => this.onEditClick()}
+          onResetClick={() => this.onResetClick()}
           onBackClick={() => this.onBackClick()}
           onSwitchChartsChange={(checked) => this.onSwitchChartsChange(checked)}
         />
@@ -125,6 +130,7 @@ export default class ResultPage extends React.Component<Props, State> implements
       <CompareCalculationResult
         rebalanceResult={rebalanceResults}
         portfolioManager={portfolioManagers}
+        onResetClick={() => this.onResetClick()}
       />
     );
   }
@@ -153,11 +159,11 @@ export default class ResultPage extends React.Component<Props, State> implements
       .indexOf(ExecutorType.DIFF_PERCENT_REBALANCER) > -1;
   }
 
-  private onEditClick(): void {
+  private onResetClick(): void {
     this.analyticsManager.trackEvent('button', 'click', 'to-new');
 
     if (this.portfolioExecutor.getPortfolios().size <= 1) {
-      window.location.replace('/simulator');
+      window.location.replace('/calculator');
     } else {
       this.props.history.goBack();
     }
