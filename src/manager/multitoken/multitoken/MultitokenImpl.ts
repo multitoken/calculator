@@ -42,7 +42,7 @@ export class MultitokenImpl implements Multitoken {
       return [
         amount * toBalance *
         fromWeight /
-        (amount * fromWeight + fromBalance) * this.commissionPercents,
+        ((amount * fromWeight + fromBalance) * toWeight) * this.commissionPercents,
         this.commissionPercents
       ];
     }
