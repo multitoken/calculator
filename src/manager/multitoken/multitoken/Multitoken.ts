@@ -21,6 +21,8 @@ export interface Multitoken {
 
   getWeights(): Map<string, number>;
 
+  getMinWeight(): number;
+
   getName(): string;
 
 }

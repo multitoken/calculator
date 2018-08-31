@@ -5,20 +5,29 @@ export class MultitokenImpl implements Multitoken {
 
   private tokensWeight: Map<string, number> = new Map();
   private tokensAmount: Map<string, number> = new Map();
-  private maxWeight: number;
+  private minWeight: number;
   private name: string;
   private commissionPercents: number;
 
   constructor(name: string) {
     this.name = name;
+    this.minWeight = 0;
+    this.commissionPercents = 1;
   }
 
   public setup(amounts: Map<string, number>, weights: Map<string, number>): void {
     this.tokensAmount = MapUtils.clone(amounts);
     this.tokensWeight = MapUtils.clone(weights);
+    this.minWeight = 0;
+    this.commissionPercents = 1;
 
-    this.maxWeight = 0;
-    weights.forEach(value => this.maxWeight += value);
+    for (const weight of this.tokensWeight.values()) {
+      if (this.minWeight === 0 || this.minWeight > weight) {
+        this.minWeight = weight;
+      }
+    }
+
+    this.tokensWeight.forEach((value, key) => this.tokensWeight.set(key, value / this.minWeight));
   }
 
   public setFixedCommission(percents: number): void {
@@ -31,11 +40,16 @@ export class MultitokenImpl implements Multitoken {
     const toBalance: number = this.tokensAmount.get(toSymbol) || 0;
     const toWeight: number = this.tokensWeight.get(toSymbol) || 0;
 
-    return [
-      amount * toBalance * fromWeight /
-      (amount * fromWeight * toWeight + fromBalance * toWeight) * this.commissionPercents,
-      this.commissionPercents
-    ];
+    if (fromWeight > 0 && toWeight > 0 && fromSymbol !== toSymbol) {
+      return [
+        amount * toBalance *
+        fromWeight /
+        (amount * fromWeight / this.minWeight + fromBalance) * this.commissionPercents,
+        this.commissionPercents
+      ];
+    }
+
+    return [0, this.commissionPercents];
   }
 
   public exchange(fromSymbol: string, toSymbol: string, fromAmount: number, toAmount: number): void {
@@ -45,9 +59,9 @@ export class MultitokenImpl implements Multitoken {
     const toResult: number = toAmounts - toAmount;
 
     if (fromResult <= 0 || toResult <= 0 || fromAmount <= 0 || toAmount <= 0) {
-      console.log(fromSymbol, fromAmount, toSymbol, toAmount);
-      console.log(fromAmounts, fromResult);
-      console.log(toAmounts, toResult);
+      console.error(fromSymbol, fromAmount, toSymbol, toAmount);
+      console.error(fromAmounts, fromResult);
+      console.error(toAmounts, toResult);
       throw new Error('wrong calculation');
     }
 
@@ -65,6 +79,10 @@ export class MultitokenImpl implements Multitoken {
 
   public getWeights(): Map<string, number> {
     return this.tokensWeight;
+  }
+
+  public getMinWeight(): number {
+    return this.minWeight;
   }
 
   public getName(): string {

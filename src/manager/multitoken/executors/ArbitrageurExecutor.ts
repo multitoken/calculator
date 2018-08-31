@@ -106,23 +106,37 @@ export class ArbitrageursExecutor extends AbstractExecutor {
                                  expensiveBalance: number,
                                  expensivePrice: number,
                                  txPrice: number): ArbiterProfit {
-    const exchangeAmount: number = Math.sqrt(
-      cheapBalance * expensiveBalance *
-      expensivePrice * multitoken.getCommission() / cheapPrice / cheapWeight / expensiveWeight
-    ) - cheapBalance / cheapWeight;
+    const exchangeAmount = multitoken.getMinWeight() * (
+      Math.sqrt(
+        cheapBalance *
+        expensiveBalance *
+        expensivePrice *
+        multitoken.getCommission() /
+        (
+          cheapPrice *
+          cheapWeight *
+          expensiveWeight
+        )
+      ) - cheapBalance / cheapWeight
+    );
 
     const percent: number = exchangeAmount / cheapBalance;
 
-    if (exchangeAmount > 0) {
+    if (exchangeAmount > 0 && exchangeAmount <= cheapBalance) {
       const result: [number, number] = multitoken.preCalculateExchange(cheapName, expensiveName, exchangeAmount);
+
       const exchanged: number = result[0];
+
+      if (exchanged > expensiveBalance || exchanged <= 0) {
+        return new ArbiterProfit(percent, '', 0, '', 0, 0, 0);
+      }
 
       const profit: number = (exchanged * expensivePrice) - (txPrice + (exchangeAmount * cheapPrice));
 
       return new ArbiterProfit(percent, expensiveName, exchanged, cheapName, exchangeAmount, profit, result[1]);
     }
 
-    return new ArbiterProfit(percent, '', 0, '', exchangeAmount, 0, 0);
+    return new ArbiterProfit(percent, '', 0, '', 0, 0, 0);
   }
 
 }
