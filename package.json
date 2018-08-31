@@ -1,6 +1,6 @@
 {
-  "name": "calcultor",
-  "version": "0.1.99",
+  "name": "calculator",
+  "version": "0.1.100",
   "homepage": "./",
   "dependencies": {
     "@sentry/browser": "^4.0.0-beta.12",

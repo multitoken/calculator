@@ -362,10 +362,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   protected resetDefaultValues(): void {
     this.setAmount(10000);
-    this.setCommission(0.5);
+    this.setCommission(0.02);
     this.setRebalanceWeights([]);
     this.changeProportions([]);
-    this.setExchangeAmount(30000);
+    this.setExchangeAmount(10000);
     this.setTokenType(TokenType.UNDEFINED);
     this.setRebalancePeriod(604800);
     this.setRebalanceDiffPercent(45.0);
