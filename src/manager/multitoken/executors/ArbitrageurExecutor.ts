@@ -106,7 +106,7 @@ export class ArbitrageursExecutor extends AbstractExecutor {
                                  expensiveBalance: number,
                                  expensivePrice: number,
                                  txPrice: number): ArbiterProfit {
-    const exchangeAmount = multitoken.getMinWeight() * (
+    const exchangeAmount =
       Math.sqrt(
         cheapBalance *
         expensiveBalance *
@@ -117,8 +117,7 @@ export class ArbitrageursExecutor extends AbstractExecutor {
           cheapWeight *
           expensiveWeight
         )
-      ) - cheapBalance / cheapWeight
-    );
+      ) - cheapBalance / cheapWeight;
 
     const percent: number = exchangeAmount / cheapBalance;
 

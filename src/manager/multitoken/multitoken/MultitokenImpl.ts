@@ -5,29 +5,27 @@ export class MultitokenImpl implements Multitoken {
 
   private tokensWeight: Map<string, number> = new Map();
   private tokensAmount: Map<string, number> = new Map();
-  private minWeight: number;
   private name: string;
   private commissionPercents: number;
 
   constructor(name: string) {
     this.name = name;
-    this.minWeight = 0;
     this.commissionPercents = 1;
   }
 
   public setup(amounts: Map<string, number>, weights: Map<string, number>): void {
     this.tokensAmount = MapUtils.clone(amounts);
     this.tokensWeight = MapUtils.clone(weights);
-    this.minWeight = 0;
+    let minWeight = 0;
     this.commissionPercents = 1;
 
     for (const weight of this.tokensWeight.values()) {
-      if (this.minWeight === 0 || this.minWeight > weight) {
-        this.minWeight = weight;
+      if (minWeight === 0 || minWeight > weight) {
+        minWeight = weight;
       }
     }
 
-    this.tokensWeight.forEach((value, key) => this.tokensWeight.set(key, value / this.minWeight));
+    this.tokensWeight.forEach((value, key) => this.tokensWeight.set(key, value / minWeight));
   }
 
   public setFixedCommission(percents: number): void {
@@ -44,7 +42,7 @@ export class MultitokenImpl implements Multitoken {
       return [
         amount * toBalance *
         fromWeight /
-        (amount * fromWeight / this.minWeight + fromBalance) * this.commissionPercents,
+        (amount * fromWeight + fromBalance) * this.commissionPercents,
         this.commissionPercents
       ];
     }
@@ -79,10 +77,6 @@ export class MultitokenImpl implements Multitoken {
 
   public getWeights(): Map<string, number> {
     return this.tokensWeight;
-  }
-
-  public getMinWeight(): number {
-    return this.minWeight;
   }
 
   public getName(): string {
