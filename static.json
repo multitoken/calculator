@@ -9,20 +9,5 @@
     "/api/": {
       "origin": "${API_URL}"
     }
-  },
-  "headers": {
-    "/**": {
-      "Cache-Control": "no-store, no-cache"
-    },
-    "/static/**": {
-      "Cache-Control": "public, max-age=31536000"
-    },
-    "/index.html": {
-      "Cache-Control": "must_revalidate, public, max-age=3600"
-    },
-    "/api/**": {
-      "Cache-Control": "no-cache, must-revalidate",
-      "Expires": "-1"
-    }
   }
 }
