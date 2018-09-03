@@ -11,6 +11,9 @@
     },
     "PAPERTRAIL_API_TOKEN": {
       "required": true
+    },
+    "REACT_APP_SENTRY_DSN": {
+      "required": true
     }
   },
   "formation": {
