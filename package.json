@@ -41,7 +41,8 @@
     "ghpages": "git checkout gh-pages",
     "merge:develop": "git merge develop",
     "site:clean": "rm -rf ./static/*",
-    "site:copy": "cp -R ./build/* ./"
+    "site:copy": "cp -R ./build/* ./",
+    "heroku-postbuild": "npm run build"
   },
   "devDependencies": {
     "@types/d3-scale": "^2.0.1",

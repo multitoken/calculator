@@ -1,9 +1,16 @@
 {
   "root": "build/",
   "https_only": false,
-  "clean_urls": false,
   "routes": {
     "/static/*": "/static/",
     "/**": "index.html"
+  },
+  "headers": {
+    "/**": {
+      "Cache-Control": "no-store, no-cache"
+    },
+    "/static/**": {
+      "Cache-Control": "public, max-age=31536000"
+    }
   }
 }
