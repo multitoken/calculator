@@ -1,3 +1,5 @@
+import { Portfolio } from '../../repository/models/Portfolio';
+import { PortfolioOptions } from '../../repository/models/PortfolioOptions';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { PortfolioManager } from './PortfolioManager';
@@ -23,6 +25,28 @@ export class RebalanceResultImpl implements RebalanceResult {
     this.calculatePortfolioData();
   }
 
+  public getPortfolio(): Portfolio {
+    const options: PortfolioOptions = new PortfolioOptions(
+      this.portfolioManager.getProportions(),
+      this.portfolioManager.getRebalanceWeights(),
+      this.portfolioManager.getCommission(),
+      this.portfolioManager.getRebalanceDiffPercent(),
+      this.portfolioManager.getExchangeAmount(),
+      this.portfolioManager.getCalculationDateIndex()[0],
+      this.portfolioManager.getCalculationDateIndex()[1]
+    );
+
+    return new Portfolio(
+      '',
+      options,
+      this.portfolioManager.getTokenType().toString(),
+      this.portfolioManager.getAmount(),
+      Number(this.calcCapWithRebalance()),
+      Number(this.calcCapWithoutRebalance()),
+      Number(this.calcCapBtc())
+    );
+  }
+
   public calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void {
     this.calculatePortfolioData();
     this.rebalanceHistory = rebalanceHistory;
@@ -42,7 +66,7 @@ export class RebalanceResultImpl implements RebalanceResult {
   }
 
   public capWithRebalance(): string {
-    return this.formatCurrency(this.arbiterCap.toFixed(0));
+    return this.formatCurrency(this.calcCapWithRebalance());
   }
 
   public profitWithRebalance(): string {
@@ -59,7 +83,7 @@ export class RebalanceResultImpl implements RebalanceResult {
   }
 
   public capWithoutRebalance(): string {
-    return this.formatCurrency(this.cap.toFixed(0));
+    return this.formatCurrency(this.calcCapWithoutRebalance());
   }
 
   public profitWithoutRebalance(): string {
@@ -84,7 +108,7 @@ export class RebalanceResultImpl implements RebalanceResult {
   }
 
   public capBtc(): string {
-    return this.formatCurrency(this.btcUsdt.toFixed(0));
+    return this.formatCurrency(this.calcCapBtc());
   }
 
   public profitBtc(): string {
@@ -143,6 +167,18 @@ export class RebalanceResultImpl implements RebalanceResult {
     this.arbiterProfit = 0;
     this.arbiterTotalTxFee = 0;
     this.rebalanceHistory = new RebalanceHistory([], [], []);
+  }
+
+  private calcCapWithRebalance(): string {
+    return this.arbiterCap.toFixed(0);
+  }
+
+  private calcCapWithoutRebalance(): string {
+    return this.cap.toFixed(0);
+  }
+
+  private calcCapBtc(): string {
+    return this.btcUsdt.toFixed(0);
   }
 
   private formatCurrency(value: string): string {

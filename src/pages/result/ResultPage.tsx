@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import { BackTop, Layout } from 'antd';
+import QueryString from 'query-string';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { CalculationResult } from '../../components/calculation-result/CalculationResult';
@@ -14,6 +15,9 @@ import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioE
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
+import { RebalanceResultImpl } from '../../manager/multitoken/RebalanceResultImpl';
+import { Portfolio } from '../../repository/models/Portfolio';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 
 interface Props extends RouteComponentProps<{}> {
 }
@@ -26,6 +30,8 @@ interface State {
 
 export default class ResultPage extends React.Component<Props, State> implements ProgressListener {
 
+  @lazyInject(Services.PORTFOLIO_MANAGER)
+  private portfolioManager: PortfolioManager;
   @lazyInject(Services.PORTFOLIOS_EXECUTOR)
   private portfolioExecutor: MultiPortfolioExecutor;
   @lazyInject(Services.ANALYTICS_MANAGER)
@@ -58,9 +64,17 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   public componentDidMount(): void {
-    if (this.portfolioExecutor.getPortfolios().size === 0) {
+    const {email, id} = QueryString.parse(this.props.location.search);
+    if (email && id) {
+      this.loadByEmailAndId(email, id)
+        .then(() => console.log('load by query finished'));
+
+      return;
+
+    } else if (this.portfolioExecutor.getPortfolios().size === 0) {
       // Redirect to root
       window.location.replace('/calculator');
+      return;
     }
 
     this.portfolioExecutor.executeCalculation()
@@ -98,6 +112,23 @@ export default class ResultPage extends React.Component<Props, State> implements
     );
   }
 
+  private async loadByEmailAndId(email: string, id: number): Promise<void> {
+    try {
+      this.portfolioExecutor.removeAllPortfolios();
+      this.portfolioExecutor.addPortfolioManager(this.portfolioManager, new RebalanceResultImpl(this.portfolioManager));
+
+      await this.portfolioManager.loadPortfolio(email, id);
+
+      const result: RebalanceHistory[] = await this.portfolioExecutor.executeCalculation();
+      console.log(result);
+      this.setState({showCalculationProgress: false});
+
+    } catch (error) {
+      console.error(error);
+      Sentry.captureException(error);
+    }
+  }
+
   private prepareCalculationResults(): React.ReactNode {
     const rebalanceResults: RebalanceResult[] = [];
     const portfolioManagers: PortfolioManager[] = [];
@@ -107,20 +138,21 @@ export default class ResultPage extends React.Component<Props, State> implements
     });
 
     if (rebalanceResults.length === 1) {
-      const portfolio: PortfolioManager = portfolioManagers[0];
+      const portfolioManager: PortfolioManager = portfolioManagers[0];
       return (
         <CalculationResult
-          portfolioManager={portfolio}
+          portfolioManager={portfolioManager}
           rebalanceResult={rebalanceResults[0]}
           showCharts={true}
           showEditButton={true}
           showArbitrageInfo={true}
-          toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolio)}
-          toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolio)}
-          toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolio)}
-          toolTipRebalanceDiffPercentVisibility={this.diffPercentPercentsRebalanceVisibility(portfolio)}
+          toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolioManager)}
+          toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolioManager)}
+          toolTipCommissionVisibility={this.commissionPercentsVisibility(portfolioManager)}
+          toolTipRebalanceDiffPercentVisibility={this.diffPercentPercentsRebalanceVisibility(portfolioManager)}
           onResetClick={() => this.onResetClick()}
           onBackClick={() => this.onBackClick()}
+          onPortfolioSaveClick={(portfolio) => this.onPortfolioSaveClick(portfolioManager, portfolio)}
           onSwitchChartsChange={(checked) => this.onSwitchChartsChange(checked)}
         />
       );
@@ -173,6 +205,14 @@ export default class ResultPage extends React.Component<Props, State> implements
     const {history} = this.props;
     this.analyticsManager.trackEvent('button', 'click', 'to-back');
     history.goBack();
+  }
+
+  private onPortfolioSaveClick(portfolioManager: PortfolioManager, portfolio: Portfolio): void {
+    portfolio.email = 'test@test.com';
+
+    portfolioManager.savePortfolio(portfolio)
+      .then(() => console.log('save successful'))
+      .catch((reason) => console.error(reason));
   }
 
   private onSwitchChartsChange(checked: boolean): void {

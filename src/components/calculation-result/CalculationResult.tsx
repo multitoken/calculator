@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
+import { Portfolio } from '../../repository/models/Portfolio';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import IcoInfo from '../../res/icons/ico_info.svg';
 import { TokensHelper } from '../../utils/TokensHelper';
@@ -28,6 +29,8 @@ export interface Props {
   onBackClick(): void;
 
   onResetClick(): void;
+
+  onPortfolioSaveClick(portfolio: Portfolio): void;
 
   onSwitchChartsChange(checked: boolean): void;
 }
@@ -311,6 +314,8 @@ export class CalculationResult extends React.Component<Props, State> {
               Start new
             </Button>
 
+            {this.prepareButtonSave()}
+
             {this.prepareSwitchCharts()}
           </div>
         </PageContent>
@@ -333,6 +338,22 @@ export class CalculationResult extends React.Component<Props, State> {
             Edit options
           </Button>
           <span className="m-2"/>
+      </span>
+    );
+  }
+
+  private prepareButtonSave(): React.ReactNode {
+    if (!this.props.showEditButton) {
+      return null;
+    }
+    return (
+      <span>
+        <span className="m-2"/>
+        <Button
+          type="primary"
+          onClick={() => this.props.onPortfolioSaveClick(this.props.rebalanceResult.getPortfolio())}>
+          Save result
+        </Button>
       </span>
     );
   }
@@ -466,7 +487,7 @@ export class CalculationResult extends React.Component<Props, State> {
             Commission percent:
           </span>
             <span className="CalculationResult__tooltip_param_value">
-            $ {manager.getCommission().toLocaleString()}
+            {manager.getCommission().toLocaleString()}%
           </span>
           </div>
         </div>

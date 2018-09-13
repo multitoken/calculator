@@ -5,7 +5,7 @@ export class Token {
   public name: string;
   public weight: number;
 
-  constructor(name: string, weight: number) {
+  constructor(name: string = '', weight: number = -1) {
     this.name = name;
     this.weight = weight;
   }

@@ -4,6 +4,7 @@
   "homepage": "./",
   "dependencies": {
     "@sentry/browser": "^4.0.0-beta.12",
+    "@types/query-string": "^6.1.0",
     "@types/react-ga": "^2.3.0",
     "antd": "^3.6.2",
     "axios": "^0.18.0",
@@ -14,6 +15,7 @@
     "inversify-binding-decorators": "^3.2.0",
     "inversify-inject-decorators": "^3.1.0",
     "node-sass": "^4.9.0",
+    "query-string": "^6.1.0",
     "react": "^16.4.1",
     "react-app-rewire-less": "^2.1.1",
     "react-app-rewire-sass-modules": "^1.1.5",

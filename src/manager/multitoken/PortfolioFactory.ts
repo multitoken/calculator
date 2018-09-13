@@ -1,6 +1,8 @@
 import Config from '../../Config';
 import { CryptocurrencyRepository } from '../../repository/cryptocurrency/CryptocurrencyRepository';
 import { CryptocurrencyTokensRepositoryImpl } from '../../repository/cryptocurrency/CryptocurrencyTokensRepositoryImpl';
+import { PortfolioRepository } from '../../repository/history/PortfolioRepository';
+import { PortfolioRepositoryImpl } from '../../repository/history/PortfolioRepositoryImpl';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { ArbitrageursExecutor } from './executors/ArbitrageurExecutor';
 import { CapCalculatorExecutor } from './executors/CapCalculatorExecutor';
@@ -22,6 +24,8 @@ export class PortfolioFactory {
     const cryptocurrencyRepository: CryptocurrencyRepository =
       new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), false);
 
+    const portfolioRepository: PortfolioRepository = new PortfolioRepositoryImpl(Config.getBackendEndPoint());
+
     const multitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_REBALANCE);
     const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_STANDARD);
 
@@ -35,6 +39,7 @@ export class PortfolioFactory {
 
     return new PortfolioManagerImpl(
       cryptocurrencyRepository,
+      portfolioRepository,
       [multitoken, standardMultitoken],
       [
         exchanger, adaptiveExchanger, arbitrageurs, manualRebalancer, periodRebalancer, diffPercentRebalancer,
@@ -47,7 +52,9 @@ export class PortfolioFactory {
     const cryptocurrencyRepository: CryptocurrencyRepository =
       new CryptocurrencyTokensRepositoryImpl(Config.getStatic(), false);
 
-    return new FakePortfolioManagerImpl(cryptocurrencyRepository, [], []);
+    const portfolioRepository: PortfolioRepository = new PortfolioRepositoryImpl(Config.getBackendEndPoint());
+
+    return new FakePortfolioManagerImpl(cryptocurrencyRepository, portfolioRepository, [], []);
   }
 
 }

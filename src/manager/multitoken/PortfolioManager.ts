@@ -1,3 +1,4 @@
+import { Portfolio } from '../../repository/models/Portfolio';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
@@ -6,6 +7,12 @@ import { TokenType } from './PortfolioManagerImpl';
 import { ProgressListener } from './ProgressListener';
 
 export interface PortfolioManager {
+
+  getPortfolios(email: string): Promise<Portfolio[]>;
+
+  loadPortfolio(email: string, id: number): Promise<void>;
+
+  savePortfolio(portfolio: Portfolio): Promise<void>;
 
   getBtcPrice(): TokenPriceHistory[];
 

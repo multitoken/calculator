@@ -10,7 +10,10 @@ export class TokenWeight {
   public timestamp: number;
   public index: number;
 
-  constructor(tokens: Pair<Token, Token>, otherTokens: Token[], timestamp: number, index: number) {
+  constructor(tokens: Pair<Token, Token> = new Pair(new Token(), new Token()),
+              otherTokens: Token[] = [],
+              timestamp: number = 0,
+              index: number = 0) {
     this.tokens = tokens;
     this.otherTokens = otherTokens;
     this.timestamp = timestamp;

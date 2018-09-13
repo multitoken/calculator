@@ -1,9 +1,12 @@
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import { CryptocurrencyRepository } from '../../repository/cryptocurrency/CryptocurrencyRepository';
+import { PortfolioRepository } from '../../repository/history/PortfolioRepository';
 import { Arbitration } from '../../repository/models/Arbitration';
 import { Exchange } from '../../repository/models/Exchange';
 import { ExecuteResult } from '../../repository/models/ExecuteResult';
+import { Portfolio } from '../../repository/models/Portfolio';
+import { PortfolioOptions } from '../../repository/models/PortfolioOptions';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
@@ -37,6 +40,8 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   protected btcHistoryPrice: TokenPriceHistory[] = [];
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
+  private portfolioRepository: PortfolioRepository;
+
   private readonly tokensAmount: Map<string, number> = new Map();
   private readonly tokensWeight: Map<string, number> = new Map();
   private multitokens: Multitoken[];
@@ -58,16 +63,45 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
   private rebalanceDiffPercent: number;
 
   constructor(cryptocurrencyRepository: CryptocurrencyRepository,
+              portfolioRepository: PortfolioRepository,
               multitokens: Multitoken[],
               executors: TimeLineExecutor[]) {
     this.resetDefaultValues();
+
     this.cryptocurrencyRepository = cryptocurrencyRepository;
+    this.portfolioRepository = portfolioRepository;
     this.multitokens = multitokens;
     this.executors = new Map();
 
     executors.forEach(executor => this.executors.set(executor.getType(), executor));
 
     this.listener = this;
+  }
+
+  public getPortfolios(email: string): Promise<Portfolio[]> {
+    return this.portfolioRepository.getByEmail(email);
+  }
+
+  public async loadPortfolio(email: string, id: number): Promise<void> {
+    const portfolio: Portfolio = await this.portfolioRepository.getByEmailAndId(email, id);
+    const options: PortfolioOptions = portfolio.options;
+
+    this.resetDefaultValues();
+
+    await this.setupTokens(options.proportions.map(value => value.name));
+    this.setTokenType(TokenType[portfolio.type]);
+
+    this.setRebalanceWeights(options.rebalanceWeights);
+    this.changeProportions(options.proportions);
+    this.setAmount(portfolio.amount);
+    this.setCommission(options.commissionPercents);
+    this.setRebalanceDiffPercent(options.rebalanceDiffPercent);
+    this.setExchangeAmount(options.exchangeAmount);
+    this.changeCalculationDate(options.dateIndexStart, options.dateIndexEnd);
+  }
+
+  public savePortfolio(portfolio: Portfolio): Promise<void> {
+    return this.portfolioRepository.save(portfolio);
   }
 
   public getBtcPrice(): TokenPriceHistory[] {

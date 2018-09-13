@@ -1,7 +1,13 @@
+import ArgumentUtils from './utils/ArgumentUtils';
+
 export default class Config {
 
   public static getStatic(): string {
     return '';
+  }
+
+  public static getBackendEndPoint(): string {
+    return ArgumentUtils.getValue('BACKEND_END_POINT', 'https://backtest-backend-staging.herokuapp.com');
   }
 
   public static getStableCoinsApi(): string {

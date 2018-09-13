@@ -1,6 +1,9 @@
+import { Portfolio } from '../../repository/models/Portfolio';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 
 export interface RebalanceResult {
+
+  getPortfolio(): Portfolio;
 
   calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void;
 
