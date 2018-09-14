@@ -15,11 +15,11 @@ export default class Config {
   }
 
   public static getIntercomAppId(): string {
-    return 'q14mislj';
+    return ArgumentUtils.getValue('INTERCOM_APP_ID', 'q14mislj');
   }
 
   public static getGoogleAnalyticsTrackId() {
-    return 'UA-120564356-3';
+    return ArgumentUtils.getValue('GOOGLE_ANALYTICS_TRACK_ID', 'UA-120564356-3');
   }
 
   public static isDebug() {
@@ -27,7 +27,7 @@ export default class Config {
   }
 
   public static getSenrtyConfigUrl(): string {
-    return 'https://b249c9bfeaa74ac7890da6843b4e259b@sentry.io/1259174';
+    return ArgumentUtils.getValue('REACT_APP_SENTRY_DSN', 'https://b249c9bfeaa74ac7890da6843b4e259b@sentry.io/1259174');
   }
 
 }
