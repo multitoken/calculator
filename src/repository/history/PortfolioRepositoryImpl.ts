@@ -37,7 +37,7 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
     await axios.post(
       url,
       JSON.stringify(model),
-      {headers: {'content-type': 'application/options'}}
+      {headers: {'content-type': 'application/json'}}
     );
   }
 

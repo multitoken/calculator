@@ -5,6 +5,7 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { CalculationResult } from '../../components/calculation-result/CalculationResult';
 import { CompareCalculationResult } from '../../components/compare-calculation-result/CompareCalculationResult';
+import { LoadingDialog } from '../../components/dialogs/LoadingDialog';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import PageHeader from '../../components/page-header/PageHeader';
@@ -23,8 +24,10 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
+  preparedHistoryData: boolean;
   progressPercents: number;
   showCalculationProgress: boolean;
+  showEditButton: boolean;
   showMessageDialog: boolean;
 }
 
@@ -45,8 +48,10 @@ export default class ResultPage extends React.Component<Props, State> implements
     this.portfolioExecutor.subscribeToProgress(this);
 
     this.state = {
+      preparedHistoryData: true,
       progressPercents: 0,
       showCalculationProgress: true,
+      showEditButton: true,
       showMessageDialog: false,
     };
   }
@@ -66,8 +71,19 @@ export default class ResultPage extends React.Component<Props, State> implements
   public componentDidMount(): void {
     const {email, id} = QueryString.parse(this.props.location.search);
     if (email && id) {
+
+      this.setState({
+        preparedHistoryData: false,
+        showEditButton: false,
+      });
+
       this.loadByEmailAndId(email, id)
-        .then(() => console.log('load by query finished'));
+        .then(() => {
+          this.setState({
+            preparedHistoryData: true,
+          });
+          console.log('load by query finished');
+        });
 
       return;
 
@@ -97,11 +113,16 @@ export default class ResultPage extends React.Component<Props, State> implements
 
         {this.prepareCalculationResults()}
         <ProgressDialog
-          openDialog={this.state.showCalculationProgress}
+          openDialog={this.state.showCalculationProgress && this.state.preparedHistoryData}
           percentProgress={this.state.progressPercents}
         />
 
         <MessageDialog openDialog={this.state.showMessageDialog}/>
+
+        <LoadingDialog
+          openDialog={!this.state.preparedHistoryData}
+          message={'Please wait. We prepare historical data of tokens'}
+        />
 
         <div>
           <BackTop>
@@ -119,6 +140,8 @@ export default class ResultPage extends React.Component<Props, State> implements
 
       await this.portfolioManager.loadPortfolio(email, id);
 
+      this.setState({preparedHistoryData: true});
+
       const result: RebalanceHistory[] = await this.portfolioExecutor.executeCalculation();
       console.log(result);
       this.setState({showCalculationProgress: false});
@@ -126,16 +149,24 @@ export default class ResultPage extends React.Component<Props, State> implements
     } catch (error) {
       console.error(error);
       Sentry.captureException(error);
+      alert('Something went wrong!');
+      window.location.replace('/calculator');
     }
   }
 
   private prepareCalculationResults(): React.ReactNode {
+    if (!this.state.preparedHistoryData) {
+      return null;
+    }
+
     const rebalanceResults: RebalanceResult[] = [];
     const portfolioManagers: PortfolioManager[] = [];
-    this.portfolioExecutor.getPortfolios().forEach((rebalanceResult, portfolioManager) => {
-      rebalanceResults.push(rebalanceResult);
-      portfolioManagers.push(portfolioManager);
-    });
+
+    this.portfolioExecutor.getPortfolios()
+      .forEach((rebalanceResult, portfolioManager) => {
+        rebalanceResults.push(rebalanceResult);
+        portfolioManagers.push(portfolioManager);
+      });
 
     if (rebalanceResults.length === 1) {
       const portfolioManager: PortfolioManager = portfolioManagers[0];
@@ -144,7 +175,7 @@ export default class ResultPage extends React.Component<Props, State> implements
           portfolioManager={portfolioManager}
           rebalanceResult={rebalanceResults[0]}
           showCharts={true}
-          showEditButton={true}
+          showEditButton={this.state.showEditButton}
           showArbitrageInfo={true}
           toolTipExchangeAmountVisibility={this.exchangeAmountVisibility(portfolioManager)}
           toolTipRebalancePeriodVisibility={this.rebalancePeriodVisibility(portfolioManager)}
@@ -208,11 +239,19 @@ export default class ResultPage extends React.Component<Props, State> implements
   }
 
   private onPortfolioSaveClick(portfolioManager: PortfolioManager, portfolio: Portfolio): void {
-    portfolio.email = 'test@test.com';
+    this.analyticsManager.trackEvent(
+      'button',
+      'click',
+      'save-result'
+    );
 
     portfolioManager.savePortfolio(portfolio)
-      .then(() => console.log('save successful'))
-      .catch((reason) => console.error(reason));
+      .then(() => alert('Successful saved'))
+      .catch((reason) => {
+        console.error(reason);
+        Sentry.captureException(reason);
+        alert('Something went wrong!');
+      });
   }
 
   private onSwitchChartsChange(checked: boolean): void {

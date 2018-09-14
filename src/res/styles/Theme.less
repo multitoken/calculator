@@ -5,6 +5,43 @@ div * {
   user-select: none;
 }
 
+.ant-popover-inner {
+  background: transparent;
+}
+
+.ant-popover-arrow {
+  background: @content-color-dark;
+}
+
+.ant-popover-inner-content {
+  background: @content-color-dark;
+  border-radius: 5px;
+  border: solid 1px @content-color-dark;
+}
+
+.button-simple {
+  font-family: 'Roboto', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0;
+  text-align: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: @btn-text-color;
+  width: 135px;
+  display: inline-block;
+  margin: 30px 15px 0 0;
+  padding: 10px 0;
+}
+
+.button-simple-disabled {
+  .button-simple;
+  pointer-events: none;
+  color: @text-color-dark;
+}
+
 .recharts-default-tooltip {
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
@@ -174,6 +211,20 @@ div * {
       border: none;
     }
   }
+}
+
+.ant-input {
+  height: 50px;
+  overflow-y: hidden;
+  border: solid 1px @border-dark;
+  background-color: @background;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+  letter-spacing: normal;
+  color: @text-color-light;
 }
 
 .ant-input-number {

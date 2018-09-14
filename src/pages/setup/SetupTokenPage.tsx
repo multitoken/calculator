@@ -103,6 +103,12 @@ export default class SetupTokenPage extends React.Component<Props, State> {
             >
               Next
             </Button>
+            <span
+              className="SetupTokenPage__content-button-simple"
+              onClick={() => this.onHistoryClick()}
+            >
+              History
+            </span>
           </div>
         </div>
         <PageFooter/>
@@ -145,6 +151,14 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       });
     this.portfolioExecutor.removeAllPortfolios();
     this.portfolioExecutor.addPortfolioManager(this.portfolioManager, new RebalanceResultImpl(this.portfolioManager));
+  }
+
+  private onHistoryClick() {
+    const {history} = this.props;
+
+    this.analyticsManager.trackEvent('button', 'click', 'to-history');
+
+    history.push('history');
   }
 
   private checkActiveNext(): boolean {

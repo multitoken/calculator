@@ -6,6 +6,7 @@ import 'react-input-range/lib/css/index.css';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import Config from './Config';
 import ConfiguratorPage from './pages/calculator/ConfiguratorPage';
+import HistoryPage from './pages/history/HistoryPage';
 import ResultPage from './pages/result/ResultPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
 import SimpleSetupTokenPage from './pages/simple-setup/SimpleSetupTokenPage';
@@ -23,6 +24,7 @@ ReactDOM.render(
       <Route exact={true} path="/" component={SetupTokenPage}/>
       <Route exact={true} path="/simple" component={SimpleSetupTokenPage}/>
       <Route exact={true} path="/types" component={TokenTypesPage}/>
+      <Route exact={true} path="/history" component={HistoryPage}/>
       <Route exact={true} path="/calculator" component={ConfiguratorPage}/>
       <Route exact={true} path="/calculator/result" component={ResultPage}/>
       <Intercom appId={Config.getIntercomAppId()}/>

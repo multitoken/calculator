@@ -1,4 +1,4 @@
-import { Button, Col, Row, Switch, Tooltip } from 'antd';
+import { Button, Col, Input, Popover, Row, Switch, Tooltip } from 'antd';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
@@ -36,7 +36,9 @@ export interface Props {
 }
 
 export interface State {
+  emailForSaveResult: string | undefined;
   showCharts: boolean;
+  showPopoverSave: boolean;
   tokensHistory: Map<string, TokenPriceHistory[]>;
 }
 
@@ -49,7 +51,9 @@ export class CalculationResult extends React.Component<Props, State> {
     super(props, context);
 
     this.state = {
+      emailForSaveResult: undefined,
       showCharts: false,
+      showPopoverSave: false,
       tokensHistory: props.portfolioManager.getPriceHistory(),
     };
   }
@@ -325,6 +329,13 @@ export class CalculationResult extends React.Component<Props, State> {
     );
   }
 
+  private validateEmail(email: string): boolean {
+    // tslint:disable:max-line-length
+    const reg: RegExp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+
+    return reg.test(String(email).toLowerCase());
+  }
+
   private prepareButtonEdit(): React.ReactNode {
     if (!this.props.showEditButton) {
       return null;
@@ -349,13 +360,60 @@ export class CalculationResult extends React.Component<Props, State> {
     return (
       <span>
         <span className="m-2"/>
+        <Popover
+          content={this.prepareContentSaveResult()}
+          trigger="click"
+          visible={this.state.showPopoverSave}
+          onVisibleChange={() => this.setState({showPopoverSave: true})}
+        >
         <Button
-          type="primary"
-          onClick={() => this.props.onPortfolioSaveClick(this.props.rebalanceResult.getPortfolio())}>
+          type="primary">
           Save result
         </Button>
+        </Popover>
       </span>
     );
+  }
+
+  private prepareContentSaveResult(): React.ReactNode {
+    return (
+      <div>
+        <div>
+          <Input
+            onPressEnter={() => {
+              if (this.validateEmail(String(this.state.emailForSaveResult))) {
+                this.onSavePortfolioClick();
+              }
+            }}
+            value={this.state.emailForSaveResult}
+            onChange={(e) => this.setState({emailForSaveResult: e.target.value})}
+            placeholder="Email"
+            style={{width: '100%'}}
+          />
+
+        </div>
+        <span
+          className="button-simple"
+          onClick={() => {
+            this.setState({showPopoverSave: false});
+          }}>
+          Cancel
+        </span>
+        <span
+          className={`button-simple${this.validateEmail(String(this.state.emailForSaveResult)) ? '' : '-disabled'}`}
+          onClick={() => this.onSavePortfolioClick()}>
+          Save
+        </span>
+      </div>
+    );
+  }
+
+  private onSavePortfolioClick(): void {
+    const portfolio: Portfolio = this.props.rebalanceResult.getPortfolio();
+    portfolio.email = String(this.state.emailForSaveResult);
+
+    this.props.onPortfolioSaveClick(portfolio);
+    this.setState({showPopoverSave: false});
   }
 
   private prepareSwitchCharts(): React.ReactNode {
@@ -409,9 +467,9 @@ export class CalculationResult extends React.Component<Props, State> {
 
         <PageContent className="CalculationResult__content">
           <div className="CalculationResult__result-chart">
-            <span className="CalculationResult__result-chart-title">
-              Portfolio capitalization:
-            </span>
+        <span className="CalculationResult__result-chart-title">
+        Portfolio capitalization:
+        </span>
             <BalancesCapChart
               showRebalanceCap={portfolioManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
               isDebugMode={false}
@@ -445,12 +503,12 @@ export class CalculationResult extends React.Component<Props, State> {
       <div className="CalculationResult__tooltip">
         <div className="CalculationResult__tooltip_title">{this.getTitleOfType()}</div>
         <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            Amount of money:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        Amount of money:
+        </span>
           <span className="CalculationResult__tooltip_param_value">
-            $ {this.props.portfolioManager.getAmount().toLocaleString()}
-          </span>
+        $ {this.props.portfolioManager.getAmount().toLocaleString()}
+        </span>
         </div>
         {this.getRebalancePeriod()}
         {this.getRebalanceDiffPercent()}
@@ -465,14 +523,27 @@ export class CalculationResult extends React.Component<Props, State> {
   private getTitleOfType(): string {
     const tokenType: TokenType = this.props.portfolioManager.getTokenType();
 
-    if (tokenType === TokenType.AUTO_REBALANCE) {
-      return 'Auto rebalance:';
+    switch (tokenType) {
+      case TokenType.AUTO_REBALANCE:
+        return 'Auto rebalance:';
 
-    } else if (tokenType !== TokenType.MANUAL_REBALANCE) {
-      return 'Manual rebalance:';
+      case TokenType.MANUAL_REBALANCE:
+        return 'Manual rebalance:';
 
-    } else {
-      return 'Fix proportions:';
+      case TokenType.FIX_PROPORTIONS:
+        return 'Fix proportions:';
+
+      case TokenType.PERIOD_REBALANCE:
+        return 'Rebalance by period:';
+
+      case TokenType.DIFF_PERCENT_REBALANCE:
+        return 'Price rebalancing:';
+
+      case TokenType.ADAPTIVE_PERCENT_EXCHANGER:
+        return '10% exchanges of balance:';
+
+      default:
+        return 'unknown';
     }
   }
 
@@ -483,12 +554,12 @@ export class CalculationResult extends React.Component<Props, State> {
       return (
         <div>
           <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            Commission percent:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        Commission percent:
+        </span>
             <span className="CalculationResult__tooltip_param_value">
-            {manager.getCommission().toLocaleString()}%
-          </span>
+        {manager.getCommission().toLocaleString()}%
+        </span>
           </div>
         </div>
       );
@@ -502,12 +573,12 @@ export class CalculationResult extends React.Component<Props, State> {
       return (
         <div>
           <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            Exchange amount:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        Exchange amount:
+        </span>
             <span className="CalculationResult__tooltip_param_value">
-            $ {this.props.portfolioManager.getExchangeAmount().toLocaleString()}
-          </span>
+        $ {this.props.portfolioManager.getExchangeAmount().toLocaleString()}
+        </span>
           </div>
         </div>
       );
@@ -521,12 +592,12 @@ export class CalculationResult extends React.Component<Props, State> {
       return (
         <div>
           <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            Rebalance period:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        Rebalance period:
+        </span>
             <span className="CalculationResult__tooltip_param_value">
-            {this.getRebalanceByPeriod(this.props.portfolioManager.getRebalancePeriod())}
-          </span>
+        {this.getRebalanceByPeriod(this.props.portfolioManager.getRebalancePeriod())}
+        </span>
           </div>
         </div>
       );
@@ -540,12 +611,12 @@ export class CalculationResult extends React.Component<Props, State> {
       return (
         <div>
           <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            Rebalance diff:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        Rebalance diff:
+        </span>
             <span className="CalculationResult__tooltip_param_value">
-            {this.props.portfolioManager.getRebalanceDiffPercent()}%
-          </span>
+        {this.props.portfolioManager.getRebalanceDiffPercent()}%
+        </span>
           </div>
         </div>
       );
@@ -571,12 +642,12 @@ export class CalculationResult extends React.Component<Props, State> {
       return (
         <div key={value.name}>
           <div className="CalculationResult__tooltip_param">
-          <span className="CalculationResult__tooltip_param_name">
-            {value.name} weight:
-          </span>
+        <span className="CalculationResult__tooltip_param_name">
+        {value.name} weight:
+        </span>
             <span className="CalculationResult__tooltip_param_value">
-            {value.weight}
-          </span>
+        {value.weight}
+        </span>
           </div>
         </div>
       );
