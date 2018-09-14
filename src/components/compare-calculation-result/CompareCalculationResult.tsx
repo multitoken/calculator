@@ -235,7 +235,7 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
           'ant-col-5 CompareCalculationResult__row-item' + this.getModif(result.roiWithRebalance())
         }
              key={index}>
-          ${result.roiWithRebalance()} / {result.roiYearWithRebalance()}
+          {result.roiWithRebalance()} / {result.roiYearWithRebalance()}%
         </Col>
       );
     });
