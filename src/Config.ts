@@ -7,7 +7,7 @@ export default class Config {
   }
 
   public static getBackendEndPoint(): string {
-    return ArgumentUtils.getValue('BACKEND_END_POINT', 'https://backtest-backend-staging.herokuapp.com');
+    return ArgumentUtils.getValue('REACT_APP_BACKEND_END_POINT', 'https://backtest-backend-staging.herokuapp.com');
   }
 
   public static getStableCoinsApi(): string {
@@ -15,11 +15,11 @@ export default class Config {
   }
 
   public static getIntercomAppId(): string {
-    return ArgumentUtils.getValue('INTERCOM_APP_ID', 'q14mislj');
+    return ArgumentUtils.getValue('REACT_APP_INTERCOM_APP_ID', 'q14mislj');
   }
 
   public static getGoogleAnalyticsTrackId() {
-    return ArgumentUtils.getValue('GOOGLE_ANALYTICS_TRACK_ID', 'UA-120564356-3');
+    return ArgumentUtils.getValue('REACT_APP_GOOGLE_ANALYTICS_TRACK_ID', 'UA-120564356-3');
   }
 
   public static isDebug() {
