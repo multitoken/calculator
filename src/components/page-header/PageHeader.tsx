@@ -19,8 +19,10 @@ export default class PageHeader extends React.Component {
     return (
       <Header className="PageHeader">
         <span className="PageHeader__logo">
-          <img className="PageHeader__logo-img" alt="logo" src={Logo}/>
-          <Link to="/" className="PageHeader__logo-text" onClick={e => this.onLogoLinkClick()}>Calculator</Link>
+          <Link to="/" className="PageHeader__logo-text" onClick={e => this.onLogoLinkClick()}>
+            <img className="PageHeader__logo-img" alt="logo" src={Logo}/>
+            Calculator
+          </Link>
         </span>
         <span className="PageHeader__btn-block">
           <a href="https://t.me/MultiToken" target="_blank" rel="noopener" onClick={e => this.onTelegramLinkClick()}>
