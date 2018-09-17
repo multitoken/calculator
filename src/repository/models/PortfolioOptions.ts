@@ -1,3 +1,5 @@
+import Pair from './Pair';
+import { Token } from './Token';
 import { TokenProportion } from './TokenProportion';
 import { TokenWeight } from './TokenWeight';
 
@@ -20,6 +22,13 @@ export class PortfolioOptions {
 
     const rebalanceWeights: TokenWeight[] = (jsonData.rebalanceWeights || [])
       .map((value: any) => Object.assign(new TokenWeight(), value));
+
+    rebalanceWeights.map(tokenWeight => {
+      tokenWeight.tokens = new Pair<Token, Token>(
+        new Token(tokenWeight.tokens.first.name, tokenWeight.tokens.first.weight),
+        new Token(tokenWeight.tokens.second.name, tokenWeight.tokens.second.weight),
+      );
+    });
 
     const rebalancePeriod: number = Number(jsonData.rebalancePeriod);
     const commissionPercents: number = Number(jsonData.commissionPercents || 0);

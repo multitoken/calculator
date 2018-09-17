@@ -16,14 +16,43 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     return (
       <div className="HistoryHolder__content" onClick={() => this.props.onChangePortfolio(model)}>
         <div className="HistoryHolder__content_title">{this.getTitleOfType(model.type)}</div>
+
         <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
-          Amount:
-        </span>
+          <span className="HistoryHolder__content_param_name">
+            Rebalance cap:
+          </span>
           <span className="HistoryHolder__content_param_value">
-        $ {model.amount.toLocaleString()}
-        </span>
+          ~$ {model.capWith.toLocaleString()}
+          </span>
         </div>
+
+        <div className="HistoryHolder__content_param">
+          <span className="HistoryHolder__content_param_name">
+            Origin cap:
+          </span>
+          <span className="HistoryHolder__content_param_value">
+          $ {model.capWithout.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="HistoryHolder__content_param">
+          <span className="HistoryHolder__content_param_name">
+            BTC cap:
+          </span>
+          <span className="HistoryHolder__content_param_value">
+          $ {model.capBtc.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="HistoryHolder__content_param">
+          <span className="HistoryHolder__content_param_name">
+            Amount:
+          </span>
+          <span className="HistoryHolder__content_param_value">
+          $ {model.amount.toLocaleString()}
+          </span>
+        </div>
+
         {this.getRebalanceDiffPercent(model.executors, model.options.rebalanceDiffPercent)}
         {this.getRebalancePeriod(model.executors, model.options.rebalancePeriod)}
         {this.getExchangeAmount(model.executors, model.options.exchangeAmount)}
@@ -68,7 +97,7 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
         Rebalance diff:
         </span>
             <span className="HistoryHolder__content_param_value">
-          {value}%
+        {value}%
         </span>
           </div>
         </div>
