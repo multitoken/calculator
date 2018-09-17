@@ -7,7 +7,7 @@ export default class Config {
   }
 
   public static getBackendEndPoint(): string {
-    return ArgumentUtils.getValue('REACT_APP_BACKEND_END_POINT', 'https://backtest-backend-staging.herokuapp.com');
+    return '/api';
   }
 
   public static getStableCoinsApi(): string {
@@ -15,11 +15,11 @@ export default class Config {
   }
 
   public static getIntercomAppId(): string {
-    return ArgumentUtils.getValue('REACT_APP_INTERCOM_APP_ID', 'q14mislj');
+    return ArgumentUtils.getValue('REACT_APP_INTERCOM_APP_ID');
   }
 
   public static getGoogleAnalyticsTrackId() {
-    return ArgumentUtils.getValue('REACT_APP_GOOGLE_ANALYTICS_TRACK_ID', 'UA-120564356-3');
+    return ArgumentUtils.getValue('REACT_APP_GOOGLE_ANALYTICS_TRACK_ID');
   }
 
   public static isDebug() {
@@ -27,7 +27,7 @@ export default class Config {
   }
 
   public static getSenrtyConfigUrl(): string {
-    return ArgumentUtils.getValue('REACT_APP_SENTRY_DSN', 'https://b249c9bfeaa74ac7890da6843b4e259b@sentry.io/1259174');
+    return ArgumentUtils.getValue('REACT_APP_SENTRY_DSN');
   }
 
 }

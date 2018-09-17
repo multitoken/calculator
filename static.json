@@ -5,6 +5,11 @@
     "/static/*": "/static/",
     "/**": "index.html"
   },
+  "proxies": {
+    "/api/": {
+      "origin": "${BACKEND_END_POINT}"
+    }
+  },
   "headers": {
     "/**": {
       "Cache-Control": "no-store, no-cache"
