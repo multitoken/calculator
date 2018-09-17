@@ -78,8 +78,14 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.listener = this;
   }
 
-  public getPortfolios(email: string): Promise<Portfolio[]> {
-    return this.portfolioRepository.getByEmail(email);
+  public async getPortfolios(email: string): Promise<Portfolio[]> {
+    return (await this.portfolioRepository.getByEmail(email))
+      .map(portfolio => {
+          portfolio.executors = this.getExecutorsByType(TokenType[portfolio.type])
+            .map(value => value.getType());
+          return portfolio;
+        }
+      );
   }
 
   public async loadPortfolio(email: string, id: number): Promise<void> {
@@ -92,6 +98,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.setTokenType(TokenType[portfolio.type]);
 
     this.setRebalanceWeights(options.rebalanceWeights);
+    this.setRebalancePeriod(options.rebalancePeriod);
     this.changeProportions(options.proportions);
     this.setAmount(portfolio.amount);
     this.setCommission(options.commissionPercents);

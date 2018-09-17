@@ -5,6 +5,7 @@ export class PortfolioOptions {
 
   public proportions: TokenProportion[];
   public rebalanceWeights: TokenWeight[];
+  public rebalancePeriod: number;
   public commissionPercents: number;
   public rebalanceDiffPercent: number;
   public exchangeAmount: number;
@@ -20,6 +21,7 @@ export class PortfolioOptions {
     const rebalanceWeights: TokenWeight[] = (jsonData.rebalanceWeights || [])
       .map((value: any) => Object.assign(new TokenWeight(), value));
 
+    const rebalancePeriod: number = Number(jsonData.rebalancePeriod);
     const commissionPercents: number = Number(jsonData.commissionPercents || 0);
     const rebalanceDiffPercent: number = Number(jsonData.rebalanceDiffPercent || 0);
     const exchangeAmount: number = Number(jsonData.exchangeAmount || 0);
@@ -29,6 +31,7 @@ export class PortfolioOptions {
     return new PortfolioOptions(
       proportions,
       rebalanceWeights,
+      rebalancePeriod,
       commissionPercents,
       rebalanceDiffPercent,
       exchangeAmount,
@@ -39,6 +42,7 @@ export class PortfolioOptions {
 
   public constructor(proportions: TokenProportion[] = [],
                      rebalanceWeights: TokenWeight[] = [],
+                     rebalancePeriod: number = 0,
                      commissionPercents: number = 0,
                      rebalanceDiffPercent: number = 0,
                      exchangeAmount: number = 0,
@@ -46,6 +50,7 @@ export class PortfolioOptions {
                      dateIndexEnd: number = 0) {
     this.proportions = proportions;
     this.rebalanceWeights = rebalanceWeights;
+    this.rebalancePeriod = rebalancePeriod;
     this.commissionPercents = commissionPercents;
     this.rebalanceDiffPercent = rebalanceDiffPercent;
     this.exchangeAmount = exchangeAmount;

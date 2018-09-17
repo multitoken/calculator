@@ -33,10 +33,14 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
   }
 
   public async save(model: Portfolio): Promise<void> {
+    const result: Portfolio = Object.assign(new Portfolio(), model);
     const url: string = this.host + this.PORTFOLIO_API.replace('{email}', '');
+
+    delete result.executors;
+
     await axios.post(
       url,
-      JSON.stringify(model),
+      JSON.stringify(result),
       {headers: {'content-type': 'application/json'}}
     );
   }

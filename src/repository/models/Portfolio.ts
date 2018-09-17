@@ -1,3 +1,4 @@
+import { ExecutorType } from '../../manager/multitoken/executors/TimeLineExecutor';
 import { PortfolioOptions } from './PortfolioOptions';
 
 export class Portfolio {
@@ -11,6 +12,7 @@ export class Portfolio {
   public capWithout: number;
   public capBtc: number;
   public createdAt: string;
+  public executors: ExecutorType[];
 
   constructor(email: string = '',
               options: PortfolioOptions = new PortfolioOptions(),
@@ -29,6 +31,7 @@ export class Portfolio {
     this.capWithout = capWithout;
     this.capBtc = capBtc;
     this.createdAt = createdAt;
+    this.executors = [];
   }
 
 }

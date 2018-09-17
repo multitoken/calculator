@@ -29,6 +29,7 @@ export class RebalanceResultImpl implements RebalanceResult {
     const options: PortfolioOptions = new PortfolioOptions(
       this.portfolioManager.getProportions(),
       this.portfolioManager.getRebalanceWeights(),
+      this.portfolioManager.getRebalancePeriod(),
       this.portfolioManager.getCommission(),
       this.portfolioManager.getRebalanceDiffPercent(),
       this.portfolioManager.getExchangeAmount(),

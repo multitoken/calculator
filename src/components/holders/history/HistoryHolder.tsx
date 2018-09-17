@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ExecutorType } from '../../../manager/multitoken/executors/TimeLineExecutor';
 import { TokenType } from '../../../manager/multitoken/PortfolioManagerImpl';
 import { Portfolio } from '../../../repository/models/Portfolio';
 import { TokenProportion } from '../../../repository/models/TokenProportion';
@@ -23,12 +24,12 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
         $ {model.amount.toLocaleString()}
         </span>
         </div>
-        {this.getRebalanceDiffPercent(model.options.rebalanceDiffPercent)}
-        {this.getExchangeAmount(model.options.exchangeAmount)}
-        {this.getCommissionPercent(model.options.commissionPercents)}
+        {this.getRebalanceDiffPercent(model.executors, model.options.rebalanceDiffPercent)}
+        {this.getRebalancePeriod(model.executors, model.options.rebalancePeriod)}
+        {this.getExchangeAmount(model.executors, model.options.exchangeAmount)}
+        {this.getCommissionPercent(model.executors, model.options.commissionPercents)}
         {this.getTokensProportions(model.options.proportions)}
       </div>
-
     );
   }
 
@@ -58,8 +59,8 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     }
   }
 
-  private getRebalanceDiffPercent(value: number): React.ReactNode {
-    if (value > 0) {
+  private getRebalanceDiffPercent(executors: ExecutorType[], value: number): React.ReactNode {
+    if (this.diffPercentPercentsRebalanceVisibility(executors)) {
       return (
         <div>
           <div className="HistoryHolder__content_param">
@@ -77,8 +78,39 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     return '';
   }
 
-  private getExchangeAmount(value: number): React.ReactNode {
-    if (value > 0) {
+  private getRebalancePeriod(executors: ExecutorType[], value: number): React.ReactNode {
+    if (this.rebalancePeriodVisibility(executors)) {
+      return (
+        <div>
+          <div className="HistoryHolder__content_param">
+        <span className="HistoryHolder__content_param_name">
+        Rebalance period:
+        </span>
+            <span className="HistoryHolder__content_param_value">
+        {this.getRebalanceByPeriod(value)}
+        </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private getRebalanceByPeriod(seconds: number): string {
+    if (seconds === 3600) {
+      return 'HOUR';
+    } else if (seconds === 86400) {
+      return 'DAY';
+    } else if (seconds === 604800) {
+      return 'WEEK';
+    }
+
+    return 'SOME_CUSTOM';
+  }
+
+  private getExchangeAmount(executors: ExecutorType[], value: number): React.ReactNode {
+    if (this.exchangeAmountVisibility(executors)) {
       return (
         <div>
           <div className="HistoryHolder__content_param">
@@ -96,8 +128,8 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     return '';
   }
 
-  private getCommissionPercent(value: number): React.ReactNode {
-    if (value > 0) {
+  private getCommissionPercent(executors: ExecutorType[], value: number): React.ReactNode {
+    if (this.commissionPercentsVisibility(executors)) {
       return (
         <div>
           <div className="HistoryHolder__content_param">
@@ -130,6 +162,22 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
         </div>
       );
     });
+  }
+
+  private rebalancePeriodVisibility(executors: ExecutorType[]): boolean {
+    return executors.indexOf(ExecutorType.PERIOD_REBALANCER) > -1;
+  }
+
+  private exchangeAmountVisibility(executors: ExecutorType[]): boolean {
+    return executors.indexOf(ExecutorType.EXCHANGER) > -1;
+  }
+
+  private commissionPercentsVisibility(executors: ExecutorType[]): boolean {
+    return executors.indexOf(ExecutorType.EXCHANGER) > -1 || executors.indexOf(ExecutorType.ARBITRAGEUR) > -1;
+  }
+
+  private diffPercentPercentsRebalanceVisibility(executors: ExecutorType[]): boolean {
+    return executors.indexOf(ExecutorType.DIFF_PERCENT_REBALANCER) > -1;
   }
 
 }
