@@ -14,7 +14,7 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
   }
 
   public async getByEmail(email: string): Promise<Portfolio[]> {
-    const url: string = this.host + this.PORTFOLIO_API.replace('{email}', email);
+    const url: string = this.host + this.PORTFOLIO_API.replace('{email}', email.toLowerCase());
     const data: any[] = (await axios.get(url)).data;
 
     return data.map((value: any) => Object.assign(new Portfolio(), value));
@@ -22,7 +22,7 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
 
   public async getByEmailAndId(email: string, id: number): Promise<Portfolio> {
     const url: string = this.host + this.PORTFOLIO_API
-        .replace('{email}', email) +
+        .replace('{email}', email.toLowerCase()) +
       `?id=${id}`;
 
     const portfolio = Object.assign(new Portfolio(), (await axios.get(url)).data);
@@ -36,6 +36,7 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
     const result: Portfolio = Object.assign(new Portfolio(), model);
     const url: string = this.host + this.PORTFOLIO_API.replace('{email}', '');
 
+    result.email = result.email.toLowerCase();
     delete result.executors;
 
     await axios.post(
