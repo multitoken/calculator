@@ -18,6 +18,7 @@ interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
+  nothingFound: boolean;
   portfolios: Portfolio[];
   searchEmail: string | undefined;
   showLoadingProgress: boolean;
@@ -36,6 +37,7 @@ export default class HistoryPage extends React.Component<Props, State> {
     this.analyticsManager.trackPage('/history-page');
 
     this.state = {
+      nothingFound: false,
       portfolios: [],
       searchEmail: undefined,
       showLoadingProgress: false,
@@ -68,14 +70,24 @@ export default class HistoryPage extends React.Component<Props, State> {
           />
 
           <div style={{height: '10px'}}/>
-          <HistoryList
-            data={this.state.portfolios}
-            bordered={true}
-            onChangePortfolio={(email: string, id: number) => this.onPortfolioClick(email, id)}
-          />
+          {this.prepareSearchResult()}
         </PageContent>
       </Layout>
     );
+  }
+
+  private prepareSearchResult(): React.ReactNode {
+    if (this.state.nothingFound) {
+      return <div className="HistoryPage__content_nothing_found">Nothing found</div>;
+    } else {
+      return (
+        <HistoryList
+          data={this.state.portfolios}
+          bordered={true}
+          onChangePortfolio={(email: string, id: number) => this.onPortfolioClick(email, id)}
+        />
+      );
+    }
   }
 
   private onPortfolioClick(email: string, id: number): void {
@@ -84,10 +96,17 @@ export default class HistoryPage extends React.Component<Props, State> {
   }
 
   private onSearchClick(email: string): void {
+    this.setState({
+      nothingFound: false,
+      portfolios: [],
+      showLoadingProgress: true,
+    });
+
     this.analyticsManager.trackEvent('button', 'click', 'search-history');
     this.portfolioManager.getPortfolios(email)
       .then((result) => {
         this.setState({
+          nothingFound: result.length === 0,
           portfolios: result,
           showLoadingProgress: false,
         });
