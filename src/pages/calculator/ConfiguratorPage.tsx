@@ -1,7 +1,8 @@
 import * as Sentry from '@sentry/browser';
-import { Button, InputNumber, Layout, Select, Slider } from 'antd';
+import { Button, Layout, Select, Slider } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as React from 'react';
+import NumberFormat from 'react-number-format';
 import { RouteComponentProps } from 'react-router';
 import { ChartType } from '../../components/charts/AbstractChart';
 import { HistoryChart } from '../../components/charts/HistoryChart';
@@ -120,15 +121,13 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
         <div className="ConfiguratorPage__content">
           <PageContent className="ConfiguratorPage__content-left">
             <div className="ConfiguratorPage__options-title">Amount of money:&nbsp;</div>
-            <InputNumber
+            <NumberFormat
               value={this.state.amount}
-              step={Math.pow(10, this.state.amount.toString().length - 1)}
-              formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
-              onChange={value => this.onAmountChange(value)}
-              style={{width: '100%'}}
+              thousandSeparator={true}
+              prefix={'$ '}
+              allowNegative={false}
+              onValueChange={value => this.onAmountChange(value.floatValue)}
             />
-
             <div style={{display: this.rebalancePeriodVisibility() ? 'block' : 'none'}}>
               <div className="ConfiguratorPage__options-title">Rebalance every:&nbsp;</div>
               <Select
@@ -141,23 +140,19 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
             <div style={{display: this.exchangeAmountVisibility() ? 'block' : 'none'}}>
               <div className="ConfiguratorPage__options-title">Exchange Amount / day:&nbsp;</div>
-              <InputNumber
+              <NumberFormat
                 value={this.state.exchangeAmount}
-                step={Math.pow(10, this.state.exchangeAmount.toString().length - 1)}
-                formatter={value => `$ ${value || '0'}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => parseInt((value || '0').replace(/\$\s?|(,*)/g, ''), 10)}
-                onChange={value => {
-                  const valueResult: number = Math.max(0, parseInt((value || '0').toString(), 10) || 0);
-                  this.setState({
-                    exchangeAmount: valueResult
-                  });
+                thousandSeparator={true}
+                prefix={'$ '}
+                allowNegative={false}
+                onValueChange={(value) => {
+                  this.setState({exchangeAmount: Math.min(100000000, value.floatValue)});
                   this.analyticsManager.trackEvent(
                     'input',
                     'exchange-amount',
-                    valueResult.toLocaleString()
+                    value.toLocaleString()
                   );
                 }}
-                style={{width: '100%'}}
               />
             </div>
 
@@ -165,34 +160,25 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
               <div className="ConfiguratorPage__options-title">
                 Commission percents:&nbsp;
               </div>
-              <InputNumber
+              <NumberFormat
                 value={this.state.commissionPercents}
-                step={0.01}
-                formatter={value => `${value || '0'}%`}
-                parser={value => parseFloat((value || '0').replace('%', ''))}
-                max={99.99}
-                min={0.0}
-                onChange={value => this.onCommissionChange(value)}
-                style={{
-                  width: '100%',
-                }}
+                thousandSeparator={true}
+                suffix={'%'}
+                allowNegative={false}
+                onValueChange={value => this.onCommissionChange(value.floatValue)}
               />
+
             </div>
             <div style={{display: this.diffPercentPercentsRebalanceVisibility() ? 'block' : 'none'}}>
               <div className="ConfiguratorPage__options-title">
                 Diff percent rebalance:&nbsp;
               </div>
-              <InputNumber
+              <NumberFormat
                 value={this.state.diffPercentRebalance}
-                step={1.00}
-                formatter={value => `${value || '0'}%`}
-                parser={value => parseFloat((value || '0').replace('%', ''))}
-                max={100}
-                min={0.1}
-                onChange={value => this.onRebalanceDiffPercentChange((value || 0).toString())}
-                style={{
-                  width: '100%',
-                }}
+                thousandSeparator={true}
+                suffix={'%'}
+                allowNegative={false}
+                onValueChange={(value) => this.onRebalanceDiffPercentChange(value.floatValue)}
               />
             </div>
             <div>
@@ -376,10 +362,11 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     return RebalancePeriodType.SOME_CUSTOM;
   }
 
-  private onRebalanceDiffPercentChange(value: string): void {
-    const valueNumber = Math.max(0.01, Math.min(100, parseFloat(value)));
+  private onRebalanceDiffPercentChange(value: number): void {
+    let valueNumber = Math.max(0.01, Math.min(100, value)) || 0;
+    valueNumber = isNaN(valueNumber) ? 0.01 : valueNumber;
 
-    if (valueNumber >= 0) {
+    if (value > 0) {
       this.setState({diffPercentRebalance: valueNumber});
       this.portfolioManager.setRebalanceDiffPercent(valueNumber);
       this.analyticsManager.trackEvent('input', 'change-rebalance-diff-percent', valueNumber.toString());
@@ -499,19 +486,20 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
     });
   }
 
-  private onAmountChange(value: number | string | undefined) {
-    const valueNumber = Number(value);
+  private onAmountChange(value: number) {
+    value = isNaN(value) ? 0 : value;
 
-    if (valueNumber > 0) {
-      this.setState({amount: valueNumber});
-      this.analyticsManager.trackEvent('input', 'change-amount', valueNumber.toString());
+    if (value > 0) {
+      this.setState({amount: Math.min(100000000, value)});
+      this.analyticsManager.trackEvent('input', 'change-amount', value.toString());
     }
   }
 
-  private onCommissionChange(value: number | string | undefined) {
-    const valueNumber = Math.max(0.0, Math.min(99.99, Number(value)));
+  private onCommissionChange(value: number) {
+    let valueNumber = Math.max(0.0, Math.min(99.99, Number(value)));
+    valueNumber = isNaN(valueNumber) ? 0.0 : valueNumber;
 
-    if (valueNumber >= 0) {
+    if (valueNumber > 0) {
       this.setState({commissionPercents: valueNumber});
       this.analyticsManager.trackEvent('input', 'change-commission', valueNumber.toString());
     }
