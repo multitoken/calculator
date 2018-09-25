@@ -25,10 +25,12 @@ export class PortfolioRepositoryImpl implements PortfolioRepository {
         .replace('{email}', email.toLowerCase()) +
       `?id=${id}`;
 
-    const portfolio = Object.assign(new Portfolio(), (await axios.get(url)).data);
+    const result: any[] = (await axios.get(url)).data;
+
+    const portfolio = Object.assign(new Portfolio(), result[0]);
 
     portfolio.options = PortfolioOptions.fromJson(JSON.stringify(portfolio.options));
-    
+
     return portfolio;
   }
 
