@@ -146,7 +146,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                 prefix={'$ '}
                 allowNegative={false}
                 onValueChange={(value) => {
-                  this.setState({exchangeAmount: Math.min(100000000, value.floatValue)});
+                  this.setState({exchangeAmount: Math.min(this.state.amount, value.floatValue)});
                   this.analyticsManager.trackEvent(
                     'input',
                     'exchange-amount',
@@ -487,10 +487,13 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   }
 
   private onAmountChange(value: number) {
-    value = isNaN(value) ? 0 : value;
+    value = Math.min(100000000, isNaN(value) ? 0 : value);
 
     if (value > 0) {
-      this.setState({amount: Math.min(100000000, value)});
+      this.setState({
+        amount: value,
+        exchangeAmount: Math.min(value, this.state.exchangeAmount)
+      });
       this.analyticsManager.trackEvent('input', 'change-amount', value.toString());
     }
   }
