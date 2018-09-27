@@ -56,21 +56,17 @@ export class ExchangerPercentsExecutorImpl extends AbstractExecutor implements E
     if (this.endIndexDate === 0 || timeLineIndex > this.endIndexDate) {
       this.endIndexDate = timeLineIndex + Math.min((86400 / this.timeLineStep), this.endDateIndex);
 
-      if (this.balanceOfDayExchange !== -1 && this.balanceOfDayExchange - this.exchangeAmount < 0) {
-        throw new Error('not full balance used: ' + this.balanceOfDayExchange);
-      }
-
       this.exchangeValues.clear();
       this.exchangeAmount = Math.trunc(this.calculateCap(historyPriceInTime) * 0.10);
-
       this.exchangeValues = this.prepareExchanges(this.exchangeAmount, timeLineIndex, this.endIndexDate);
-
       this.balanceOfDayExchange = 0;
     }
 
-    if (!this.exchangeValues.has(timeLineIndex)) {
+    if (this.exchangeValues.get(timeLineIndex) === undefined || this.exchangeValues.get(timeLineIndex) === 0) {
       return undefined;
     }
+
+    let indexIterations: number = 0;
 
     while (true) {
       const firstToken: string = this.availableTokens[Math.trunc(this.random(0, this.maxTokens))];
@@ -81,16 +77,23 @@ export class ExchangerPercentsExecutorImpl extends AbstractExecutor implements E
           (this.exchangeValues.get(timeLineIndex) || 0) / (historyPriceInTime.get(firstToken) || 1);
 
         if ((this.multitoken.getAmounts().get(firstToken) || 0) >= amount) {
-          this.balanceOfDayExchange += (this.exchangeValues.get(timeLineIndex) || 0);
           const result: [number, number] = this.multitoken.preCalculateExchange(firstToken, secondToken, amount);
           const exchanged: number = result[0];
           const exchange: Exchange =
             new Exchange(firstToken, secondToken, amount, exchanged, result[1], this.balanceOfDayExchange);
 
-          this.multitoken.exchange(firstToken, secondToken, amount, exchanged);
+          if (exchanged > 0 && amount > 0) {
+            this.multitoken.exchange(firstToken, secondToken, amount, exchanged);
+            this.balanceOfDayExchange += (this.exchangeValues.get(timeLineIndex) || 0);
 
-          return exchange;
+            return exchange;
+          }
         }
+
+        if (indexIterations === 20) {
+          throw new Error('invalid exchange operation');
+        }
+        indexIterations++;
       }
     }
   }
@@ -113,14 +116,9 @@ export class ExchangerPercentsExecutorImpl extends AbstractExecutor implements E
     const result: Map<number, number> = new Map();
     const minExchange: number = exchangeAmount / (endIndex - startIndex);
 
-    while (balance > 0) {
-      const timeLineValue = Math.round(this.random(startIndex, endIndex));
-
-      if (!result.has(timeLineValue)) {
-        const priceValue = this.random(minExchange, minExchange * 3);
-        result.set(timeLineValue, priceValue);
-        balance -= Math.min(priceValue, balance);
-      }
+    for (let i = startIndex; i < endIndex + 1; i++) {
+      result.set(i, Math.min(minExchange, balance));
+      balance -= Math.min(minExchange, balance);
     }
 
     return result;
