@@ -54,6 +54,7 @@ export enum RebalancePeriodType {
   HOUR = 'HOUR',
   DAY = 'DAY',
   WEEK = 'WEEK',
+  MONTH = 'MONTH',
   SOME_CUSTOM = 'SOME_CUSTOM',
 }
 
@@ -341,10 +342,15 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
 
     if (period === RebalancePeriodType.HOUR) {
       this.portfolioManager.setRebalancePeriod(3600);
+
     } else if (period === RebalancePeriodType.DAY) {
       this.portfolioManager.setRebalancePeriod(86400);
+
     } else if (period === RebalancePeriodType.WEEK) {
       this.portfolioManager.setRebalancePeriod(604800);
+
+    } else if (period === RebalancePeriodType.MONTH) {
+      this.portfolioManager.setRebalancePeriod(2592000);
     }
 
     this.setState({rebalancePeriod: period});
@@ -353,10 +359,15 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   private getRebalanceTypeByPeriod(seconds: number): RebalancePeriodType {
     if (seconds === 3600) {
       return RebalancePeriodType.HOUR;
+
     } else if (seconds === 86400) {
       return RebalancePeriodType.DAY;
+
     } else if (seconds === 604800) {
       return RebalancePeriodType.WEEK;
+
+    } else if (seconds === 2592000) {
+      return RebalancePeriodType.MONTH;
     }
 
     return RebalancePeriodType.SOME_CUSTOM;
@@ -374,7 +385,12 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
   }
 
   private preparePeriodValues(): React.ReactNode {
-    const periods: string[] = [RebalancePeriodType.HOUR, RebalancePeriodType.DAY, RebalancePeriodType.WEEK];
+    const periods: string[] = [
+      RebalancePeriodType.HOUR,
+      RebalancePeriodType.DAY,
+      RebalancePeriodType.WEEK,
+      RebalancePeriodType.MONTH
+    ];
 
     return periods.map(name => <Option key={name}>{name}</Option>);
   }

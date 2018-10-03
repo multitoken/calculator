@@ -129,10 +129,15 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
   private getRebalanceByPeriod(seconds: number): string {
     if (seconds === 3600) {
       return 'HOUR';
+
     } else if (seconds === 86400) {
       return 'DAY';
+
     } else if (seconds === 604800) {
       return 'WEEK';
+
+    } else if (seconds === 2592000) {
+      return 'MONTH';
     }
 
     return 'SOME_CUSTOM';
