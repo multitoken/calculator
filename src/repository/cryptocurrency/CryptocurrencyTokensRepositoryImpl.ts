@@ -15,6 +15,11 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     ['Wanchain', 'WAN'], ['Stellar', 'XLM'], ['NEO', 'NEO'], ['Litecoin', 'lTC'], ['Cardano', 'ADA']
   ]);
 
+  private readonly EXCLUDE_TOKENS: string[] = [
+    'Hshare', 'VeChain', 'BTC Diamond', 'Populous', 'Stellar', 'Waves', 'Icon', 'IOST', 'Steem',
+    'Nano', 'Aeternity', 'Zilliqa', 'Ontology', 'NEM', 'Wanchain', 'Bytecoin'
+  ];
+
   private readonly USD_COIN_VALUES: Map<string, string> = new Map([
     ['USDT', 'usdusd'], ['Bitcoin', 'btcusd'], ['Eth', 'ethusd'], ['EOS', 'eosusd'], ['Tron', 'trxusd'],
     ['VeChain', 'venusd'], ['Binance', 'bnbusd'], ['OmiseGO', 'omgusd'], ['Icon', 'icxusd'], ['Zilliqa', 'zilusd'],
@@ -38,6 +43,8 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     this.host = host;
     this.interpolation = interpolation;
     this.cache = new Map();
+
+    this.EXCLUDE_TOKENS.forEach(name => this.AVAILABLE_TOKENS.delete(name));
   }
 
   public async getAvailableCurrencies(): Promise<Map<string, string>> {
