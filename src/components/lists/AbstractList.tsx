@@ -8,6 +8,7 @@ export interface AbstractProperties<M> {
   bordered?: boolean;
   maxHeight?: string;
   split?: boolean;
+  disabled?: boolean;
 }
 
 export default abstract class AbstractList<P extends AbstractProperties<M>, M, S> extends React.Component<P, S> {
@@ -22,7 +23,7 @@ export default abstract class AbstractList<P extends AbstractProperties<M>, M, S
         }
         style={{maxHeight: this.props.maxHeight}}
       >
-        <div>
+        <div className={this.props.disabled ? 'AbstractList__content-disabled' : ''}>
           <List
             split={this.props.split === true}
             grid={this.getGridType()}

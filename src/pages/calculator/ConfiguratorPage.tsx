@@ -254,6 +254,7 @@ export default class ConfiguratorPage extends React.Component<Props, State> {
                 </div>
                 <div style={{margin: '0 20px 0px 45px'}}>
                   <TokenWeightList
+                    disabled={this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE}
                     maxHeight="200px"
                     onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
                     onEditClick={(model, position) => this.onChangeTokenExchangeWeightClick(position, model)}
