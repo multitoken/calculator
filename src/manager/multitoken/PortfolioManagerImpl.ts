@@ -435,7 +435,6 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         break;
 
       case TokenType.FIX_PROPORTIONS:
-        result.push(this.getExecutorByType(ExecutorType.EXCHANGER));
         break;
 
       case TokenType.MANUAL_REBALANCE:
