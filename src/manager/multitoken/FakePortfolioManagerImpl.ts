@@ -7,14 +7,14 @@ import PortfolioManagerImpl, { TokenType } from './PortfolioManagerImpl';
 
 export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
 
-  private data: number[] = [];
+  private data: any = [];
 
   public getExecutorsByTokenType(): string[] {
     return [ExecutorType.CAP_CLAMP, ExecutorType.ARBITRAGEUR];
   }
 
   public getCalculationTimestamp(): [number, number] {
-    return [this.data[7], this.data[8]];
+    return [this.data.start, this.data.end];
   }
 
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
@@ -27,15 +27,17 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
 
     const name: string = tokenSymbols
       .sort()
-      .join('/');
+      .join(',');
 
-    this.data = FakeRebalanceData.DATA.get(name) || [];
+    this.data = FakeRebalanceData.DATA.get(name) || {};
 
-    if (this.data.length === 0) {
+    if (!this.data.hasOwnProperty('originCap')) {
       throw new Error('portfolio not found! ' + name);
     }
 
-    this.btcHistoryPrice = [new TokenPriceHistory(0, this.data[6])];
+    this.setRebalanceDiffPercent(this.data.diffPercents);
+
+    this.btcHistoryPrice = [new TokenPriceHistory(0, this.data.btcStart.value)];
 
     return this.selectedTokensHistory;
   }
@@ -53,6 +55,10 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
     this.setCommission(0.5);
     this.setExchangeAmount(0);
     this.setTokenType(TokenType.AUTO_REBALANCE);
+  }
+
+  public getStepSec(): number {
+    return this.data.stepSec;
   }
 
 }

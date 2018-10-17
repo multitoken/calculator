@@ -5,17 +5,17 @@ import { RebalanceResultImpl } from './RebalanceResultImpl';
 
 export class FakeRebalanceResultImpl extends RebalanceResultImpl {
 
-  private data: number[] = [];
+  private data: any = {};
 
   constructor(portfolioManager: PortfolioManager) {
     super(portfolioManager);
     const name: string = Array.from(portfolioManager.getPriceHistory().keys())
       .sort()
-      .join('/');
+      .join(',');
 
-    this.data = FakeRebalanceData.DATA.get(name) || [];
+    this.data = FakeRebalanceData.DATA.get(name) || {};
 
-    if (this.data.length === 0) {
+    if (!this.data.hasOwnProperty('originCap')) {
       throw new Error('portfolio not found! ' + name);
     }
 
@@ -23,8 +23,8 @@ export class FakeRebalanceResultImpl extends RebalanceResultImpl {
   }
 
   public calculateRebalanceHistory(rebalanceHistory: RebalanceHistory): void {
-    this.arbiterCap = (this.data[0] / 10000) * this.amount;
-    this.cap = (this.data[1] / 10000) * this.amount;
+    this.arbiterCap = (this.data.rebalanceCap / 10000) * this.amount;
+    this.cap = (this.data.originCap / 10000) * this.amount;
   }
 
   public getRebalanceHistory(): RebalanceHistory {
@@ -32,16 +32,16 @@ export class FakeRebalanceResultImpl extends RebalanceResultImpl {
   }
 
   protected calculatePortfolioData(): void {
-    if (!this.data || this.data.length === 0) {
+    if (!this.data || !this.data.hasOwnProperty('originCap')) {
       return;
     }
 
     this.dateMinIndex = 0;
-    this.dateMaxIndex = this.data[5];
+    this.dateMaxIndex = this.data.lenDates;
     this.amount = this.portfolioManager.getAmount();
     this.stepSec = this.portfolioManager.getStepSec();
 
-    const btcusdtStartValue: number = this.data[6];
+    const btcusdtStartValue: number = this.data.btcStart.value;
 
     const btcusdtEndValue: number = 6224.2;
 
@@ -49,11 +49,11 @@ export class FakeRebalanceResultImpl extends RebalanceResultImpl {
 
     this.btcUsdt = btcCount * btcusdtEndValue;
 
-    this.arbitrageLen = this.data[2];
+    this.arbitrageLen = this.data.arbitrageCount;
     this.cap = this.portfolioManager.getAmount();
     this.arbiterCap = this.portfolioManager.getAmount();
-    this.arbiterProfit = this.data[3];
-    this.arbiterTotalTxFee = this.data[4];
+    this.arbiterProfit = this.data.arbitrageProfit;
+    this.arbiterTotalTxFee = this.data.txFee;
     this.rebalanceHistory = new RebalanceHistory([], [], []);
   }
 

@@ -25,21 +25,15 @@ interface State {
 export default class SimpleSetupTokenPage extends React.Component<Props, State> {
 
   private static readonly PORTFOLIOS_COINS: string[][] = [
-    ['Eth', 'Eth Classic', 'Verge', 'Waltonchain'],
-    ['BAT', 'Cardano', 'Status'],
-    ['BAT', 'Populous', 'Verge', 'Waltonchain'],
-    ['Bitcoin', 'Eth Classic', 'Status'],
-    ['BitShares', 'Populous', 'Status'],
-    ['Populous', 'Verge', 'Waltonchain'],
-    ['0x', 'Dash', 'Waltonchain'],
-    ['Dash', 'Litecoin', 'Status'],
-    ['Dash', 'Eth Classic', 'OmiseGO', 'Waltonchain'],
-    ['EOS', 'Verge', 'Zcash'],
-    ['BitShares', 'Cardano', 'Eth Classic', 'Populous'],
-    ['BAT', 'Eth', 'Eth Classic', 'NEO'],
-    ['Cardano', 'Monero', 'OmiseGO', 'Waltonchain'],
-    ['NEO', 'Status', 'Zcash'],
-    ['BAT', 'Eth Classic', 'NEO', 'OmiseGO']
+    ['Binance', 'Bitcoin', 'Cardano', 'Dash', 'EOS', 'Eth', 'Litecoin', 'Monero', 'NEO', 'Tron'],
+    ['Bitcoin', 'Cardano', 'EOS', 'Eth', 'Litecoin'],
+    ['Bitcoin', 'Eth'],
+    ['Binance', 'Cardano', 'EOS', 'Tron'],
+    ['Dash', 'Eth Classic', 'Litecoin', 'Monero', 'Qtum', 'Zcash'],
+    ['Binance', 'Cardano', 'EOS', 'NEO', 'Tron'],
+    ['0x', 'BAT', 'Status', 'Verge'],
+    ['BitShares', 'Lisk', 'OmiseGO', 'Qtum', 'Stratis', 'Waltonchain'],
+    ['Bitcoin', 'Dash', 'Eth', 'Litecoin', 'Monero'],
   ];
 
   @lazyInject(Services.PORTFOLIOS_EXECUTOR)
@@ -166,8 +160,8 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
     for (const items of coinsList) {
       portfolio = PortfolioFactory.createFakePortfolio();
       await portfolio.setupTokens(items);
-      portfolio.setTokenType(TokenType.AUTO_REBALANCE);
-      portfolio.setCommission(0.5);
+      portfolio.setTokenType(TokenType.DIFF_PERCENT_REBALANCE);
+      portfolio.setCommission(0);
       portfolio.setExchangeAmount(0);
       portfolio.changeProportions(items.map(value => new TokenProportion(value, 1, 1, 1)));
 

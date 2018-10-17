@@ -1,6 +1,7 @@
 import { Button, Col, Row } from 'antd';
 import * as React from 'react';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
 import PageContent from '../page-content/PageContent';
 import './CompareCalculationResult.less';
@@ -18,6 +19,12 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
     return (
       <div>
         <PageContent className="CompareCalculationResult__content">
+          <Row>
+            <Col span={8}>
+              Rebalance type:
+            </Col>
+            {this.getTitleOfType()}
+          </Row>
           <Row>
             <Col span={8}>
               Coins:
@@ -38,9 +45,9 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
           </Row>
           <Row>
             <Col span={8}>
-              Commission Percent:
+              Percent diff of price:
             </Col>
-            {this.getCommissionPercents()}
+            {this.getDiffPercents()}
           </Row>
           <Row>
             <Col span={8}>
@@ -130,6 +137,43 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
     );
   }
 
+  private getTitleOfType(): React.ReactNode[] {
+    return this.props.portfolioManager.map((manager, index) => {
+      return (
+        <Col className="ant-col-5" key={index}>
+          <span className="CompareCalculationResult__row-item">
+            {this.getTokenReadableType(manager.getTokenType())}
+          </span>
+        </Col>
+      );
+    });
+  }
+
+  private getTokenReadableType(tokenType: TokenType): string {
+    switch (tokenType) {
+      case TokenType.AUTO_REBALANCE:
+        return 'Auto rebalance';
+
+      case TokenType.MANUAL_REBALANCE:
+        return 'Manual rebalance';
+
+      case TokenType.FIX_PROPORTIONS:
+        return 'Fix proportions';
+
+      case TokenType.PERIOD_REBALANCE:
+        return 'Rebalance by period';
+
+      case TokenType.DIFF_PERCENT_REBALANCE:
+        return 'Price rebalancing';
+
+      case TokenType.ADAPTIVE_PERCENT_EXCHANGER:
+        return '10% exchanges of balance';
+
+      default:
+        return 'unknown';
+    }
+  }
+
   private getCoins(): React.ReactNode[] {
     return this.props.portfolioManager.map((manager, index) => {
       return (
@@ -166,11 +210,11 @@ export class CompareCalculationResult extends React.Component<Properties, any> {
     });
   }
 
-  private getCommissionPercents(): React.ReactNode[] {
+  private getDiffPercents(): React.ReactNode[] {
     return this.props.portfolioManager.map((manager, index) => {
       return (
         <Col className="ant-col-5" key={index}>
-          {manager.getCommission()}%
+          {manager.getRebalanceDiffPercent()}%
         </Col>
       );
     });
