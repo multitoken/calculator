@@ -5,32 +5,22 @@ import { CryptocurrencyRepository } from './CryptocurrencyRepository';
 export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyRepository {
 
   private readonly AVAILABLE_TOKENS: Map<string, string> = new Map([
-    ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'], ['VeChain', 'VEN'],
-    ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['Icon', 'ICX'], ['Zilliqa', 'ZIL'], ['Aeternity', 'AE'], ['0x', 'ZRX'],
-    ['Populous', 'PPT'], ['Hshare', 'HSR'], ['IOST', 'IOST'], ['Monero', 'XMR'], ['Dash', 'DASH'],
-    ['Eth Classic', 'ETC'], ['NEM', 'XEM'], ['Zcash', 'ZEC'], ['Qtum', 'QTUM'], ['Bytecoin', 'BCN'], ['Lisk', 'LSK'],
-    ['BitShares', 'BTS'], ['Ontology', 'ONT'], ['BTC Gold', 'BTG'], ['Steem', 'STEEM'],
-    ['Verge', 'XVG'], ['Nano', 'NANO'], ['BAT', 'BAT'], ['BTC Diamond', 'BCD'],
-    ['Stratis', 'STRAT'], ['Waves', 'WAVES'], ['Waltonchain', 'WTC'], ['Status', 'SNT'],
-    ['Wanchain', 'WAN'], ['Stellar', 'XLM'], ['NEO', 'NEO'], ['Litecoin', 'lTC'], ['Cardano', 'ADA']
+    ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'],
+    ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['0x', 'ZRX'], ['Monero', 'XMR'], ['Dash', 'DASH'],
+    ['Eth Classic', 'ETC'], ['Zcash', 'ZEC'], ['Qtum', 'QTUM'], ['Lisk', 'LSK'], ['BitShares', 'BTS'],
+    ['BTC Gold', 'BTG'], ['Verge', 'XVG'], ['BAT', 'BAT'], ['Stratis', 'STRAT'], ['Waltonchain', 'WTC'],
+    ['Status', 'SNT'], ['NEO', 'NEO'], ['Litecoin', 'LTC'], ['Cardano', 'ADA'], ['Ripple', 'XRP'],
+    ['BTC Cash', 'BCC'], ['IOTA', 'IOTA'], ['Enigma', 'ENG']
   ]);
-
-  private readonly EXCLUDE_TOKENS: string[] = [
-    'Hshare', 'VeChain', 'BTC Diamond', 'Populous', 'Stellar', 'Waves', 'Icon', 'IOST', 'Steem',
-    'Nano', 'Aeternity', 'Zilliqa', 'Ontology', 'NEM', 'Wanchain', 'Bytecoin'
-  ];
 
   private readonly USD_COIN_VALUES: Map<string, string> = new Map([
     ['USDT', 'usdusd'], ['Bitcoin', 'btcusd'], ['Eth', 'ethusd'], ['EOS', 'eosusd'], ['Tron', 'trxusd'],
-    ['VeChain', 'venusd'], ['Binance', 'bnbusd'], ['OmiseGO', 'omgusd'], ['Icon', 'icxusd'], ['Zilliqa', 'zilusd'],
-    ['Aeternity', 'aeusd'], ['0x', 'zrxusd'], ['Populous', 'pptusd'], ['Hshare', 'hsrusd'],
-    ['IOST', 'iostusd'], ['Monero', 'xmrusd'], ['Dash', 'dashusd'], ['Eth Classic', 'etcusd'], ['NEM', 'xemusd'],
-    ['Zcash', 'zecusd'], ['Qtum', 'qtumusd'], ['Bytecoin', 'bcnusd'], ['Lisk', 'lskusd'], ['BitShares', 'btsusd'],
-    ['Ontology', 'ontusd'], ['BTC Gold', 'btgusd'], ['Steem', 'steemusd'], ['Verge', 'xvgusd'],
-    ['Nano', 'nanousd'], ['BAT', 'batusd'], ['BTC Diamond', 'bcdusd'],
-    ['Stratis', 'stratusd'], ['Waves', 'wavesusd'], ['Waltonchain', 'wtcusd'],
-    ['Status', 'sntusd'], ['Wanchain', 'wanusd'], ['Stellar', 'xlmusd'], ['NEO', 'neousd'], ['Litecoin', 'ltcusd'],
-    ['Cardano', 'adausd']
+    ['Binance', 'bnbusd'], ['OmiseGO', 'omgusd'], ['0x', 'zrxusd'], ['Monero', 'xmrusd'],
+    ['Dash', 'dashusd'], ['Eth Classic', 'etcusd'], ['Zcash', 'zecusd'], ['Qtum', 'qtumusd'],
+    ['Lisk', 'lskusd'], ['BitShares', 'btsusd'], ['BTC Gold', 'btgusd'], ['Verge', 'xvgusd'],
+    ['BAT', 'batusd'], ['Stratis', 'stratusd'], ['Waltonchain', 'wtcusd'], ['Status', 'sntusd'],
+    ['NEO', 'neousd'], ['Litecoin', 'ltcusd'], ['Cardano', 'adausd'], ['Ripple', 'xrpusd'],
+    ['BTC Cash', 'bccusd'], ['IOTA', 'iotausd'], ['Enigma', 'engusd']
   ]);
 
   private readonly HISTORY_BY_HOUR_API_PATH: string = './data/{file}.json';
@@ -43,8 +33,6 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
     this.host = host;
     this.interpolation = interpolation;
     this.cache = new Map();
-
-    this.EXCLUDE_TOKENS.forEach(name => this.AVAILABLE_TOKENS.delete(name));
   }
 
   public async getAvailableCurrencies(): Promise<Map<string, string>> {

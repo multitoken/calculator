@@ -1,6 +1,7 @@
 import ada from '../res/icons/tokens/ada.svg';
 import ae from '../res/icons/tokens/ae.svg';
 import bat from '../res/icons/tokens/bat.svg';
+import bcc from '../res/icons/tokens/bcc.svg';
 import bcd from '../res/icons/tokens/bcd.svg';
 import bcn from '../res/icons/tokens/bcn.svg';
 import bnb from '../res/icons/tokens/bnb.svg';
@@ -8,6 +9,7 @@ import btc from '../res/icons/tokens/btc.svg';
 import btg from '../res/icons/tokens/btg.svg';
 import bts from '../res/icons/tokens/bts.svg';
 import dash from '../res/icons/tokens/dash.svg';
+import eng from '../res/icons/tokens/eng.svg';
 import eos from '../res/icons/tokens/eos.svg';
 import etc from '../res/icons/tokens/etc.svg';
 import eth from '../res/icons/tokens/eth.svg';
@@ -15,6 +17,7 @@ import gnt from '../res/icons/tokens/gnt.svg';
 import hsr from '../res/icons/tokens/hsr.svg';
 import icx from '../res/icons/tokens/icx.svg';
 import iost from '../res/icons/tokens/iost.svg';
+import iota from '../res/icons/tokens/iota.svg';
 import lsk from '../res/icons/tokens/lsk.svg';
 import ltc from '../res/icons/tokens/ltc.svg';
 import nano from '../res/icons/tokens/nano.svg';
@@ -38,6 +41,7 @@ import wtc from '../res/icons/tokens/wtc.svg';
 import xem from '../res/icons/tokens/xem.svg';
 import xlm from '../res/icons/tokens/xlm.svg';
 import xmr from '../res/icons/tokens/xmr.svg';
+import xrp from '../res/icons/tokens/xrp.svg';
 import xvg from '../res/icons/tokens/xvg.svg';
 import zec from '../res/icons/tokens/zec.svg';
 import zil from '../res/icons/tokens/zil.svg';
@@ -61,7 +65,8 @@ export class TokensHelper {
     ['BitShares', bts], ['Ontology', ont], ['BTC Gold', btg], ['Siacoin', sc], ['Steem', steem],
     ['Verge', xvg], ['Nano', nano], ['BAT', bat], ['Augur', rep], ['BTC Diamond', bcd], ['Golem', gnt],
     ['Pundi X', npxs], ['Stratis', strat], ['Waves', waves], ['Waltonchain', wtc], ['Status', snt],
-    ['Wanchain', wan], ['Stellar', xlm], ['NEO', neo], ['Litecoin', ltc], ['Cardano', ada]
+    ['Wanchain', wan], ['Stellar', xlm], ['NEO', neo], ['Litecoin', ltc], ['Cardano', ada],
+    ['Ripple', xrp], ['BTC Cash', bcc], ['IOTA', iota], ['Enigma', eng]
   ]);
 
   public static getIcon(name: string): any | undefined {
