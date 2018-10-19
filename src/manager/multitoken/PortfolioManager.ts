@@ -1,12 +1,14 @@
 import { Portfolio } from '../../repository/models/Portfolio';
-import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { TokenType } from './PortfolioManagerImpl';
 import { ProgressListener } from './ProgressListener';
+import { RebalanceResult } from './RebalanceResult';
 
 export interface PortfolioManager {
+
+  getRebalanceResult(): RebalanceResult;
 
   getPortfolios(email: string): Promise<Portfolio[]>;
 
@@ -56,7 +58,7 @@ export interface PortfolioManager {
 
   subscribeToProgress(listener?: ProgressListener): void;
 
-  calculate(): Promise<RebalanceHistory>;
+  calculate(): Promise<RebalanceResult>;
 
   getStepSec(): number;
 

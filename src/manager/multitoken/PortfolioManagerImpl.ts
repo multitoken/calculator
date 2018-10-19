@@ -22,6 +22,8 @@ import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
 import { Multitoken } from './multitoken/Multitoken';
 import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
+import { RebalanceResult } from './RebalanceResult';
+import { RebalanceResultImpl } from './RebalanceResultImpl';
 
 export enum TokenType {
   AUTO_REBALANCE = 'AUTO_REBALANCE',
@@ -38,6 +40,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
 
   protected selectedTokensHistory: Map<string, TokenPriceHistory[]> = new Map();
   protected btcHistoryPrice: TokenPriceHistory[] = [];
+  protected rebalanceResult: RebalanceResult;
 
   private cryptocurrencyRepository: CryptocurrencyRepository;
   private portfolioRepository: PortfolioRepository;
@@ -72,10 +75,15 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.portfolioRepository = portfolioRepository;
     this.multitokens = multitokens;
     this.executors = new Map();
+    this.rebalanceResult = new RebalanceResultImpl(this);
 
     executors.forEach(executor => this.executors.set(executor.getType(), executor));
 
     this.listener = this;
+  }
+
+  public getRebalanceResult(): RebalanceResult {
+    return this.rebalanceResult;
   }
 
   public async getPortfolios(email: string): Promise<Portfolio[]> {
@@ -274,7 +282,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     this.listener = listener || this;
   }
 
-  public async calculate(): Promise<RebalanceHistory> {
+  public async calculate(): Promise<RebalanceResult> {
     const historyInTimeLine: Map<string, number> = new Map();
     let timestamp: number = 0;
     const btcAmount: number = this.amount / this.btcHistoryPrice[this.startCalculationIndex].value;
@@ -362,11 +370,15 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
       console.log('after: ', multitoken.getName(), multitoken.getAmounts())
     );
 
-    return new RebalanceHistory(
+    const rebalanceHistory: RebalanceHistory = new RebalanceHistory(
       (result.get(ExecutorType.CAP_CLAMP) || []) as RebalanceValues[],
       (result.get(ExecutorType.ARBITRAGEUR) || []) as Arbitration[],
       (result.get(ExecutorType.EXCHANGER) || [] ) as Exchange[]
     );
+
+    this.rebalanceResult.calculateRebalanceHistory(rebalanceHistory);
+
+    return this.rebalanceResult;
   }
 
   public onProgress(percents: number): void {

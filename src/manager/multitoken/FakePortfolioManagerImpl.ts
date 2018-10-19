@@ -1,13 +1,25 @@
-import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { CryptocurrencyRepository } from '../../repository/cryptocurrency/CryptocurrencyRepository';
+import { PortfolioRepository } from '../../repository/history/PortfolioRepository';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { FakeRebalanceData } from '../../utils/FakeRebalanceData';
-import { ExecutorType } from './executors/TimeLineExecutor';
+import { ExecutorType, TimeLineExecutor } from './executors/TimeLineExecutor';
+import { FakeRebalanceResultImpl } from './FakeRebalanceResultImpl';
+import { Multitoken } from './multitoken/Multitoken';
 import PortfolioManagerImpl, { TokenType } from './PortfolioManagerImpl';
+import { RebalanceResult } from './RebalanceResult';
 
 export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
 
   private data: any = [];
+
+  constructor(cryptocurrencyRepository: CryptocurrencyRepository,
+              portfolioRepository: PortfolioRepository,
+              multitokens: Multitoken[], executors: TimeLineExecutor[]) {
+    super(cryptocurrencyRepository, portfolioRepository, multitokens, executors);
+
+    this.rebalanceResult = new FakeRebalanceResultImpl(this);
+  }
 
   public getExecutorsByTokenType(): string[] {
     return [ExecutorType.CAP_CLAMP, ExecutorType.ARBITRAGEUR];
@@ -46,8 +58,8 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
     return new Map();
   }
 
-  public async calculate(): Promise<RebalanceHistory> {
-    return new RebalanceHistory([], [], []);
+  public async calculate(): Promise<RebalanceResult> {
+    return this.rebalanceResult;
   }
 
   protected resetDefaultValues(): void {

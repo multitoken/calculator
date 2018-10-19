@@ -6,7 +6,6 @@ import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { lazyInject, Services, } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
-import { FakeRebalanceResultImpl } from '../../manager/multitoken/FakeRebalanceResultImpl';
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioFactory } from '../../manager/multitoken/PortfolioFactory';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
@@ -168,7 +167,7 @@ export default class SimpleSetupTokenPage extends React.Component<Props, State> 
       portfolio.setAmount(this.state.amountBtc * portfolio.getBtcPrice()[0].value);
       await portfolio.calculateInitialAmounts();
 
-      this.portfolioExecutor.addPortfolioManager(portfolio, new FakeRebalanceResultImpl(portfolio));
+      this.portfolioExecutor.addPortfolioManager(portfolio);
     }
   }
 

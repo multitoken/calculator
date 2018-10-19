@@ -10,7 +10,6 @@ import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
-import { RebalanceResultImpl } from '../../manager/multitoken/RebalanceResultImpl';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 
@@ -150,7 +149,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         this.setState({isTokenLoading: false});
       });
     this.portfolioExecutor.removeAllPortfolios();
-    this.portfolioExecutor.addPortfolioManager(this.portfolioManager, new RebalanceResultImpl(this.portfolioManager));
+    this.portfolioExecutor.addPortfolioManager(this.portfolioManager);
   }
 
   private onHistoryClick() {

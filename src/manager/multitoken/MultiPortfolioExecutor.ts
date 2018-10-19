@@ -1,17 +1,16 @@
-import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { PortfolioManager } from './PortfolioManager';
 import { ProgressListener } from './ProgressListener';
 import { RebalanceResult } from './RebalanceResult';
 
 export interface MultiPortfolioExecutor {
 
-  addPortfolioManager(portfolioManager: PortfolioManager, rebalanceResult: RebalanceResult): void;
+  addPortfolioManager(portfolioManager: PortfolioManager): void;
 
   getPortfolios(): Map<PortfolioManager, RebalanceResult>;
 
   removeAllPortfolios(): void;
 
-  executeCalculation(): Promise<RebalanceHistory[]>;
+  executeCalculation(): Promise<RebalanceResult[]>;
 
   subscribeToProgress(listener?: ProgressListener): void;
 

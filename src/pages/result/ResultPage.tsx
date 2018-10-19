@@ -16,7 +16,6 @@ import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioE
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
-import { RebalanceResultImpl } from '../../manager/multitoken/RebalanceResultImpl';
 import { Portfolio } from '../../repository/models/Portfolio';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 
@@ -136,13 +135,15 @@ export default class ResultPage extends React.Component<Props, State> implements
   private async loadByEmailAndId(email: string, id: number): Promise<void> {
     try {
       this.portfolioExecutor.removeAllPortfolios();
-      this.portfolioExecutor.addPortfolioManager(this.portfolioManager, new RebalanceResultImpl(this.portfolioManager));
+      this.portfolioExecutor.addPortfolioManager(this.portfolioManager);
 
       await this.portfolioManager.loadPortfolio(email, id);
 
       this.setState({preparedHistoryData: true});
 
-      const result: RebalanceHistory[] = await this.portfolioExecutor.executeCalculation();
+      const result: RebalanceHistory[] = (await this.portfolioExecutor.executeCalculation())
+        .map(reblanceResult => reblanceResult.getRebalanceHistory());
+
       console.log(result);
       this.setState({showCalculationProgress: false});
 
