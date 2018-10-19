@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { AnalyticsManager } from './AnalyticsManager';
 import { BasicAnalytics } from './BasicAnalytics';
 
@@ -15,6 +16,10 @@ export class AnalyticsManagerImpl implements AnalyticsManager {
 
   public trackEvent(category: string, action: string, label: string): void {
     this.callMethod('trackEvent', category, action, label);
+  }
+
+  public trackException(error: Error): void {
+    Sentry.captureException(error);
   }
 
   private callMethod(method: string, ...args: any[]): void {
