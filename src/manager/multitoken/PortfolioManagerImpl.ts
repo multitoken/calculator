@@ -234,7 +234,7 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.cryptocurrencyRepository.getAvailableCurrencies();
   }
 
-  public async calculateInitialAmounts(): Promise<Map<string, number>> {
+  public calculateInitialAmounts(): Map<string, number> {
     const result: Map<string, number> = new Map();
     let maxProportions: number = 0;
 

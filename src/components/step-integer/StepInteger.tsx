@@ -6,6 +6,7 @@ export interface Properties {
   min?: number;
   max?: number;
   defaultValue?: number;
+  tipFormatter?: null | ((value: number) => React.ReactNode);
 
   onChange?(value: number): void;
 
@@ -43,6 +44,7 @@ export default class StepInteger extends React.Component<Properties, any> {
         disabled={this.props.disabled}
         min={this.props.min}
         max={this.props.max}
+        tipFormatter={this.props.tipFormatter}
         value={this.state.inputValue}
         onChange={this.onChange}
         onAfterChange={this.onAfterChange}

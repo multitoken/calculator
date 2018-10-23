@@ -15,14 +15,14 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Reb
         .get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
 
       const standardTokensCap: Map<string, number> = value.multitokenTokensCap
-        .get(RebalanceHistory.MULTITOKEN_NAME_STANDARD) || new Map();
+        .get(RebalanceHistory.MULTITOKEN_NAME_HODL) || new Map();
 
       rebalanceTokensCap.forEach((value2, key) => {
         dataResult[RebalanceHistory.MULTITOKEN_NAME_REBALANCE + key] = parseFloat(value2.toFixed(0));
       });
 
       standardTokensCap.forEach((value2, key) => {
-        dataResult[RebalanceHistory.MULTITOKEN_NAME_STANDARD + key] = parseFloat(value2.toFixed(0));
+        dataResult[RebalanceHistory.MULTITOKEN_NAME_HODL + key] = parseFloat(value2.toFixed(0));
       });
 
       return dataResult;
@@ -35,14 +35,14 @@ export class TokensCapChart extends AbstractChart<Properties, AbstractState, Reb
       const rebalanceTokensCap: Map<string, number> = this.data[0].multitokenTokensCap
         .get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
       const standardTokensCap: Map<string, number> = this.data[0].multitokenTokensCap
-        .get(RebalanceHistory.MULTITOKEN_NAME_STANDARD) || new Map();
+        .get(RebalanceHistory.MULTITOKEN_NAME_HODL) || new Map();
 
       rebalanceTokensCap.forEach((value2, key) => {
         result.add(RebalanceHistory.MULTITOKEN_NAME_REBALANCE + key);
       });
 
       standardTokensCap.forEach((value2, key) => {
-        result.add(RebalanceHistory.MULTITOKEN_NAME_STANDARD + key);
+        result.add(RebalanceHistory.MULTITOKEN_NAME_HODL + key);
       });
 
       return Array.from(result);

@@ -5,19 +5,18 @@ import { RouteComponentProps } from 'react-router';
 import { TokensNamesList } from '../../components/lists/name/TokensNamesList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
-import { TokenItemEntity } from '../../entities/TokenItemEntity';
+import { CoinItemEntity } from '../../entities/CoinItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
-import { TokensHelper } from '../../utils/TokensHelper';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
 }
 
 interface State {
-  availableTokenNames: TokenItemEntity[];
+  availableTokenNames: CoinItemEntity[];
   selectedTokenNames: string[];
   isTokenLoading: boolean;
 }
@@ -116,8 +115,8 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
-    const entities: TokenItemEntity[] = Array.from(tokens.keys())
-      .map(value => new TokenItemEntity(TokensHelper.getIcon(value), value));
+    const entities: CoinItemEntity[] = Array.from(tokens.keys())
+      .map(value => new CoinItemEntity(value, 1, '', 0, 0, 0));
 
     this.setState({availableTokenNames: entities});
   }
@@ -141,7 +140,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.analyticsManager.trackEvent('button', 'click', 'setup-to-next');
 
     this.portfolioManager.setupTokens(this.state.selectedTokenNames)
-      .then(() => history.push('types'))
+      .then(() => history.push('/'))
       .catch((reason: Error) => {
         Sentry.captureException(reason);
         console.error(reason);

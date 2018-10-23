@@ -27,7 +27,7 @@ export class PortfolioFactory {
     const portfolioRepository: PortfolioRepository = new PortfolioRepositoryImpl(Config.getBackendEndPoint());
 
     const multitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_REBALANCE);
-    const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_STANDARD);
+    const standardMultitoken: Multitoken = new MultitokenImpl(RebalanceHistory.MULTITOKEN_NAME_HODL);
 
     const exchanger: TimeLineExecutor = new ExchangerExecutorImpl(multitoken, 10);
     const adaptiveExchanger: TimeLineExecutor = new ExchangerPercentsExecutorImpl(multitoken, 10);

@@ -1,11 +1,11 @@
 import { ListGridType } from 'antd/lib/list';
 import * as React from 'react';
-import { TokenItemEntity } from '../../../entities/TokenItemEntity';
+import { CoinItemEntity } from '../../../entities/CoinItemEntity';
 import { TokenNameHolder } from '../../holders/name/TokenNameHolder';
 import AbstractList, { AbstractProperties } from '../AbstractList';
 import './TokensNamesList.less';
 
-interface Properties extends AbstractProperties<TokenItemEntity> {
+interface Properties extends AbstractProperties<CoinItemEntity> {
   disabled: boolean;
 
   onCheck(checkedValue: string[]): void;
@@ -18,7 +18,7 @@ interface State {
   checkedSet: Set<string>;
 }
 
-export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, State> {
+export class TokensNamesList extends AbstractList<Properties, CoinItemEntity, State> {
 
   constructor(props: Properties) {
     super(props);
@@ -36,7 +36,7 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
     return 'TokensNamesList';
   }
 
-  protected bindHolder(dataItem: TokenItemEntity, position: number): object {
+  protected bindHolder(dataItem: CoinItemEntity, position: number): object {
     return (
       <TokenNameHolder
         checked={this.state.checkedSet.has(dataItem.name)}
@@ -47,7 +47,7 @@ export class TokensNamesList extends AbstractList<Properties, TokenItemEntity, S
     );
   }
 
-  private onItemClick(model: TokenItemEntity): void {
+  private onItemClick(model: CoinItemEntity): void {
     if (this.state.checkedSet.has(model.name)) {
       this.state.checkedSet.delete(model.name);
     } else {

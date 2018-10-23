@@ -1,21 +1,21 @@
 import { Checkbox } from 'antd';
 import * as React from 'react';
-import { TokenItemEntity } from '../../../entities/TokenItemEntity';
+import { CoinItemEntity } from '../../../entities/CoinItemEntity';
 import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './TokenNameHolder.less';
 
-export interface Properties extends AbstractProperties<TokenItemEntity> {
+export interface Properties extends AbstractProperties<CoinItemEntity> {
   checked: boolean;
 
-  onItemClick(model: TokenItemEntity): void;
+  onItemClick(model: CoinItemEntity): void;
 }
 
-export class TokenNameHolder extends AbstractHolder<Properties, {}, TokenItemEntity> {
+export class TokenNameHolder extends AbstractHolder<Properties, {}, CoinItemEntity> {
 
-  public bindModel(model: TokenItemEntity): object {
+  public bindModel(model: CoinItemEntity): object {
     return (
       <div className="TokenNameHolder__content" onClick={e => this.props.onItemClick(model)}>
-        {this.prepareImage(model.icon)}
+        {this.prepareImage(model.getIcon())}
         <span className={this.props.checked ? 'TokenNameHolder__name__checked' : 'TokenNameHolder__name'}>
           {model.name}
         </span>

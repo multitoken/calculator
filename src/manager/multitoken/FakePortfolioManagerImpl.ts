@@ -54,7 +54,7 @@ export class FakePortfolioManagerImpl extends PortfolioManagerImpl {
     return this.selectedTokensHistory;
   }
 
-  public async calculateInitialAmounts(): Promise<Map<string, number>> {
+  public calculateInitialAmounts(): Map<string, number> {
     return new Map();
   }
 

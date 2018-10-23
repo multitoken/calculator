@@ -54,7 +54,7 @@ export interface PortfolioManager {
 
   getAvailableTokens(): Promise<Map<string, string>>;
 
-  calculateInitialAmounts(): Promise<Map<string, number>>;
+  calculateInitialAmounts(): Map<string, number>;
 
   subscribeToProgress(listener?: ProgressListener): void;
 

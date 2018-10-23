@@ -183,7 +183,7 @@ export class RebalanceResultImpl implements RebalanceResult {
   }
 
   private formatCurrency(value: string): string {
-    return parseFloat(value).toLocaleString();
+    return value;
   }
 
 }

@@ -4,8 +4,9 @@ import { RebalanceValues } from './RebalanceValues';
 
 export class RebalanceHistory {
 
-  public static readonly MULTITOKEN_NAME_REBALANCE: string = 'rebalance';
-  public static readonly MULTITOKEN_NAME_STANDARD: string = 'standard';
+  public static readonly MULTITOKEN_NAME_REBALANCE: string = 'MultiToken';
+  public static readonly MULTITOKEN_NAME_HODL: string = 'Hodl';
+  public static readonly BITCOIN_NAME: string = 'Bitcoin';
 
   public rebalanceValues: RebalanceValues[];
   public arbitrage: Arbitration[];
@@ -24,7 +25,7 @@ export class RebalanceHistory {
       ? 0
       : this.rebalanceValues[this.rebalanceValues.length - 1]
       .multitokenCap
-      .get(RebalanceHistory.MULTITOKEN_NAME_STANDARD) || 0;
+      .get(RebalanceHistory.MULTITOKEN_NAME_HODL) || 0;
   }
 
   public getRebalancedCap(): number {
