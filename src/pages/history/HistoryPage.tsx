@@ -92,7 +92,7 @@ export default class HistoryPage extends React.Component<Props, State> {
 
   private onPortfolioClick(email: string, id: number): void {
     const {history} = this.props;
-    history.push(`calculator/result?email=${email}&id=${id}`);
+    history.push(`/?email=${email}&id=${id}`);
   }
 
   private onSearchClick(email: string): void {

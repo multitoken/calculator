@@ -28,6 +28,8 @@ export interface PortfolioManager {
 
   getTokenType(): TokenType;
 
+  getTokens(): string[];
+
   setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>>;
 
   setCommission(commissionPercents: number): void;
@@ -53,6 +55,8 @@ export interface PortfolioManager {
   getPriceHistory(): Map<string, TokenPriceHistory[]>;
 
   getAvailableTokens(): Promise<Map<string, string>>;
+
+  getTokensAmounts(): Map<string, number>;
 
   calculateInitialAmounts(): Map<string, number>;
 

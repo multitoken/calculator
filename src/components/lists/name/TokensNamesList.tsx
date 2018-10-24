@@ -7,6 +7,7 @@ import './TokensNamesList.less';
 
 interface Properties extends AbstractProperties<CoinItemEntity> {
   disabled: boolean;
+  checked: string[];
 
   onCheck(checkedValue: string[]): void;
 
@@ -24,8 +25,9 @@ export class TokensNamesList extends AbstractList<Properties, CoinItemEntity, St
     super(props);
 
     this.state = {
-      checkedSet: new Set(),
+      checkedSet: new Set(this.props.checked),
     };
+    console.log(this.state.checkedSet, this.props.checked);
   }
 
   protected getGridType(): ListGridType | undefined {

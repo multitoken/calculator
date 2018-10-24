@@ -1,4 +1,3 @@
-import { Checkbox } from 'antd';
 import * as React from 'react';
 import { CoinItemEntity } from '../../../entities/CoinItemEntity';
 import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
@@ -14,12 +13,14 @@ export class TokenNameHolder extends AbstractHolder<Properties, {}, CoinItemEnti
 
   public bindModel(model: CoinItemEntity): object {
     return (
-      <div className="TokenNameHolder__content" onClick={e => this.props.onItemClick(model)}>
+      <div
+        className={`TokenNameHolder__content ${this.props.checked ? 'TokenNameHolder__content_checked' : ''}`}
+        onClick={e => this.props.onItemClick(model)}
+      >
         {this.prepareImage(model.getIcon())}
-        <span className={this.props.checked ? 'TokenNameHolder__name__checked' : 'TokenNameHolder__name'}>
+        <span className={'TokenNameHolder__name'}>
           {model.name}
         </span>
-        <Checkbox className="TokenNameHolder__checkbox" checked={this.props.checked}/>
       </div>
     );
   }

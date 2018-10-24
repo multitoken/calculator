@@ -1,9 +1,10 @@
 @import "../../res/styles/Colors";
 
 .SetupTokenPage {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  max-width: 1000px;
+  min-width: 390px;
+  margin: 0 auto;
 }
 
 .SetupTokenPage__header {
@@ -14,8 +15,11 @@
   font-stretch: normal;
   line-height: normal;
   letter-spacing: 0;
-  text-align: center;
   margin: 20px 0;
+}
+
+.SetupTokenPage__coins {
+  padding: 20px 0 20px 20px;
 }
 
 .SetupTokenPage-logo {
@@ -23,7 +27,11 @@
   font-size: 24px;
 }
 
-.SetupTokenPage__content-button-simple {
+.SetupTokenPage__buttons {
+  text-align: center;
+}
+
+.SetupTokenPage__buttons__button_simple {
   .SetupTokenPage__header;
   cursor: pointer;
   font-size: 16px;

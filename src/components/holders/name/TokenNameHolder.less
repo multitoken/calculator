@@ -1,26 +1,33 @@
 @import '../../../res/styles/Colors';
 
 .TokenNameHolder__content {
-  height: 50px;
-  max-width: 180px;
+  font-family: 'Roboto', sans-serif;
+  height: 52px;
+  max-width: 144px;
   border-radius: 5px;
-  background-color: @content-color;
-  border: solid 1px @border;
+  color: white;
   line-height: 50px;
   padding: 0 10px 0;
   cursor: pointer;
   overflow: hidden;
+  background-color: #424d61;
+  opacity: 0.3;
+}
+
+.TokenNameHolder__content_checked {
+  opacity: 1;
+  background-color: #3294e4;
 }
 
 .TokenNameHolder__icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   margin-top: -4px;
 }
 
 .TokenNameHolder__icon-box {
   .TokenNameHolder__icon;
-  margin: 0px;
+  margin: 0;
   height: 100%;
   float: left;
   display: flex;
@@ -36,29 +43,10 @@
 .TokenNameHolder__name {
   margin-left: 10px;
   font-family: 'Roboto', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: lighter;
   font-stretch: normal;
   line-height: normal;
   letter-spacing: 0;
-  color: @text-color-dark;
-}
-
-.TokenNameHolder__name__checked {
-  .TokenNameHolder__name;
-  color: @text-color-light;
-}
-
-.TokenNameHolder__checkbox {
-  float: right;
-}
-
-.ant-checkbox-inner {
-  width: 14px;
-  height: 14px;
-}
-
-.ant-checkbox-inner:after {
-  left: 3.57142857px;
-  top: 0.9px;
+  color: white;
 }

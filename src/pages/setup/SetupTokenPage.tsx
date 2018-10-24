@@ -1,14 +1,13 @@
-import * as Sentry from '@sentry/browser';
 import { Button, Layout } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
+import BlockContent from '../../components/block-content/BlockContent';
 import { TokensNamesList } from '../../components/lists/name/TokensNamesList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { CoinItemEntity } from '../../entities/CoinItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
-import { MultiPortfolioExecutor } from '../../manager/multitoken/MultiPortfolioExecutor';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import './SetupTokenPage.less';
 
@@ -23,8 +22,6 @@ interface State {
 
 export default class SetupTokenPage extends React.Component<Props, State> {
 
-  @lazyInject(Services.PORTFOLIOS_EXECUTOR)
-  private portfolioExecutor: MultiPortfolioExecutor;
   @lazyInject(Services.PORTFOLIO_MANAGER)
   private portfolioManager: PortfolioManager;
   @lazyInject(Services.ANALYTICS_MANAGER)
@@ -38,12 +35,12 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.state = {
       availableTokenNames: [],
       isTokenLoading: false,
-      selectedTokenNames: [],
+      selectedTokenNames: this.portfolioManager.getTokens(),
     };
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    Sentry.captureException(error);
+    this.analyticsManager.trackException(error);
   }
 
   public componentDidMount(): void {
@@ -51,7 +48,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       .getAvailableTokens()
       .then(result => this.onSyncTokens(result))
       .catch((reason: Error) => {
-        Sentry.captureException(reason);
+        this.analyticsManager.trackException(reason);
         alert(reason.message);
       });
   }
@@ -66,28 +63,32 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         }}
       >
         <PageHeader/>
-        <header className="SetupTokenPage__header">
-          Select tokens to calculate multiToken (at least two)
-        </header>
 
         <div className="SetupTokenPage">
 
-          <TokensNamesList
-            data={this.state.availableTokenNames}
-            onCheck={result => this.onCheckToken(result)}
-            onChange={(name: string, checked: boolean) => this.onChangeTokens(name, checked)}
-            disabled={this.state.isTokenLoading}
-          />
+          <div className="SetupTokenPage__header">
+            Select coins to calculate multiToken (at least two)
+          </div>
 
-          <div>
+          <BlockContent className="SetupTokenPage__coins">
+            <TokensNamesList
+              data={this.state.availableTokenNames}
+              checked={this.state.selectedTokenNames}
+              onCheck={result => this.onCheckToken(result)}
+              onChange={(name: string, checked: boolean) => this.onChangeTokens(name, checked)}
+              disabled={this.state.isTokenLoading}
+            />
+          </BlockContent>
+
+          <div className="SetupTokenPage__buttons">
              <span
-               className="SetupTokenPage__content-button-simple"
+               className="SetupTokenPage__buttons__button_simple"
                onClick={e => {
-                 this.props.history.push('/simple');
-                 this.analyticsManager.trackEvent('button', 'click', 'to-simple');
+                 this.props.history.push('/');
+                 this.analyticsManager.trackEvent('button', 'click', 'to-calculator');
                }}
              >
-              Simple calculation
+              Back
             </span>
             <Button
               type="primary"
@@ -95,14 +96,13 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               disabled={!this.checkActiveNext()}
               loading={this.state.isTokenLoading}
               style={{
-                marginLeft: '15px',
                 marginTop: 30,
               }}
             >
               Next
             </Button>
             <span
-              className="SetupTokenPage__content-button-simple"
+              className="SetupTokenPage__buttons__button_simple"
               onClick={() => this.onHistoryClick()}
             >
               History
@@ -142,13 +142,11 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.portfolioManager.setupTokens(this.state.selectedTokenNames)
       .then(() => history.push('/'))
       .catch((reason: Error) => {
-        Sentry.captureException(reason);
+        this.analyticsManager.trackException(reason);
         console.error(reason);
         alert('something went wrong');
         this.setState({isTokenLoading: false});
       });
-    this.portfolioExecutor.removeAllPortfolios();
-    this.portfolioExecutor.addPortfolioManager(this.portfolioManager);
   }
 
   private onHistoryClick() {

@@ -25,7 +25,6 @@ import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { TokenType } from '../../manager/multitoken/PortfolioManagerImpl';
 import { ProgressListener } from '../../manager/multitoken/ProgressListener';
 import { RebalanceResult } from '../../manager/multitoken/RebalanceResult';
-import { RebalanceResultImpl } from '../../manager/multitoken/RebalanceResultImpl';
 import { Portfolio } from '../../repository/models/Portfolio';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import { RebalanceValues } from '../../repository/models/RebalanceValues';
@@ -47,7 +46,6 @@ interface State {
   coins: CoinItemEntity[];
   emailForSaveResult: string;
   isEditMode: boolean;
-  latestRebalanceResult: RebalanceResult | undefined;
   preparedHistoryData: boolean;
   professionalMode: boolean;
   progressPercents: number;
@@ -95,7 +93,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       coins: [],
       emailForSaveResult: '',
       isEditMode: true,
-      latestRebalanceResult: undefined,
       preparedHistoryData: true,
       professionalMode: false,
       progressPercents: 0,
@@ -112,11 +109,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokensWeightEditItem: undefined,
       tokensWeightList: [],
     };
-
-    this.analyticsManager.trackPage('/calculator');
-    if (this.portfolioManager) {
-      // d
-    }
+    this.analyticsManager.trackPage('/calculator/configurator');
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
@@ -124,7 +117,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   public componentDidMount(): void {
-    const {email, id} = QueryString.parse(this.props.location.search);
+    const {email, id} = QueryString.parse(this.props.location.search.replace('?', ''));
 
     if (email && id) {
       this.setState({preparedHistoryData: false});
@@ -138,8 +131,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       return;
 
     } else if (this.portfolioManager.getMaxCalculationIndex() <= 0) {
-      // Redirect to root
-      // window.location.replace('/tokens');
+      this.loadExample().then(() => {
+        console.log('load example finished');
+      });
       return;
     }
 
@@ -154,7 +148,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   public render() {
-    const rebalanceResult: RebalanceResult | undefined = this.state.latestRebalanceResult;
+    const rebalanceResult: RebalanceResult = this.portfolioManager.getRebalanceResult();
+    const hasRebalance: boolean = rebalanceResult.getRebalanceHistory().rebalanceValues.length > 0;
 
     return (
       <Layout>
@@ -169,7 +164,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                   isDebugMode={false}
                   applyScale={true}
                   aspect={1.7}
-                  data={rebalanceResult ? rebalanceResult.getRebalanceHistory().rebalanceValues : []}
+                  data={rebalanceResult.getRebalanceHistory().rebalanceValues}
                   colors={TokensHelper.COLORS}
                   showRange={false}
                   showLegendCheckBox={true}
@@ -180,17 +175,17 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               <div className="CalculatorPage__content_right-top">
                 <StatisticItem
                   name="MultiToken"
-                  compareCap={rebalanceResult ? rebalanceResult.capBtc() : '0'}
-                  cap={rebalanceResult ? rebalanceResult.capWithRebalance() : '0'}
-                  roi={rebalanceResult ? rebalanceResult.roiYearWithRebalance() : '0'}
+                  compareCap={hasRebalance ? rebalanceResult.capBtc() : '0'}
+                  cap={hasRebalance ? rebalanceResult.capWithRebalance() : '0'}
+                  roi={hasRebalance ? rebalanceResult.roiYearWithRebalance() : '0'}
                 />
               </div>
               <div className="CalculatorPage__content_right-bottom">
                 <StatisticItem
                   name="Bitcoin"
-                  compareCap={rebalanceResult ? rebalanceResult.capWithRebalance() : '0'}
-                  cap={rebalanceResult ? rebalanceResult.capBtc() : '0'}
-                  roi={rebalanceResult ? rebalanceResult.profitPercentYearBtc() : '0'}
+                  compareCap={hasRebalance ? rebalanceResult.capWithRebalance() : '0'}
+                  cap={hasRebalance ? rebalanceResult.capBtc() : '0'}
+                  roi={hasRebalance ? rebalanceResult.profitPercentYearBtc() : '0'}
                 />
               </div>
             </div>
@@ -238,7 +233,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
         <LoadingDialog
           openDialog={!this.state.preparedHistoryData}
-          message={'Please wait. We prepare historical data of tokens'}
+          message={'Please wait. We prepare historical data of coins'}
         />
 
       </Layout>
@@ -256,13 +251,60 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   private async loadByEmailAndId(email: string, id: number): Promise<void> {
     try {
       await this.portfolioManager.loadPortfolio(email, id);
+      await this.applyLoadedPortfolio();
+      this.analyticsManager.trackPage('/calculator/result');
 
+    } catch (error) {
+      console.error(error);
+      this.analyticsManager.trackException(error);
+      alert('Something went wrong!');
+      window.location.replace('/tokens');
+    }
+  }
+
+  private async loadExample(): Promise<void> {
+    this.setState({preparedHistoryData: false});
+
+    await this.portfolioManager.setupTokens(['Binance', 'Cardano', 'EOS', 'Tron']);
+    this.portfolioManager.setTokenType(TokenType.DIFF_PERCENT_REBALANCE);
+    this.portfolioManager.setRebalanceDiffPercent(45);
+    const availableTokens: Map<string, string> = await this.portfolioManager.getAvailableTokens();
+    await this.onSyncTokens(availableTokens);
+
+    const proportions: TokenProportion[] = this.portfolioManager
+      .getTokens()
+      .map(name => new TokenProportion(name, 10, 1, 10));
+
+    this.portfolioManager.changeProportions(proportions);
+
+    this.setState({preparedHistoryData: true});
+
+    console.log('PROPOR', this.portfolioManager.getProportions(), proportions);
+    await this.applyLoadedPortfolio();
+    this.analyticsManager.trackPage('/calculator/result');
+  }
+
+  private async applyLoadedPortfolio(): Promise<void> {
+    try {
       this.setState({preparedHistoryData: true});
 
       await this.portfolioManager.calculateInitialAmounts();
       await this.portfolioManager.calculate();
-      this.setState({showCalculationProgress: false});
+      const firstTokenName: string = Array.from(this.portfolioManager.getPriceHistory().keys())[0];
+      const history: TokenPriceHistory[] = this.portfolioManager.getPriceHistory().get(firstTokenName) || [];
 
+      this.setState({
+        calculateMaxDateIndex: this.portfolioManager.getMaxCalculationIndex() - 1,
+        calculateRangeDateIndex: this.portfolioManager.getCalculationDateIndex(),
+        changeWeightMinDates: this.portfolioManager.getCalculationDateIndex() as [number, number],
+        isEditMode: false,
+        proportionList: this.portfolioManager.getProportions(),
+        selectedRebalanceType: CalculatorPage.REBALANCE_TYPES.get(this.portfolioManager.getTokenType()) || 'undefined',
+        showCalculationProgress: false,
+        tokensDate: history.map(value => value.time),
+        tokensHistory: this.portfolioManager.getPriceHistory(),
+        tokensWeightList: this.portfolioManager.getRebalanceWeights(),
+      });
     } catch (error) {
       console.error(error);
       this.analyticsManager.trackException(error);
@@ -381,14 +423,18 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     let tokensAmount: Map<string, number>;
     let tokensCount: Map<string, number>;
 
-    if (rebalanceValues.length > 0) {
+    if (rebalanceValues.length > 0 && !this.state.isEditMode) {
       tokensAmount = rebalanceValues[rebalanceValues.length - 1]
         .multitokenTokensCap.get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
       tokensCount = rebalanceValues[rebalanceValues.length - 1]
         .multitokenTokensCount.get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
 
     } else {
-      tokensAmount = this.portfolioManager.calculateInitialAmounts();
+      tokensAmount = this.portfolioManager.getTokensAmounts();
+      if (tokensAmount.size === 0) {
+        this.portfolioManager.calculateInitialAmounts();
+        tokensAmount = this.portfolioManager.getTokensAmounts();
+      }
       tokensAmount.forEach((value, key) => {
         const price: TokenPriceHistory[] = prices.get(key) || [];
 
@@ -726,9 +772,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onEditClick(): void {
-    this.portfolioManager.getRebalanceResult()
-      .calculateRebalanceHistory(new RebalanceHistory([], [], []));
     this.setState({isEditMode: true});
+    this.analyticsManager.trackPage('/calculator/configurator');
   }
 
   private onCalculateClick(): void {
@@ -740,13 +785,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     this.portfolioManager.calculateInitialAmounts();
     this.portfolioManager.calculate()
       .then((result) => {
-        console.log(result);
-        const rebalanceResult: RebalanceResult = new RebalanceResultImpl(this.portfolioManager);
-        rebalanceResult.calculateRebalanceHistory(result.getRebalanceHistory());
 
+        this.analyticsManager.trackPage('/calculator/result');
         this.setState({
           isEditMode: false,
-          latestRebalanceResult: rebalanceResult,
           showCalculationProgress: false,
         });
       }).catch(error => this.analyticsManager.trackException(error));

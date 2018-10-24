@@ -12,6 +12,7 @@ import { RebalanceValues } from '../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
+import { MapUtils } from '../../utils/MapUtils';
 import { DiffPercentRebalanceExecutorImpl } from './executors/DiffPercentRebalanceExecutorImpl';
 import { ExchangerExecutor } from './executors/ExchangerExecutor';
 import { ExchangerExecutorImpl } from './executors/ExchangerExecutorImpl';
@@ -150,6 +151,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.tokenType;
   }
 
+  public getTokens(): string[] {
+    return Array.from(this.tokensAmount.keys());
+  }
+
   public async setupTokens(tokenSymbols: string[]): Promise<Map<string, TokenPriceHistory[]>> {
     this.tokensAmount.clear();
     this.tokensWeight.clear();
@@ -234,6 +239,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.cryptocurrencyRepository.getAvailableCurrencies();
   }
 
+  public getTokensAmounts(): Map<string, number> {
+    return MapUtils.clone(this.tokensAmount);
+  }
+
   public calculateInitialAmounts(): Map<string, number> {
     const result: Map<string, number> = new Map();
     let maxProportions: number = 0;
@@ -253,12 +262,6 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
         const amountPerCurrency: number = (weight / maxProportions) * this.amount;
 
         const count: number = amountPerCurrency / value[this.startCalculationIndex].value;
-
-        console.log(
-          'name/weight/amount/count/price(per one)/', key, weight, amountPerCurrency, count,
-          value[this.startCalculationIndex].value,
-          count * value[this.startCalculationIndex].value
-        );
 
         result.set(key, count);
         this.tokensAmount.set(key, count);
