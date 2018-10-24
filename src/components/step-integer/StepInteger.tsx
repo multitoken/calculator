@@ -10,7 +10,7 @@ export interface Properties {
 
   onChange?(value: number): void;
 
-  onAfterChange(value: number): void;
+  onAfterChange?(value: number): void;
 }
 
 export default class StepInteger extends React.Component<Properties, any> {
@@ -35,7 +35,9 @@ export default class StepInteger extends React.Component<Properties, any> {
   }
 
   public onAfterChange = (value: number) => {
-    this.props.onAfterChange(value);
+    if (this.props.onAfterChange) {
+      this.props.onAfterChange(value);
+    }
   }
 
   public render() {

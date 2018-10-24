@@ -9,6 +9,7 @@ export interface Props {
   coins: CoinItemEntity[];
   disabled: boolean;
   isEditMode?: boolean;
+  maxWeight: number;
 
   onChangeProportion(name: string, value: number, position: number): void;
 }
@@ -70,10 +71,16 @@ export class CoinsProportions extends React.Component<Props, {}> {
           <div className="CoinsProportions-item__proportion-percents">{coin.proportionPercents}%</div>
         </Col>
         <Col span={6}>
-          <div className="CoinsProportions-item__proportion-value">{coin.value} {coin.symbol.toUpperCase()}</div>
+          <div className="CoinsProportions-item__proportion-value">{coin.count} {coin.symbol.toUpperCase()}</div>
         </Col>
         <Col span={6}>
-          <div className="CoinsProportions-item__diff">+100500%</div>
+          <div
+            className={
+              `CoinsProportions-item__diff
+              CoinsProportions-item__diff_${coin.priceDiffPercents > 0 ? 'green' : 'red'}`
+            }>
+            {coin.priceDiffPercents}%
+          </div>
         </Col>
       </Row>
     );
@@ -88,17 +95,19 @@ export class CoinsProportions extends React.Component<Props, {}> {
           <div className="CoinsProportions-item__price">$ {coin.price}</div>
         </Col>
         <Col span={11}>
-          <StepInteger
-            disabled={this.props.disabled}
-            max={10}
-            min={1}
-            tipFormatter={(value) => {
-              return value;
-            }}
-            defaultValue={coin.weight}
-            onChange={value => this.setState({weight: value})}
-            onAfterChange={value => this.props.onChangeProportion(coin.name, value, position)}
-          />
+          <span className="CoinsProportions-item__percents">{coin.proportionPercents}%</span>
+          <div className="CoinsProportions-item__slider">
+            <StepInteger
+              disabled={this.props.disabled}
+              max={this.props.maxWeight}
+              min={1}
+              tipFormatter={() => `${coin.proportionPercents}%`}
+              defaultValue={coin.weight}
+              onChange={value => {
+                this.props.onChangeProportion(coin.name, value, position);
+              }}
+            />
+          </div>
         </Col>
       </Row>
     );

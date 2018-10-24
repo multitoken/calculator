@@ -1,6 +1,7 @@
 import { ExecuteResult } from '../../../repository/models/ExecuteResult';
 import { RebalanceValues } from '../../../repository/models/RebalanceValues';
 import { TokenPriceHistory } from '../../../repository/models/TokenPriceHistory';
+import { MapUtils } from '../../../utils/MapUtils';
 import { Multitoken } from '../multitoken/Multitoken';
 import { AbstractExecutor } from './AbstractExecutor';
 import { ExecutorType } from './TimeLineExecutor';
@@ -38,6 +39,7 @@ export class CapCalculatorExecutor extends AbstractExecutor {
     const bitcoinCap: number = btcAmount * this.btcHistoryPrice[timeLineIndex].value;
     const totalCap: Map<string, number> = new Map();
     const tokensCap: Map<string, Map<string, number>> = new Map();
+    const tokensCount: Map<string, Map<string, number>> = new Map();
 
     let historyPrice: number = 0;
 
@@ -54,11 +56,13 @@ export class CapCalculatorExecutor extends AbstractExecutor {
 
       totalCap.set(multitoken.getName(), cap);
       tokensCap.set(multitoken.getName(), caps);
+      tokensCount.set(multitoken.getName(), MapUtils.clone(multitoken.getAmounts()));
     });
 
     const result: RebalanceValues = new RebalanceValues(
       totalCap,
       tokensCap,
+      tokensCount,
       bitcoinCap,
       timestamp
     );

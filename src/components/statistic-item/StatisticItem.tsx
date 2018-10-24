@@ -18,7 +18,7 @@ export class StatisticItem extends React.Component<Props, {}> {
       <BlockContent className="StatisticItem__content">
         <div className="StatisticItem__content__title">{this.props.name}</div>
         <div className="StatisticItem__content__sub-title">Portfolio capitalization</div>
-        <div className={`StatisticItem__content__value StatisticItem__content__value-${diff > 0 ? 'green' : 'red'}`}>
+        <div className={`StatisticItem__content__value StatisticItem__content__value_${diff > 0 ? 'green' : 'red'}`}>
           $ {this.props.cap}
         </div>
         <div className="StatisticItem__content__sub-title">ROI</div>

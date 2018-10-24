@@ -69,8 +69,21 @@ export class TokensHelper {
     ['Ripple', xrp], ['BTC Cash', bcc], ['IOTA', iota], ['Enigma', eng]
   ]);
 
+  private static readonly SYMBOLS: Map<string, string> = new Map([
+    ['USDT', 'USDT'], ['Bitcoin', 'BTC'], ['Eth', 'ETH'], ['EOS', 'EOS'], ['Tron', 'TRX'],
+    ['Binance', 'BNB'], ['OmiseGO', 'OMG'], ['0x', 'ZRX'], ['Monero', 'XMR'], ['Dash', 'DASH'],
+    ['Eth Classic', 'ETC'], ['Zcash', 'ZEC'], ['Qtum', 'QTUM'], ['Lisk', 'LSK'], ['BitShares', 'BTS'],
+    ['BTC Gold', 'BTG'], ['Verge', 'XVG'], ['BAT', 'BAT'], ['Stratis', 'STRAT'], ['Waltonchain', 'WTC'],
+    ['Status', 'SNT'], ['NEO', 'NEO'], ['Litecoin', 'LTC'], ['Cardano', 'ADA'], ['Ripple', 'XRP'],
+    ['BTC Cash', 'BCC'], ['IOTA', 'IOTA'], ['Enigma', 'ENG']
+  ]);
+
   public static getIcon(name: string): any | undefined {
     return TokensHelper.ICONS.get(name) || undefined;
+  }
+
+  public static getSymbol(name: string): string {
+    return TokensHelper.SYMBOLS.get(name) || '';
   }
 
   public static getColor(index: number): string {

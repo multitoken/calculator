@@ -116,7 +116,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
   private onSyncTokens(tokens: Map<string, string>) {
     const entities: CoinItemEntity[] = Array.from(tokens.keys())
-      .map(value => new CoinItemEntity(value, 1, '', 0, 0, 0));
+      .map(value => new CoinItemEntity(value, 1, '', 0, 0, 0, 0));
 
     this.setState({availableTokenNames: entities});
   }
