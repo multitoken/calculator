@@ -279,7 +279,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     this.setState({preparedHistoryData: true});
 
-    console.log('PROPOR', this.portfolioManager.getProportions(), proportions);
     await this.applyLoadedPortfolio();
     this.analyticsManager.trackPage('/calculator/result');
   }
@@ -430,11 +429,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         .multitokenTokensCount.get(RebalanceHistory.MULTITOKEN_NAME_REBALANCE) || new Map();
 
     } else {
-      tokensAmount = this.portfolioManager.getTokensAmounts();
-      if (tokensAmount.size === 0) {
-        this.portfolioManager.calculateInitialAmounts();
-        tokensAmount = this.portfolioManager.getTokensAmounts();
-      }
+      tokensAmount = this.portfolioManager.calculateInitialAmounts();
       tokensAmount.forEach((value, key) => {
         const price: TokenPriceHistory[] = prices.get(key) || [];
 
