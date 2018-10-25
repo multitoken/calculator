@@ -4,7 +4,7 @@ import { RebalanceValues } from './RebalanceValues';
 
 export class RebalanceHistory {
 
-  public static readonly MULTITOKEN_NAME_REBALANCE: string = 'MultiToken';
+  public static readonly MULTITOKEN_NAME_REBALANCE: string = 'Your M-Token';
   public static readonly MULTITOKEN_NAME_HODL: string = 'Hodl';
   public static readonly BITCOIN_NAME: string = 'Bitcoin';
 

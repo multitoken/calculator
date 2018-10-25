@@ -174,7 +174,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <div className="CalculatorPage__content_right">
               <div className="CalculatorPage__content_right-top">
                 <StatisticItem
-                  name="MultiToken"
+                  name={RebalanceHistory.MULTITOKEN_NAME_REBALANCE}
                   compareCap={hasRebalance ? rebalanceResult.capBtc() : '0'}
                   cap={hasRebalance ? rebalanceResult.capWithRebalance() : '0'}
                   roi={hasRebalance ? rebalanceResult.roiYearWithRebalance() : '0'}
@@ -182,7 +182,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               </div>
               <div className="CalculatorPage__content_right-bottom">
                 <StatisticItem
-                  name="Bitcoin"
+                  name={RebalanceHistory.BITCOIN_NAME}
                   compareCap={hasRebalance ? rebalanceResult.capWithRebalance() : '0'}
                   cap={hasRebalance ? rebalanceResult.capBtc() : '0'}
                   roi={hasRebalance ? rebalanceResult.profitPercentYearBtc() : '0'}
