@@ -64,6 +64,10 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
       calculateRangeIndex: {min: 0, max: 1},
       selectedNames: this.getNames()
     };
+    this.getNames()
+      .forEach((value, index) =>
+        this.colorByName.set(value, index < props.colors.length ? props.colors[index] : '#ffffff')
+      );
   }
 
   public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, data2: any): boolean {
