@@ -21,6 +21,10 @@ export class BalancesCapChart extends AbstractChart<Properties, AbstractState, R
 
         if (this.props.showRebalanceCap) {
           copy[RebalanceHistory.MULTITOKEN_NAME_REBALANCE] = parseFloat(rebalanceCap.toFixed(0));
+          if (copy[RebalanceHistory.MULTITOKEN_NAME_REBALANCE] === 0) {
+            // https://github.com/recharts/recharts/issues/1049
+            copy[RebalanceHistory.MULTITOKEN_NAME_REBALANCE] = 0.000000001;
+          }
         }
 
         copy[RebalanceHistory.BITCOIN_NAME] = parseFloat(bitcoinCap.toFixed(0));

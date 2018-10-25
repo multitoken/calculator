@@ -165,6 +165,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         />
         <Tooltip
           label={'date'}
+          formatter={(value: number) => value % 1 === 0 ? value : parseFloat(value.toFixed(6))}
           labelFormatter={value => DateUtils.toFormat(parseInt(value.toString(), 10), DateUtils.DATE_FORMAT_SHORT)}
         />
         {this.prepareLines()}
@@ -249,7 +250,7 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
 
   private prepareLines(): any {
     return (this.state.selectedNames as string[])
-      .map((value, index) => {
+      .map((value) => {
         return (
           <Line
             strokeWidth={2}
