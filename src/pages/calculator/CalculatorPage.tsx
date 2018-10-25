@@ -404,6 +404,12 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       <Menu onClick={(e: any) => {
         CalculatorPage.REBALANCE_TYPES.forEach((value, key) => {
           if (value === e.key) {
+            if (key !== this.portfolioManager.getTokenType()) {
+              this.setState({
+                tokensWeightEditItem: undefined,
+                tokensWeightList: [],
+              });
+            }
             this.portfolioManager.setTokenType(key);
             this.setState({selectedRebalanceType: e.key});
             return;
