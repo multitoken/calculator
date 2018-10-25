@@ -121,7 +121,9 @@ export class CryptocurrencyTokensRepositoryImpl implements CryptocurrencyReposit
       );
 
       const data: number[] = response.data;
-      for (let i = 0; i < data.length; i += 2) {
+      const offset: number = 14400 / this.getStepSec() * 2;
+
+      for (let i = offset; i < data.length; i += 2) { // cut 4 hour from start
         result.push(Object.assign(new TokenPriceHistory(data[i], data[i + 1])));
       }
 
