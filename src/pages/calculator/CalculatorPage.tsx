@@ -160,7 +160,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <div className="CalculatorPage__content-left">
               <BlockContent className="CalculatorPage__content__block-left">
                 <BalancesCapChart
-                  showRebalanceCap={this.portfolioManager.getTokenType() !== TokenType.FIX_PROPORTIONS}
+                  showRebalanceCap={true}
                   isDebugMode={false}
                   applyScale={true}
                   aspect={1.7}
