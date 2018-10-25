@@ -517,7 +517,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               defaultValue={[0, 10]}
               tipFormatter={value => this.inputRangeTrackValue(value)}
               value={this.state.calculateRangeDateIndex}
-              onChange={value => this.setState({calculateRangeDateIndex: value})}
+              onChange={value => {
+                this.portfolioManager.changeCalculationDate(value[0], value[1]);
+                this.setState({calculateRangeDateIndex: value});
+              }}
               onAfterChange={(value: SliderValue) => this.onDateRangeChange(value)}
             />
           </div>
