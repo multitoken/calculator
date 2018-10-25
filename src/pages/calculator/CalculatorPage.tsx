@@ -156,7 +156,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       <Layout>
         <PageHeader/>
         <div className="CalculatorPage__content">
-          <div className="CalculatorPage__content__title">Token history price $:</div>
+          <div className="CalculatorPage__content__title">Coins history price $:</div>
           <div className="CalculatorPage__content-main">
             <div className="CalculatorPage__content-left">
               <BlockContent className="CalculatorPage__content__block-left">
