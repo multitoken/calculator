@@ -344,6 +344,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokenNames: tokenItems,
       tokensHistory: this.portfolioManager.getPriceHistory(),
     });
+
+    this.onCalculateClick();
   }
 
   private prepareChangeButtons() {
