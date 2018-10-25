@@ -140,6 +140,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     this.portfolioManager
       .getAvailableTokens()
       .then(this.onSyncTokens.bind(this))
+      .then(() => this.onCalculateClick())
       .catch(reason => {
         this.analyticsManager.trackException(reason);
         console.log(reason);
@@ -344,8 +345,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokenNames: tokenItems,
       tokensHistory: this.portfolioManager.getPriceHistory(),
     });
-
-    this.onCalculateClick();
   }
 
   private prepareChangeButtons() {
