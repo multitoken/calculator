@@ -532,7 +532,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
           <div className="CalculatorPage__content__prof-mode__history">
             <div className="CalculatorPage__content__prof-mode__history__title">
-              Tokens history price $:
+              Coins history price $:
             </div>
             <HistoryChart
               timeStep={this.portfolioManager.getStepSec()}
