@@ -789,6 +789,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           isEditMode: false,
           showCalculationProgress: false,
         });
+        window.scrollTo(0, 0);
       }).catch(error => this.analyticsManager.trackException(error));
   }
 
