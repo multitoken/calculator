@@ -357,6 +357,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         <div className="CalculatorPage__content__edit__switch-block">
           <span className="CalculatorPage__content__edit__switch-block__text">Professional mode</span>
           <Switch
+            checked={this.state.professionalMode}
             onChange={checked => this.setState({professionalMode: checked})}
           />
         </div>
@@ -527,7 +528,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               timeStep={this.portfolioManager.getStepSec()}
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
-              legendColumnCount={3}
+              legendColumnCount={4}
               start={this.state.calculateRangeDateIndex[0]}
               end={this.state.calculateRangeDateIndex[1]}
               applyScale={true}
