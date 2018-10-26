@@ -131,9 +131,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       return;
 
     } else if (this.portfolioManager.getMaxCalculationIndex() <= 0) {
-      this.loadExample().then(() => {
-        console.log('load example finished');
-      });
+      this.onChangeCoinsClick();
       return;
     }
 
@@ -261,27 +259,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       alert('Something went wrong!');
       window.location.replace('/tokens');
     }
-  }
-
-  private async loadExample(): Promise<void> {
-    this.setState({preparedHistoryData: false});
-
-    await this.portfolioManager.setupTokens(['Binance', 'Cardano', 'EOS', 'Tron']);
-    this.portfolioManager.setTokenType(TokenType.DIFF_PERCENT_REBALANCE);
-    this.portfolioManager.setRebalanceDiffPercent(45);
-    const availableTokens: Map<string, string> = await this.portfolioManager.getAvailableTokens();
-    await this.onSyncTokens(availableTokens);
-
-    const proportions: TokenProportion[] = this.portfolioManager
-      .getTokens()
-      .map(name => new TokenProportion(name, 10, 1, 10));
-
-    this.portfolioManager.changeProportions(proportions);
-
-    this.setState({preparedHistoryData: true});
-
-    await this.applyLoadedPortfolio();
-    this.analyticsManager.trackPage('/calculator/result');
   }
 
   private async applyLoadedPortfolio(): Promise<void> {
@@ -477,7 +454,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
   private onChangeCoinsClick(): void {
     const {history} = this.props;
-    history.push('tokens');
+    history.push('/');
   }
 
   private prepareConfiguration(): React.ReactNode {

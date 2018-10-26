@@ -18,8 +18,8 @@ init({dsn: Config.getSenrtyConfigUrl(), enabled: !Config.isDebug()});
 ReactDOM.render(
   <Router>
     <div className="router">
-      <Route exact={true} path="/" component={CalculatorPage}/>
-      <Route exact={true} path="/tokens" component={SetupTokenPage}/>
+      <Route exact={true} path="/" component={SetupTokenPage}/>
+      <Route exact={true} path="/calculator" component={CalculatorPage}/>
       <Route exact={true} path="/history" component={HistoryPage}/>
       <Intercom appId={Config.getIntercomAppId()}/>
     </div>

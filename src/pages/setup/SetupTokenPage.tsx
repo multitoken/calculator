@@ -81,15 +81,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           </BlockContent>
 
           <div className="SetupTokenPage__buttons">
-             <span
-               className="SetupTokenPage__buttons__button_simple"
-               onClick={e => {
-                 this.props.history.push('/');
-                 this.analyticsManager.trackEvent('button', 'click', 'to-calculator');
-               }}
-             >
-              Back
-            </span>
             <Button
               type="primary"
               onClick={() => this.onNextClick()}
@@ -140,7 +131,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.analyticsManager.trackEvent('button', 'click', 'setup-to-next');
 
     this.portfolioManager.setupTokens(this.state.selectedTokenNames)
-      .then(() => history.push('/'))
+      .then(() => history.push('/calculator'))
       .catch((reason: Error) => {
         this.analyticsManager.trackException(reason);
         console.error(reason);
