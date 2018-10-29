@@ -1,19 +1,17 @@
-import { ColumnCount, ListGridType } from 'antd/lib/list';
 import * as React from 'react';
 import { TokenLegend } from '../../../entities/TokenLegend';
 import { LegendStyle, TokenLegendHolder } from '../../holders/legend/TokenLegendHolder';
-import AbstractList, { AbstractProperties } from '../AbstractList';
+import { AbstractProperties } from '../AbstractList';
 import './TokensLegendList.less';
 
 interface Properties extends AbstractProperties<TokenLegend> {
-  columnCount: ColumnCount;
   style?: LegendStyle;
   showCheckbox?: boolean;
 
   onChangeNames?(names: string[]): void;
 }
 
-export class TokensLegendList extends AbstractList<Properties, TokenLegend, {}> {
+export class TokensLegendList extends React.Component<Properties, {}> {
 
   private checked: Map<string, boolean> = new Map();
 
@@ -27,15 +25,20 @@ export class TokensLegendList extends AbstractList<Properties, TokenLegend, {}> 
     }
   }
 
-  protected getGridType(): ListGridType | undefined {
-    return {gutter: 1, column: this.props.columnCount};
+  public render() {
+    return (
+      <div className="TokensLegendList__content">
+        {this.prepareItems()}
+      </div>
+    );
   }
 
-  protected getListName(): string {
-    return 'TokenLegendHolder';
+  private prepareItems(): React.ReactNode {
+    return this.props.data
+      .map((item: TokenLegend, index: number) => this.bindHolder(item, index));
   }
 
-  public bindHolder(dataItem: TokenLegend, position: number): object {
+  private bindHolder(dataItem: TokenLegend, position: number): object {
     return (
       <TokenLegendHolder
         style={this.props.style}

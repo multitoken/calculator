@@ -1,4 +1,3 @@
-import { ColumnCount } from 'antd/lib/list';
 import * as React from 'react';
 import InputRange, { Range } from 'react-input-range';
 import {
@@ -40,6 +39,7 @@ export interface AbstractProperties<M> {
   aspect?: number;
   isDebugMode?: boolean;
   legendColumnCount?: number;
+  hideLineScale?: boolean;
 }
 
 export interface AbstractState {
@@ -90,10 +90,9 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           {this.prepareChart()}
         </ResponsiveContainer>
         {this.prepareRangeComponent()}
-        <div style={{margin: '20px 0px 0 65px'}}>
+        <div style={this.props.hideLineScale ? {marginLeft: '20px'} : {margin: '20px 0px 0 65px'}}>
           <TokensLegendList
             style={LegendStyle.LINE}
-            columnCount={(this.props.legendColumnCount as ColumnCount) || 4}
             showCheckbox={this.props.showLegendCheckBox}
             onChangeNames={names => this.setState({selectedNames: names})}
             data={this.getNames().map((value, i) => new TokenLegend(value, TokensHelper.COLORS[i]))}
@@ -153,12 +152,14 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
         <CartesianGrid stroke="#e2e8f0" strokeOpacity="0.1" vertical={false}/>
         <XAxis
           dataKey="date"
+          hide={this.props.hideLineScale === true}
           tick={<XAxisDate/>}
         />
         <YAxis
           allowDataOverflow={true}
           tick={<YAxisValue/>}
           allowDecimals={true}
+          hide={this.props.hideLineScale === true}
           interval={'preserveStartEnd'}
           scale={this.props.applyScale === false ? undefined : 'log'}
           domain={['auto', 'auto']}

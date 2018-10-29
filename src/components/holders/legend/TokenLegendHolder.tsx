@@ -33,7 +33,7 @@ export class TokenLegendHolder extends AbstractHolder<Properties, {}, TokenLegen
 
   private prepareCheckbox(model: TokenLegend): any {
     return this.props.showCheckbox
-      ? <Checkbox style={{marginLeft: '8px'}} defaultChecked={this.props.defChecked} onChange={
+      ? <Checkbox className="TokenLegendHolder__checkbox" defaultChecked={this.props.defChecked} onChange={
         e => this.props.onCheckItemClick(model, e.target.checked)
       }/>
       : null;

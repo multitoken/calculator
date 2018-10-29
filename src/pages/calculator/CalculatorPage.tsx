@@ -33,6 +33,7 @@ import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
+import { ScreenUtils } from '../../utils/ScreenUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './CalculatorPage.less';
 
@@ -162,7 +163,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                   showRebalanceCap={true}
                   isDebugMode={false}
                   applyScale={true}
-                  aspect={1.7}
+                  hideLineScale={ScreenUtils.viewPortWidth < 768}
+                  aspect={ScreenUtils.viewPortWidth <= 768 ? 1.5 : 1.7}
                   data={rebalanceResult.getRebalanceHistory().rebalanceValues}
                   colors={TokensHelper.COLORS}
                   showRange={false}
@@ -331,7 +333,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     return (
       <span className="CalculatorPage__content__edit">
-      <Col span={8}>
+      <Col span={8} className="CalculatorPage__content__edit__switch-block__block">
         <div className="CalculatorPage__content__edit__switch-block">
           <span className="CalculatorPage__content__edit__switch-block__text">Professional mode</span>
           <Switch
@@ -340,7 +342,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           />
         </div>
       </Col>
-      <Col span={8}>
+      <Col span={8} className="CalculatorPage__content__edit__button-change__block">
         <span
           className="CalculatorPage__content__edit__button-change"
           onClick={() => this.onChangeCoinsClick()}
