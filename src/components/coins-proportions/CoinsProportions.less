@@ -66,3 +66,86 @@
 .CoinsProportions-item__slider {
   clear: both;
 }
+
+.CoinsProportions-item__separator {
+  display: none;
+  margin: 0 10% 10px 10%;
+  opacity: 0.1;
+  background-color: #d8d8d8;
+  height: 1px;
+  clear: both;
+}
+
+@media screen and (max-width: 1023px) {
+
+  .TokenLegendHolder__name {
+    font-size: 14px;
+  }
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .CoinsProportions__content {
+    .ant-col-6 {
+      width: 42%;
+    }
+    .ant-col-11 {
+      width: 54%;
+    }
+
+    padding-top: 10px;
+  }
+
+  .CoinsProportions__content__header {
+    display: none;
+  }
+
+  .CoinsProportions-item__icon {
+    width: 30px;
+    height: 30px;
+    margin: 0 10px 20px 10px;
+  }
+
+  .CoinsProportions-item__name {
+    font-size: 14px;
+  }
+
+  .CoinsProportions-item__price {
+    font-size: 12px;
+  }
+
+  .CoinsProportions-item__slider {
+    margin-right: 10px;
+  }
+
+  .CoinsProportions-item__percents {
+    font-size: 12px;
+    font-weight: 300;
+    color: #90a8bc;
+    margin-right: 10px;
+  }
+
+  .CoinsProportions-item__separator {
+    display: block;
+  }
+
+  .CoinsProportions-item__proportion-percents__block {
+    width: 12% !important;
+  }
+
+  .CoinsProportions-item__proportion-percents {
+    font-size: 14px;
+  }
+
+  .CoinsProportions-item__proportion-value {
+    font-size: 14px;
+    text-align: end;
+  }
+
+  .CoinsProportions-item__diff {
+    font-size: 10px;
+    text-align: end;
+  }
+
+}

@@ -23,9 +23,9 @@ export class TokenLegendHolder extends AbstractHolder<Properties, {}, TokenLegen
     return (
       <div className="TokenLegendHolder__content">
         <span
-          className={'TokenLegendHolder__color' + (this.props.style === LegendStyle.LINE ? '_line' : '_dot')}
+          className={'TokenLegendHolder__content__color' + (this.props.style === LegendStyle.LINE ? '_line' : '_dot')}
           style={{backgroundColor: model.color}}/>
-        <span className="TokenLegendHolder__name">{model.name}</span>
+        <span className="TokenLegendHolder__content__name">{model.name}</span>
         {this.prepareCheckbox(model)}
       </div>
     );
@@ -33,7 +33,7 @@ export class TokenLegendHolder extends AbstractHolder<Properties, {}, TokenLegen
 
   private prepareCheckbox(model: TokenLegend): any {
     return this.props.showCheckbox
-      ? <Checkbox className="TokenLegendHolder__checkbox" defaultChecked={this.props.defChecked} onChange={
+      ? <Checkbox className="TokenLegendHolder__content__checkbox" defaultChecked={this.props.defChecked} onChange={
         e => this.props.onCheckItemClick(model, e.target.checked)
       }/>
       : null;

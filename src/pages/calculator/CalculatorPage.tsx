@@ -33,7 +33,7 @@ import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
-import { ScreenUtils } from '../../utils/ScreenUtils';
+import { ScreenSizes, ScreenUtils } from '../../utils/ScreenUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './CalculatorPage.less';
 
@@ -163,8 +163,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                   showRebalanceCap={true}
                   isDebugMode={false}
                   applyScale={true}
-                  hideLineScale={ScreenUtils.viewPortWidth < 768}
-                  aspect={ScreenUtils.viewPortWidth <= 768 ? 1.5 : 1.7}
+                  hideLineScale={ScreenUtils.viewPortWidth < ScreenSizes.MD}
+                  aspect={ScreenUtils.viewPortWidth <= ScreenSizes.MD ? 1.5 : 1.7}
                   data={rebalanceResult.getRebalanceHistory().rebalanceValues}
                   colors={TokensHelper.COLORS}
                   showRange={false}
@@ -439,7 +439,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         TokensHelper.getSymbol(proportion.name),
         Number(price[maxIndex].value.toFixed(2)),
         this.calculateProportionPercents(counts, tokensAmount.get(proportion.name) || 0),
-        tokensCount.get(proportion.name) || 0,
+        Number((tokensCount.get(proportion.name) || 0).toFixed(5)),
         Number(diffPercents.toFixed(2))
       );
     });

@@ -1,5 +1,5 @@
 // https://ant.design/components/grid
-export enum Sizes {
+export enum ScreenSizes {
   XXS = 320, // ≤ iPhone 5s/SE
   XS = 576, // <
   SM = 576, // ≥
