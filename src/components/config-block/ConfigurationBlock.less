@@ -1,6 +1,6 @@
 .ConfigurationBlock__content {
   display: grid;
-  grid-template-columns: 471px 471px;
+  grid-template-columns: auto auto;
   grid-gap: 0;
   padding-bottom: 20px;
 }
@@ -12,6 +12,36 @@
 
 .ConfigurationBlock__content__item__title {
   font-size: 18px;
-  color: #828ea2;
   margin-bottom: 20px;
+  color: #828ea2;
+}
+
+@media screen and (max-width: 1023px) {
+
+  .ConfigurationBlock__content {
+    grid-template-columns: auto auto;
+  }
+
+  .ConfigurationBlock__content__item {
+    width: 354px;
+  }
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .ConfigurationBlock__content {
+    grid-template-columns: auto;
+  }
+
+  .ConfigurationBlock__content__item {
+    width: 100%;
+    padding: 10px 10px 0 10px;
+  }
+
+  .ConfigurationBlock__content__item__title {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
 }

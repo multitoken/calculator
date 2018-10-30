@@ -67,12 +67,12 @@ interface State {
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
 
   private static readonly REBALANCE_TYPES: Map<TokenType, string> = new Map([
-    [TokenType.PERIOD_REBALANCE, 'Period rebalance'],
-    [TokenType.DIFF_PERCENT_REBALANCE, 'Diff percent rebalance'],
-    [TokenType.AUTO_REBALANCE, 'Auto rebalance'],
-    [TokenType.ADAPTIVE_PERCENT_EXCHANGER, 'Auto rebalance with dynamic exchange'],
+    [TokenType.PERIOD_REBALANCE, 'Period'],
+    [TokenType.DIFF_PERCENT_REBALANCE, 'Diff percent'],
+    [TokenType.AUTO_REBALANCE, 'Auto'],
+    [TokenType.ADAPTIVE_PERCENT_EXCHANGER, 'Auto with dynamic exchange'],
     [TokenType.FIX_PROPORTIONS, 'Fix proportions'],
-    [TokenType.MANUAL_REBALANCE, 'Manual rebalance']
+    [TokenType.MANUAL_REBALANCE, 'Manual']
   ]);
 
   @lazyInject(Services.PORTFOLIO_MANAGER as string)
@@ -208,6 +208,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               }
             />
           </div>
+          {this.prepareChangeCoinsButton()}
           {this.prepareRebalanceMethods()}
           {this.prepareConfiguration()}
           {this.prepareFinishButtons()}
@@ -351,6 +352,18 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         </span>
       </Col>
         </span>
+    );
+  }
+
+  private prepareChangeCoinsButton(): React.ReactNode {
+    if (!this.state.isEditMode) {
+      return null;
+    }
+
+    return (
+      <div className="CalculatorPage__content__prof-mode__button-change-small">
+        <Button type="primary" onClick={() => this.onChangeCoinsClick()}>Change coins</Button>
+      </div>
     );
   }
 
