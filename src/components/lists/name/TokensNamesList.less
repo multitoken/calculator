@@ -1,7 +1,21 @@
 .TokensNamesList__content {
-  .ant-list-grid .ant-list-item {
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(144px, 1fr));
+  grid-gap: 10px;
+}
+
+@media screen and (max-width: 1023px) {
+
+  .TokensNamesList__content {
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
   }
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .TokensNamesList__content {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+
 }

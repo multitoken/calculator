@@ -82,18 +82,16 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
           <div className="SetupTokenPage__buttons">
             <Button
+              className="SetupTokenPage__buttons__next"
               type="primary"
               onClick={() => this.onNextClick()}
               disabled={!this.checkActiveNext()}
               loading={this.state.isTokenLoading}
-              style={{
-                marginTop: 30,
-              }}
             >
               Next
             </Button>
             <span
-              className="SetupTokenPage__buttons__button_simple"
+              className="button-simple"
               onClick={() => this.onHistoryClick()}
             >
               History

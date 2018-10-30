@@ -3,7 +3,7 @@
 .TokenNameHolder__content {
   font-family: 'Roboto', sans-serif;
   height: 52px;
-  max-width: 144px;
+  width: 144px;
   border-radius: 5px;
   color: white;
   line-height: 50px;
@@ -49,4 +49,29 @@
   line-height: normal;
   letter-spacing: 0;
   color: white;
+}
+
+@media screen and (max-width: 1023px) {
+
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .TokenNameHolder__content {
+    padding: 0 0 0 5px;
+    width: 100%;
+  }
+
+  .TokenNameHolder__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .TokenNameHolder__name {
+    margin-left: 5px;
+    font-size: 12px;
+
+  }
+
 }

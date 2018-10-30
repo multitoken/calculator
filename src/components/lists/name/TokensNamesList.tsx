@@ -1,8 +1,7 @@
-import { ListGridType } from 'antd/lib/list';
 import * as React from 'react';
 import { CoinItemEntity } from '../../../entities/CoinItemEntity';
 import { TokenNameHolder } from '../../holders/name/TokenNameHolder';
-import AbstractList, { AbstractProperties } from '../AbstractList';
+import { AbstractProperties } from '../AbstractList';
 import './TokensNamesList.less';
 
 interface Properties extends AbstractProperties<CoinItemEntity> {
@@ -19,7 +18,7 @@ interface State {
   checkedSet: Set<string>;
 }
 
-export class TokensNamesList extends AbstractList<Properties, CoinItemEntity, State> {
+export class TokensNamesList extends React.Component<Properties, State> {
 
   constructor(props: Properties) {
     super(props);
@@ -30,15 +29,20 @@ export class TokensNamesList extends AbstractList<Properties, CoinItemEntity, St
     console.log(this.state.checkedSet, this.props.checked);
   }
 
-  protected getGridType(): ListGridType | undefined {
-    return {gutter: 2, column: 6};
+  public render() {
+    return (
+      <div className="TokensNamesList__content">
+        {this.prepareItems()}
+      </div>
+    );
   }
 
-  protected getListName(): string {
-    return 'TokensNamesList';
+  private prepareItems(): React.ReactNode {
+    return this.props.data
+      .map((item: CoinItemEntity, index: number) => this.bindHolder(item, index));
   }
 
-  protected bindHolder(dataItem: CoinItemEntity, position: number): object {
+  private bindHolder(dataItem: CoinItemEntity, position: number): object {
     return (
       <TokenNameHolder
         checked={this.state.checkedSet.has(dataItem.name)}

@@ -3,8 +3,9 @@
 .SetupTokenPage {
   align-items: center;
   max-width: 1000px;
-  min-width: 390px;
+  width: 100%;
   margin: 0 auto;
+  padding-bottom: 1000px;
 }
 
 .SetupTokenPage__header {
@@ -31,13 +32,25 @@
   text-align: center;
 }
 
-.SetupTokenPage__buttons__button_simple {
-  .SetupTokenPage__header;
-  cursor: pointer;
-  font-size: 16px;
-  color: @btn-text-color;
-  width: 135px;
-  display: inline-block;
-  margin: 30px 15px 0 0;
-  padding: 10px 0;
+.SetupTokenPage__buttons__next {
+  margin-top: 30px;
+}
+
+@media screen and (max-width: 1023px) {
+
+  .SetupTokenPage {
+    width: 80%;
+  }
+
+  .SetupTokenPage__coins {
+    padding: 10px;
+  }
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .SetupTokenPage__buttons__next {
+    margin-top: 10px;
+  }
 }
