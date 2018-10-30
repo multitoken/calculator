@@ -58,7 +58,7 @@
 }
 
 .CalculatorPage__content__buttons-finish__save-result {
-  margin-right: 20px;
+  margin-right: 20px !important;
 }
 
 .CalculatorPage__content__edit__switch-block__text {
@@ -119,13 +119,21 @@
 }
 
 .CalculatorPage__content__prof-mode__period {
-  margin: 20px 30px 20px 20px;
+  margin: 20px;
 }
 
 .CalculatorPage__content__prof-mode__period__title {
   font-size: 18px;
   color: #90a8bc;
   margin-bottom: 20px;
+}
+
+.CalculatorPage__content__prof-mode__period__picker {
+  display: none;
+}
+
+.CalculatorPage__content__prof-mode__period__slider {
+  display: block;
 }
 
 .CalculatorPage__content__prof-mode__history {
@@ -180,6 +188,7 @@
 
   .CalculatorPage__content__title {
     margin: 0 0 10px 0;
+    font-size: 14px;
   }
 
   .CalculatorPage__content-left {
@@ -219,11 +228,11 @@
   }
 
   .CalculatorPage__content__buttons-finish {
-    margin: 10px 0;
+    margin: 10px 0 0;
   }
 
   .CalculatorPage__content__buttons-finish__save-result {
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
   }
 
   .CalculatorPage__content__prof-mode__menu__title {
@@ -240,6 +249,16 @@
 
   .CalculatorPage__content__prof-mode__title {
     font-size: 13px;
+  }
+
+  .CalculatorPage__content__prof-mode__period__picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-gap: 10px;
+  }
+
+  .CalculatorPage__content__prof-mode__period__slider {
+    display: none;
   }
 
 }

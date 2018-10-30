@@ -231,6 +231,10 @@ export default class PortfolioManagerImpl implements PortfolioManager, ProgressL
     return this.maxCalculationIndex;
   }
 
+  public getMaxCalculationTimestamp(): number {
+    return this.btcHistoryPrice[this.getMaxCalculationIndex()].time;
+  }
+
   public getPriceHistory(): Map<string, TokenPriceHistory[]> {
     return this.selectedTokensHistory;
   }

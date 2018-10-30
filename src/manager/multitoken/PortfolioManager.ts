@@ -52,6 +52,8 @@ export interface PortfolioManager {
 
   getMaxCalculationIndex(): number;
 
+  getMaxCalculationTimestamp(): number;
+
   getPriceHistory(): Map<string, TokenPriceHistory[]>;
 
   getAvailableTokens(): Promise<Map<string, string>>;

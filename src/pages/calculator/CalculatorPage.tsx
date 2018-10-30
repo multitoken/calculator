@@ -1,5 +1,6 @@
-import { Button, Col, Dropdown, Icon, Input, Layout, Menu, Popover, Row, Slider, Switch } from 'antd';
+import { Button, Col, DatePicker, Dropdown, Icon, Input, Layout, Menu, Popover, Row, Slider, Switch } from 'antd';
 import { SliderValue } from 'antd/es/slider';
+import * as moment from 'moment';
 import * as QueryString from 'querystring';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -505,6 +506,19 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <div className="CalculatorPage__content__prof-mode__period__title">
               Period:
             </div>
+            <div className="CalculatorPage__content__prof-mode__period__picker">
+              <DatePicker
+                defaultValue={moment.unix(this.portfolioManager.getCalculationTimestamp()[0] / 1000)}
+                disabledDate={(date) => this.getStartDisabledDate(date)}
+                onChange={(e) => this.onStartDateChange(e)}
+              />
+              <DatePicker
+                defaultValue={moment.unix(this.portfolioManager.getCalculationTimestamp()[1] / 1000)}
+                disabledDate={(date) => this.getEndDisabledDate(date)}
+                onChange={(e) => this.onEndDateChange(e)}
+              />
+            </div>
+            <span className="CalculatorPage__content__prof-mode__period__slider">
             <Slider
               step={1}
               range={true}
@@ -520,6 +534,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               }}
               onAfterChange={(value: SliderValue) => this.onDateRangeChange(value)}
             />
+            </span>
           </div>
 
           <div className="CalculatorPage__content__prof-mode__history">
@@ -528,6 +543,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             </div>
             <HistoryChart
               timeStep={this.portfolioManager.getStepSec()}
+              hideLineScale={ScreenUtils.viewPortWidth < ScreenSizes.MD}
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
               legendColumnCount={4}
@@ -582,6 +598,53 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         </BlockContent>
       </div>
     );
+  }
+
+  private getStartDisabledDate(date: moment.Moment): boolean {
+    if (!date) {
+      return true;
+    }
+
+    return date.unix() < (this.portfolioManager.getBtcPrice()[0].time / 1000) ||
+      date.unix() >= (this.portfolioManager.getCalculationTimestamp()[1] / 1000);
+  }
+
+  private getEndDisabledDate(date: moment.Moment): boolean {
+    if (!date) {
+      return true;
+    }
+
+    return date.unix() < (this.portfolioManager.getCalculationTimestamp()[0] / 1000) ||
+      date.unix() >= (this.portfolioManager.getMaxCalculationTimestamp() / 1000);
+  }
+
+  private onStartDateChange(date: moment.Moment): void {
+    const selectedTimeStamp = date.unix() * 1000;
+    let startIndex: number = 1;
+    this.portfolioManager.getBtcPrice()
+      .some((history, index) => {
+        startIndex = index;
+        return selectedTimeStamp <= history.time;
+      });
+
+    const value: [number, number] = [startIndex, this.portfolioManager.getCalculationDateIndex()[1]];
+    this.onDateRangeChange(value);
+    this.setState({calculateRangeDateIndex: value});
+  }
+
+  private onEndDateChange(date: moment.Moment): void {
+    const selectedTimeStamp = date.unix() * 1000;
+    let endIndex: number = this.portfolioManager.getMaxCalculationIndex();
+
+    this.portfolioManager.getBtcPrice()
+      .some((history, index) => {
+        endIndex = index;
+        return selectedTimeStamp <= history.time;
+      });
+
+    const value: [number, number] = [this.portfolioManager.getCalculationDateIndex()[0], endIndex];
+    this.onDateRangeChange(value);
+    this.setState({calculateRangeDateIndex: value});
   }
 
   private onAmountChange(amount: number): void {
@@ -686,7 +749,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
   private onDateRangeChange(value: SliderValue): void {
     this.analyticsManager.trackEvent('slider', 'change-date-range', '');
-    // this.setState({historyChartRangeDateIndex: this.state.calculateRangeDateIndex});
     this.portfolioManager.changeCalculationDate(value[0], value[1]);
   }
 
