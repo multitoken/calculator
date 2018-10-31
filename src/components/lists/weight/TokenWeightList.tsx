@@ -1,5 +1,7 @@
+import { ListGridType } from 'antd/es/list';
 import * as React from 'react';
 import { TokenWeight } from '../../../repository/models/TokenWeight';
+import { ScreenSizes, ScreenUtils } from '../../../utils/ScreenUtils';
 import { TokenWeightEmptyHolder } from '../../holders/weight/TokenWeightEmptyHolder';
 import { TokenWeightHolder } from '../../holders/weight/TokenWeightHolder';
 import AbstractList, { AbstractProperties } from '../AbstractList';
@@ -32,8 +34,12 @@ export class TokenWeightList extends AbstractList<Properties, TokenWeight, {}> {
     return list;
   }
 
+  protected getGridType(): ListGridType | any {
+    return ScreenUtils.viewPortWidth() < ScreenSizes.MD ? {gutter: 8, column: 2} : super.getGridType();
+  }
+
   protected getItemLayout(): string | undefined {
-    return 'horizontal';
+    return ScreenUtils.viewPortWidth() < ScreenSizes.MD ? 'vertical' : 'horizontal';
   }
 
   protected getListName(): string {

@@ -164,8 +164,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                   showRebalanceCap={true}
                   isDebugMode={false}
                   applyScale={true}
-                  hideLineScale={ScreenUtils.viewPortWidth < ScreenSizes.MD}
-                  aspect={ScreenUtils.viewPortWidth <= ScreenSizes.MD ? 1.5 : 1.7}
+                  hideLineScale={ScreenUtils.viewPortWidth() < ScreenSizes.MD}
+                  aspect={ScreenUtils.viewPortWidth() <= ScreenSizes.MD ? 1.5 : 1.7}
                   data={rebalanceResult.getRebalanceHistory().rebalanceValues}
                   colors={TokensHelper.COLORS}
                   showRange={false}
@@ -543,10 +543,11 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             </div>
             <HistoryChart
               timeStep={this.portfolioManager.getStepSec()}
-              hideLineScale={ScreenUtils.viewPortWidth < ScreenSizes.MD}
+              hideLineScale={ScreenUtils.viewPortWidth() < ScreenSizes.MD}
               data={this.state.tokensHistory}
               colors={TokensHelper.COLORS}
               legendColumnCount={4}
+              aspect={ScreenUtils.viewPortWidth() < ScreenSizes.MD ? 1.7 : 5.7}
               start={this.state.calculateRangeDateIndex[0]}
               end={this.state.calculateRangeDateIndex[1]}
               applyScale={true}
@@ -572,12 +573,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <WeightChart
               applyScale={false}
               data={this.state.tokensWeightList}
+              hideLineScale={ScreenUtils.viewPortWidth() < ScreenSizes.MD}
+              aspect={ScreenUtils.viewPortWidth() < ScreenSizes.MD ? 3.2 : 5.7}
               colors={TokensHelper.COLORS}
               initialDate={this.state.tokensDate[this.portfolioManager.getCalculationDateIndex()[0]]}
               initialState={this.state.proportionList}
               finishDate={this.state.tokensDate[this.portfolioManager.getCalculationDateIndex()[1]]}
               showRange={false}
-              aspect={5.5}
               type={ChartType.BAR}
             />
 
@@ -586,7 +588,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             >
               <TokenWeightList
                 disabled={this.portfolioManager.getTokenType() !== TokenType.MANUAL_REBALANCE}
-                maxHeight="200px"
+                maxHeight={ScreenUtils.viewPortWidth() < ScreenSizes.MD ? undefined : '200px'}
                 onAddClick={() => this.onChangeTokenExchangeWeightClick(-1)}
                 onEditClick={(model, position) => this.onChangeTokenExchangeWeightClick(position, model)}
                 onDeleteClick={(model, position) => this.onDeleteTokenWeightClick(position)}

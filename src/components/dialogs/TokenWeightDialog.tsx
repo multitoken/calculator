@@ -4,6 +4,7 @@ import Pair from '../../repository/models/Pair';
 import { Token } from '../../repository/models/Token';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 import { DateUtils } from '../../utils/DateUtils';
+import { ScreenSizes, ScreenUtils } from '../../utils/ScreenUtils';
 import './TokenWeightDialog.less';
 
 const Option = Select.Option;
@@ -92,81 +93,162 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
     return (
       <div>
         <Modal
-          title="exchange token weight"
+          className="TokenWeightDialog__modal"
+          title="Exchange token weight"
           visible={this.props.openDialog}
           destroyOnClose={true}
-          onOk={() => {
-            const tokens: Token[] = [];
-            this.props.tokenWeights.forEach((value, key) => {
-              if (key !== this.state.selectedTokenFirst && key !== this.state.selectedTokenSecond) {
-                tokens.push(new Token(key, value));
-              }
-            });
-
-            this.props.onOkClick(
-              new TokenWeight(
-                new Pair(
-                  new Token(this.state.selectedTokenFirst, this.state.selectedWeightFirst),
-                  new Token(this.state.selectedTokenSecond, this.state.selectedWeightSecond)
-                ),
-                tokens,
-                this.props.dateList[this.state.selectedDateIndex],
-                this.state.selectedDateIndex
-              ),
-              this.props.editTokenWeights
-            );
-          }}
-          onCancel={() => this.props.onCancel()}
+          footer={this.getFooter()}
+          onOk={() => this.onOkClick()}
+          onCancel={() => this.onCancelClick()}
         >
           <div className="TokenWeightDialog__content">
-            <Row gutter={8} type="flex" justify="space-around" align="middle">
-              <Col span={8}>
-                <div>
-                  <div className="TokenWeightDialog__content-text">Token name:</div>
-                  <Select
-                    onChange={value => this.onFirstTokenChange(value.toString())}
-                    value={this.state.selectedTokenFirst}
-                  >
-                    {this.prepareTokenNames()}
-                  </Select>
-
-                </div>
-                <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightFirst}</div>
-              </Col>
-
-              <Col span={8}>
-                <ButtonGroup>
-                  <Button
-                    type="primary"
-                    icon="left"
-                    size="small"
-                    onClick={() => this.onExchangeFromSecond()}
-                  />
-                  <Button
-                    type="primary"
-                    icon="right"
-                    size="small"
-                    onClick={() => this.onExchangeFromFirst()}
-                  />
-                </ButtonGroup>
-              </Col>
-              <Col span={8}>
-                <div className="TokenWeightDialog__content-text">Token name:</div>
-                <Select
-                  onChange={value => this.onSecondTokenChange(value.toString())}
-                  value={this.state.selectedTokenSecond}
-                >
-                  {this.prepareTokenNames()}
-                </Select>
-
-                <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightSecond}</div>
-              </Col>
-            </Row>
-
+            {this.prepareConfiguration()}
             {this.prepareBlockChangeDate()}
           </div>
         </Modal>
       </div>
+    );
+  }
+
+  private getFooter(): React.ReactNode {
+    if (ScreenUtils.viewPortWidth() >= ScreenSizes.MD) {
+      return [
+        <Button key="Cancel" onClick={() => this.onCancelClick()}>Cancel</Button>,
+        <Button key="Ok" type="primary" onClick={() => this.onOkClick()}>Ok</Button>
+      ];
+    }
+
+    return (
+      <div>
+        <Button key="Ok" type="primary" onClick={() => this.onOkClick()}>Ok</Button>
+        <div className="TokenWeightDialog__content__footer__button-cancel">
+          <Button key="Cancel" onClick={() => this.onCancelClick()}>Cancel</Button>
+        </div>
+      </div>
+    );
+  }
+
+  private onOkClick(): void {
+    const tokens: Token[] = [];
+    this.props.tokenWeights.forEach((value, key) => {
+      if (key !== this.state.selectedTokenFirst && key !== this.state.selectedTokenSecond) {
+        tokens.push(new Token(key, value));
+      }
+    });
+
+    this.props.onOkClick(
+      new TokenWeight(
+        new Pair(
+          new Token(this.state.selectedTokenFirst, this.state.selectedWeightFirst),
+          new Token(this.state.selectedTokenSecond, this.state.selectedWeightSecond)
+        ),
+        tokens,
+        this.props.dateList[this.state.selectedDateIndex],
+        this.state.selectedDateIndex
+      ),
+      this.props.editTokenWeights
+    );
+  }
+
+  private onCancelClick(): void {
+    this.props.onCancel();
+  }
+
+  private prepareConfiguration(): React.ReactNode {
+    return ScreenUtils.viewPortWidth() < ScreenSizes.MD ? this.getSmallConfiguration() : this.getNormalConfiguration();
+  }
+
+  private getSmallConfiguration(): React.ReactNode {
+    return (
+      <div>
+        <div>
+          <div className="TokenWeightDialog__content-text">Token name:</div>
+          <Select
+            onChange={value => this.onFirstTokenChange(value.toString())}
+            value={this.state.selectedTokenFirst}
+          >
+            {this.prepareTokenNames()}
+          </Select>
+
+        </div>
+        <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightFirst}</div>
+
+        <div>
+          <ButtonGroup>
+            <Button
+              type="primary"
+              icon="up"
+              size="small"
+              onClick={() => this.onExchangeFromSecond()}
+            />
+            <Button
+              type="primary"
+              icon="down"
+              size="small"
+              onClick={() => this.onExchangeFromFirst()}
+            />
+          </ButtonGroup>
+        </div>
+        <div>
+          <div className="TokenWeightDialog__content-text">Token name:</div>
+          <Select
+            onChange={value => this.onSecondTokenChange(value.toString())}
+            value={this.state.selectedTokenSecond}
+          >
+            {this.prepareTokenNames()}
+          </Select>
+
+          <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightSecond}</div>
+        </div>
+      </div>
+    );
+  }
+
+  private getNormalConfiguration(): React.ReactNode {
+    return (
+      <Row gutter={8} type="flex" justify="space-around" align="middle">
+        <Col span={8}>
+          <div>
+            <div className="TokenWeightDialog__content-text">Token name:</div>
+            <Select
+              onChange={value => this.onFirstTokenChange(value.toString())}
+              value={this.state.selectedTokenFirst}
+            >
+              {this.prepareTokenNames()}
+            </Select>
+
+          </div>
+          <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightFirst}</div>
+        </Col>
+
+        <Col span={8}>
+          <ButtonGroup>
+            <Button
+              type="primary"
+              icon="left"
+              size="small"
+              onClick={() => this.onExchangeFromSecond()}
+            />
+            <Button
+              type="primary"
+              icon="right"
+              size="small"
+              onClick={() => this.onExchangeFromFirst()}
+            />
+          </ButtonGroup>
+        </Col>
+        <Col span={8}>
+          <div className="TokenWeightDialog__content-text">Token name:</div>
+          <Select
+            onChange={value => this.onSecondTokenChange(value.toString())}
+            value={this.state.selectedTokenSecond}
+          >
+            {this.prepareTokenNames()}
+          </Select>
+
+          <div className="TokenWeightDialog__content-text">Weight: {this.state.selectedWeightSecond}</div>
+        </Col>
+      </Row>
     );
   }
 
@@ -230,7 +312,8 @@ export class TokenWeightDialog extends React.Component<Properties, State> {
           value={this.state.selectedDateIndex}
           tipFormatter={(value) => this.formatter(value)}
           onChange={value =>
-            this.setState({selectedDateIndex:
+            this.setState({
+              selectedDateIndex:
                 Math.min(this.props.rangeDateIndex[1], Math.max(this.props.rangeDateIndex[0], value as number))
             })
           }

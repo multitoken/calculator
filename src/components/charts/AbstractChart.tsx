@@ -187,9 +187,11 @@ export default abstract class AbstractChart<P extends AbstractProperties<M>, S e
           dataKey="date"
           tick={<XAxisDate/>}
           tickCount={1}
+          hide={this.props.hideLineScale === true}
         />
         <YAxis
           minTickGap={1}
+          hide={this.props.hideLineScale === true}
           tick={<YAxisValue/>}
           scale={this.props.applyScale === false ? undefined : 'log'}
           domain={['auto', 'auto']}

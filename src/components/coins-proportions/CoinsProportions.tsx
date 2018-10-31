@@ -82,7 +82,7 @@ export class CoinsProportions extends React.Component<Props, {}> {
   }
 
   private getDiffPercentsInline(coin: CoinItemEntity): React.ReactNode {
-    if (ScreenUtils.viewPortWidth >= ScreenSizes.MD) {
+    if (ScreenUtils.viewPortWidth() >= ScreenSizes.MD) {
       return null;
     }
 
@@ -98,7 +98,7 @@ export class CoinsProportions extends React.Component<Props, {}> {
   }
 
   private getDiffPercents(coin: CoinItemEntity): React.ReactNode {
-    if (ScreenUtils.viewPortWidth < ScreenSizes.MD) {
+    if (ScreenUtils.viewPortWidth() < ScreenSizes.MD) {
       return null;
     }
 

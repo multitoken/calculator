@@ -13,16 +13,19 @@ export class ScreenUtils {
 
   public static readonly documentElement = (document.documentElement as HTMLElement);
 
-  public static readonly viewPortWidth: number =
-    Math.max(ScreenUtils.documentElement.clientWidth, window.innerWidth || 0);
-
-  public static readonly getViewPortHeight: number =
-    Math.max(ScreenUtils.documentElement.clientHeight, window.innerHeight || 0);
-
   public static readonly isIPhone: boolean = navigator.userAgent.includes('iPhone');
   public static readonly isIPad = navigator.userAgent.includes('iPad');
   public static readonly isAndroid = navigator.userAgent.includes('Android');
   public static readonly isIOS = ScreenUtils.isIPhone || ScreenUtils.isIPad;
   public static readonly isMobile = ScreenUtils.isIOS || ScreenUtils.isAndroid;
+
+  public static readonly viewPortWidth = () => {
+    console.log(ScreenUtils.documentElement.clientWidth, window.innerWidth);
+    return Math.max(ScreenUtils.documentElement.clientWidth, window.innerWidth || 0);
+  }
+
+  public static readonly getViewPortHeight = () => {
+    return Math.max(ScreenUtils.documentElement.clientHeight, window.innerHeight || 0);
+  }
 
 }

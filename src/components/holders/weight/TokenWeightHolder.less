@@ -5,19 +5,21 @@
   background-color: @content-color;
   border: solid 1.2px @border-dark;
   width: 160px;
-  height: 70px;
-  padding: 3px 4px 0 7px;
+  padding: 3px 4px 2px 7px;
   margin-right: 20px;
-}
-
-.TokenWeightHolder__content-data {
-  float: left;
-  width: 130px;
+  display: inline-flex;
 }
 
 .TokenWeightHolder__content-actions {
-  float: right;
-  margin-top: -3px;
+  margin: 0 auto;
+  text-align: right;
+  div {
+    cursor: pointer;
+  }
+}
+
+.TokenWeightHolder__content-actions__delete {
+  margin-top: -4px;
 }
 
 .TokenWeightHolder__item-date {
@@ -40,4 +42,47 @@
 .TokenWeightHolder__item-value {
   .TokenWeightHolder__item-key;
   float: right;
+}
+
+@media screen and (max-width: 767px) {
+  .TokenWeightHolder__content {
+    display: block;
+    width: 100%;
+    margin-right: 0;
+    border-radius: 8px;
+    border: solid 1px #4a536e;
+  }
+
+  .TokenWeightHolder__content-data {
+    width: 100%;
+    padding-right: 5px;
+  }
+
+  .TokenWeightHolder__item-date {
+    font-size: 13px;
+  }
+
+  .TokenWeightHolder__item-key {
+    .TokenWeightHolder__item-date;
+  }
+
+  .TokenWeightHolder__item-value {
+    .TokenWeightHolder__item-key;
+  }
+
+  .TokenWeightHolder__content-actions {
+    display: grid;
+    grid-template-columns: auto auto;
+    text-align: center;
+    clear: both;
+
+    div:first-child {
+      border-right: 1px solid #4a536e;
+    }
+    div {
+      margin: 0;
+      border-top: 1px solid #4a536e;
+    }
+  }
+
 }

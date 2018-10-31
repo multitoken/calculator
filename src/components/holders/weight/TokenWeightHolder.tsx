@@ -27,20 +27,22 @@ export class TokenWeightHolder extends AbstractHolder<Properties, TokenWeight, o
         </div>
 
         <div className="TokenWeightHolder__content-actions">
-          <div>
+          <div className="TokenWeightHolder__content-actions__delete"
+               onClick={e => this.props.onItemClick(model, TokenWeightHolder.HOLDER_ACTION_ID_DELETE)}
+          >
             <img
               style={{cursor: 'pointer'}}
               src={IcoDelete}
               alt="delete"
-              onClick={e => this.props.onItemClick(model, TokenWeightHolder.HOLDER_ACTION_ID_DELETE)}
             />
           </div>
-          <div>
+          <div
+            onClick={e => this.props.onItemClick(model, TokenWeightHolder.HOLDER_ACTION_ID_EDIT)}
+          >
             <img
               style={{cursor: 'pointer'}}
               src={IcoEdit}
               alt="edit"
-              onClick={e => this.props.onItemClick(model, TokenWeightHolder.HOLDER_ACTION_ID_EDIT)}
             />
           </div>
         </div>
