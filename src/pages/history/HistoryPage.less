@@ -1,13 +1,28 @@
 .HistoryPage__content {
   padding: 10px;
-  min-width: 980px;
-  margin: 20px auto;
+  margin: 20px;
   color: #828ea2;
-  .ant-input {
-    height: 32px;
+  .ant-input-search {
+    .ant-input {
+      height: 32px;
+    }
+    .ant-btn {
+      height: 32px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
   }
 }
 
 .HistoryPage__content_nothing_found {
   text-align: center;
+}
+
+@media screen and (max-width: 767px) {
+
+  .HistoryPage__content {
+    padding: 10px;
+    margin: 10px;
+  }
+
 }
