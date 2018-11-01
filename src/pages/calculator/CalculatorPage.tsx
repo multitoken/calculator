@@ -508,11 +508,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             </div>
             <div className="CalculatorPage__content__prof-mode__period__picker">
               <DatePicker
+                allowClear={false}
                 defaultValue={moment.unix(this.portfolioManager.getCalculationTimestamp()[0] / 1000)}
                 disabledDate={(date) => this.getStartDisabledDate(date)}
                 onChange={(e) => this.onStartDateChange(e)}
               />
               <DatePicker
+                allowClear={false}
                 defaultValue={moment.unix(this.portfolioManager.getCalculationTimestamp()[1] / 1000)}
                 disabledDate={(date) => this.getEndDisabledDate(date)}
                 onChange={(e) => this.onEndDateChange(e)}
