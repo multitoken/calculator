@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Dropdown, Icon, Input, Layout, Menu, Popover, Row, Slider, Switch } from 'antd';
+import { Button, Col, DatePicker, Input, Layout, Popover, Row } from 'antd';
 import { SliderValue } from 'antd/es/slider';
 import * as moment from 'moment';
 import * as QueryString from 'querystring';
@@ -17,8 +17,10 @@ import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
 import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageHeader from '../../components/page-header/PageHeader';
+import { RebalanceTypes } from '../../components/rebalance-types/RebalanceTypes';
 import { StatisticItem } from '../../components/statistic-item/StatisticItem';
 import { CoinItemEntity } from '../../entities/CoinItemEntity';
+import { RebalanceTypeItem } from '../../entities/RebalanceTypeItem';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { ExecutorType } from '../../manager/multitoken/executors/TimeLineExecutor';
@@ -33,7 +35,15 @@ import { Token } from '../../repository/models/Token';
 import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
-import { DateUtils } from '../../utils/DateUtils';
+
+import IcoProfMode from '../../res/icons/ico_professional_mode.svg';
+import IcoRebalanceAuto from '../../res/icons/rebalance-types/ico_auto.svg';
+import IcoRebalanceAutoDynamic from '../../res/icons/rebalance-types/ico_auto_dynamic.svg';
+import IcoRebalanceDiff from '../../res/icons/rebalance-types/ico_diff.svg';
+import IcoRebalanceFix from '../../res/icons/rebalance-types/ico_fix.svg';
+import IcoRebalanceManual from '../../res/icons/rebalance-types/ico_manual.svg';
+
+import IcoRebalancePediod from '../../res/icons/rebalance-types/ico_period.svg';
 import { ScreenSizes, ScreenUtils } from '../../utils/ScreenUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './CalculatorPage.less';
@@ -54,7 +64,6 @@ interface State {
   proportionList: TokenProportion[];
   showCalculationProgress: boolean;
   showMessageDialog: boolean;
-  selectedRebalanceType: string;
   showPopoverSave: boolean;
   tokenDialogOpen: boolean;
   tokenLatestWeights: Map<string, number>;
@@ -67,14 +76,14 @@ interface State {
 
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
 
-  private static readonly REBALANCE_TYPES: Map<TokenType, string> = new Map([
-    [TokenType.PERIOD_REBALANCE, 'Period'],
-    [TokenType.DIFF_PERCENT_REBALANCE, 'Diff percent'],
-    [TokenType.AUTO_REBALANCE, 'Auto'],
-    [TokenType.ADAPTIVE_PERCENT_EXCHANGER, 'Auto with dynamic exchange'],
-    [TokenType.FIX_PROPORTIONS, 'Fix proportions'],
-    [TokenType.MANUAL_REBALANCE, 'Manual']
-  ]);
+  private static readonly REBALANCE_TYPES: RebalanceTypeItem[] = [
+    new RebalanceTypeItem(TokenType.PERIOD_REBALANCE, 'Period', IcoRebalancePediod),
+    new RebalanceTypeItem(TokenType.DIFF_PERCENT_REBALANCE, 'Diff percent', IcoRebalanceDiff),
+    new RebalanceTypeItem(TokenType.AUTO_REBALANCE, 'Auto', IcoRebalanceAuto),
+    new RebalanceTypeItem(TokenType.ADAPTIVE_PERCENT_EXCHANGER, 'Auto with dynamic exchange', IcoRebalanceAutoDynamic),
+    new RebalanceTypeItem(TokenType.FIX_PROPORTIONS, 'Fix proportions', IcoRebalanceFix),
+    new RebalanceTypeItem(TokenType.MANUAL_REBALANCE, 'Manual', IcoRebalanceManual)
+  ];
 
   @lazyInject(Services.PORTFOLIO_MANAGER as string)
   private portfolioManager: PortfolioManager;
@@ -99,7 +108,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       professionalMode: false,
       progressPercents: 0,
       proportionList: [],
-      selectedRebalanceType: CalculatorPage.REBALANCE_TYPES.get(this.portfolioManager.getTokenType()) || 'undefined',
       showCalculationProgress: false,
       showMessageDialog: false,
       showPopoverSave: false,
@@ -213,6 +221,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           {this.prepareRebalanceMethods()}
           {this.prepareConfiguration()}
           {this.prepareFinishButtons()}
+          {this.prepareBlockProfessionalMode()}
         </div>
 
         <TokenWeightDialog
@@ -280,7 +289,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         changeWeightMinDates: this.portfolioManager.getCalculationDateIndex() as [number, number],
         isEditMode: false,
         proportionList: this.portfolioManager.getProportions(),
-        selectedRebalanceType: CalculatorPage.REBALANCE_TYPES.get(this.portfolioManager.getTokenType()) || 'undefined',
         showCalculationProgress: false,
         tokensDate: history.map(value => value.time),
         tokensHistory: this.portfolioManager.getPriceHistory(),
@@ -335,16 +343,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     return (
       <span className="CalculatorPage__content__edit">
-      <Col span={8} className="CalculatorPage__content__edit__switch-block__block">
-        <div className="CalculatorPage__content__edit__switch-block">
-          <span className="CalculatorPage__content__edit__switch-block__text">Professional mode</span>
-          <Switch
-            checked={this.state.professionalMode}
-            onChange={checked => this.setState({professionalMode: checked})}
-          />
-        </div>
-      </Col>
-      <Col span={8} className="CalculatorPage__content__edit__button-change__block">
+      <Col span={16} className="CalculatorPage__content__edit__button-change__block">
         <span
           className="CalculatorPage__content__edit__button-change"
           onClick={() => this.onChangeCoinsClick()}
@@ -352,7 +351,30 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           Change coins
         </span>
       </Col>
-        </span>
+      </span>
+    );
+  }
+
+  private prepareBlockProfessionalMode(): React.ReactNode {
+    if (!this.state.isEditMode || this.state.professionalMode) {
+      return null;
+    }
+
+    return (
+      <BlockContent className="CalculatorPage__content__prof-mode-desc__block">
+        <img className="CalculatorPage__content__prof-mode-desc__icon" alt="Img" src={IcoProfMode}/>
+        <div className="CalculatorPage__content__prof-mode-desc__text">
+          The professional method is designed for more advanced users,
+          investors and people who understand the crypto industry
+        </div>
+        <Button
+          className="CalculatorPage__content__prof-mode-desc__button"
+          type="primary"
+          onClick={() => this.setState({professionalMode: true})}
+        >
+          Activate
+        </Button>
+      </BlockContent>
     );
   }
 
@@ -374,43 +396,9 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     }
 
     return (
-      <Row className="CalculatorPage__content__prof-mode">
-        <Col span={8}>
-          <div className="CalculatorPage__content__prof-mode__title">Professional mode:</div>
-        </Col>
-        <Col span={16} className="CalculatorPage__content__prof-mode__menu">
-          <span className="CalculatorPage__content__prof-mode__menu__title">Method:</span>
-          <Dropdown overlay={this.getAvailableRebalanceMenu()} trigger={['click']}>
-            <span className="CalculatorPage__content__prof-mode__menu__name">
-            {this.state.selectedRebalanceType}
-              <Icon className="CalculatorPage__content__prof-mode__menu__arrow" type="down"/>
-            </span>
-          </Dropdown>
-        </Col>
-      </Row>
-    );
-  }
-
-  private getAvailableRebalanceMenu(): React.ReactNode {
-    const items: string[] = Array.from(CalculatorPage.REBALANCE_TYPES.values());
-    return (
-      <Menu onClick={(e: any) => {
-        CalculatorPage.REBALANCE_TYPES.forEach((value, key) => {
-          if (value === e.key) {
-            if (key !== this.portfolioManager.getTokenType()) {
-              this.setState({
-                tokensWeightEditItem: undefined,
-                tokensWeightList: [],
-              });
-            }
-            this.portfolioManager.setTokenType(key);
-            this.setState({selectedRebalanceType: e.key});
-            return;
-          }
-        });
-      }}>
-        {items.map((item) => <Menu.Item key={item}>{item}</Menu.Item>)}
-      </Menu>
+      <div className="CalculatorPage__content__prof-mode">
+        <div className="CalculatorPage__content__prof-mode__title">Professional mode:</div>
+      </div>
     );
   }
 
@@ -482,6 +470,19 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     return (
       <div>
+        <BlockContent className="CalculatorPage__content__prof-mode__method">
+          <div className="CalculatorPage__content__prof-mode__method__title">
+            Balancing method:
+          </div>
+          <div className="CalculatorPage__content__prof-mode__method__items">
+            <RebalanceTypes
+              items={CalculatorPage.REBALANCE_TYPES}
+              defaultSelection={this.getSelectedRebalanceType()}
+              onItemChange={(item) => this.onRebalanceChange(item)}
+            />
+          </div>
+        </BlockContent>
+
         <ConfigurationBlock
           amount={this.portfolioManager.getAmount()}
           exchangeAmount={this.portfolioManager.getExchangeAmount()}
@@ -520,23 +521,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
                 onChange={(e) => this.onEndDateChange(e)}
               />
             </div>
-            <span className="CalculatorPage__content__prof-mode__period__slider">
-            <Slider
-              step={1}
-              range={true}
-              disabled={this.state.tokensWeightList.length > 0}
-              max={this.state.calculateMaxDateIndex}
-              min={0}
-              defaultValue={[0, 10]}
-              tipFormatter={value => this.inputRangeTrackValue(value)}
-              value={this.state.calculateRangeDateIndex}
-              onChange={value => {
-                this.portfolioManager.changeCalculationDate(value[0], value[1]);
-                this.setState({calculateRangeDateIndex: value});
-              }}
-              onAfterChange={(value: SliderValue) => this.onDateRangeChange(value)}
-            />
-            </span>
           </div>
 
           <div className="CalculatorPage__content__prof-mode__history">
@@ -602,6 +586,21 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         </BlockContent>
       </div>
     );
+  }
+
+  private getSelectedRebalanceType(): RebalanceTypeItem {
+    for (const item of CalculatorPage.REBALANCE_TYPES) {
+      if (this.portfolioManager.getTokenType() === item.type) {
+        return item;
+      }
+    }
+
+    return CalculatorPage.REBALANCE_TYPES[0];
+  }
+
+  private onRebalanceChange(item: RebalanceTypeItem): void {
+    this.portfolioManager.setTokenType(item.type);
+    this.setState({});
   }
 
   private getStartDisabledDate(date: moment.Moment): boolean {
@@ -741,14 +740,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       tokenLatestWeights: latestTokensWeight,
       tokensWeightEditItem: model,
     });
-  }
-
-  private inputRangeTrackValue(value: number): string {
-    if (value > -1 && value <= this.state.tokensDate.length - 1) {
-      return DateUtils.toFormat(this.state.tokensDate[value], DateUtils.DATE_FORMAT_SHORT);
-    } else {
-      return 'wrong date';
-    }
   }
 
   private onDateRangeChange(value: SliderValue): void {

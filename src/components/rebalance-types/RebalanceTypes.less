@@ -1,0 +1,40 @@
+.RebalanceTypes__content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  border-radius: 8px;
+  background-color: #1c2233;
+
+  .RebalanceTypes__content__item {
+    border-radius: 8px;
+    text-align: center;
+    color: #828ea2;
+    cursor: pointer;
+    position: relative;
+    height: 120px;
+  }
+
+  .RebalanceTypes__content__item:hover {
+    background: #313857;
+  }
+
+  .RebalanceTypes__content__item_selected {
+    .RebalanceTypes__content__item;
+    background-color: #3294e4;
+    color: white;
+  }
+
+  .RebalanceTypes__content__item__icon {
+    width: 40px;
+    height: 40px;
+    margin-top: 20px;
+  }
+
+  .RebalanceTypes__content__item__desc {
+    font-size: 14px;
+    position: absolute;
+    bottom: 20px;
+    text-align: center;
+    width: 100%;
+  }
+
+}
