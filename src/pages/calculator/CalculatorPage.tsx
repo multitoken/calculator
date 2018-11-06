@@ -241,7 +241,11 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           percentProgress={this.state.progressPercents}
         />
 
-        <MessageDialog openDialog={this.state.showMessageDialog}/>
+        <MessageDialog
+          openDialog={this.state.showMessageDialog}
+          title="Please wait few seconds."
+          message="We setup data in charts..."
+        />
 
         <LoadingDialog
           openDialog={!this.state.preparedHistoryData}
