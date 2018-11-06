@@ -20,7 +20,6 @@ export class ScreenUtils {
   public static readonly isMobile = ScreenUtils.isIOS || ScreenUtils.isAndroid;
 
   public static readonly viewPortWidth = () => {
-    console.log(ScreenUtils.documentElement.clientWidth, window.innerWidth);
     return Math.max(ScreenUtils.documentElement.clientWidth, window.innerWidth || 0);
   }
 
