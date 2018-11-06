@@ -2,14 +2,18 @@ import { Button, Layout, Modal } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import BlockContent from '../../components/block-content/BlockContent';
+import { LoadingDialog } from '../../components/dialogs/LoadingDialog';
 import { TokensNamesList } from '../../components/lists/name/TokensNamesList';
+import { PreparedPortfoliosList } from '../../components/lists/prepared-portofios/PreparedPortfoliosList';
 import PageFooter from '../../components/page-footer/PageFooter';
 import PageHeader from '../../components/page-header/PageHeader';
 import { CoinItemEntity } from '../../entities/CoinItemEntity';
+import { PreparedPortfolio } from '../../entities/PreparedPortfolio';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
 import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
+import { PreparedPortfoliosItems } from '../../utils/PreparedPortfoliosItems';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
@@ -17,9 +21,9 @@ interface Props extends RouteComponentProps<{}> {
 
 interface State {
   availableTokenNames: CoinItemEntity[];
+  preparedHistoryData: boolean;
+  preparedPortfolios: PreparedPortfolio[];
   selectedTokenNames: string[];
-  showMessageDialog: boolean;
-  isTokenLoading: boolean;
 }
 
 export default class SetupTokenPage extends React.Component<Props, State> {
@@ -36,9 +40,9 @@ export default class SetupTokenPage extends React.Component<Props, State> {
 
     this.state = {
       availableTokenNames: [],
-      isTokenLoading: false,
+      preparedHistoryData: false,
+      preparedPortfolios: this.getPreparedPortfolios(),
       selectedTokenNames: this.portfolioManager.getTokens(),
-      showMessageDialog: false,
     };
   }
 
@@ -59,15 +63,26 @@ export default class SetupTokenPage extends React.Component<Props, State> {
   public render() {
     return (
       <Layout
-        style={{
-          minHeight: '100vh',
-          minWidth: 320,
-          pointerEvents: this.state.isTokenLoading ? 'none' : 'auto'
-        }}
+        style={{minHeight: '100vh'}}
       >
         <PageHeader/>
 
         <div className="SetupTokenPage">
+
+          <div className="SetupTokenPage__header">
+            Select an already prepared portfolio of coins for `{RebalanceHistory.MULTITOKEN_NAME_REBALANCE}`
+          </div>
+
+          <div className="SetupTokenPage__prepared-portfolios">
+            <PreparedPortfoliosList
+              items={this.state.preparedPortfolios}
+              onPortfolioClick={(item) => this.onPreparedPortfolioClick(item)}
+            />
+          </div>
+
+          <div className="SetupTokenPage__sub-header">
+            Or
+          </div>
 
           <div className="SetupTokenPage__header">
             Select coins for create `{RebalanceHistory.MULTITOKEN_NAME_REBALANCE}` (at least two)
@@ -79,7 +94,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               checked={this.state.selectedTokenNames}
               onCheck={result => this.onCheckToken(result)}
               onChange={(name: string, checked: boolean) => this.onChangeTokens(name, checked)}
-              disabled={this.state.isTokenLoading}
+              disabled={false}
             />
           </BlockContent>
 
@@ -88,7 +103,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               className="SetupTokenPage__buttons__next"
               type="primary"
               onClick={() => this.onNextClick()}
-              loading={this.state.isTokenLoading}
             >
               Next
             </Button>
@@ -101,8 +115,49 @@ export default class SetupTokenPage extends React.Component<Props, State> {
           </div>
         </div>
         <PageFooter/>
+        <LoadingDialog
+          openDialog={this.state.preparedHistoryData}
+          message={'Please wait. We prepare historical data of coins'}
+        />
       </Layout>
     );
+  }
+
+  private getPreparedPortfolios(): PreparedPortfolio[] {
+    const items: PreparedPortfolio[] = [];
+    const len: number = PreparedPortfoliosItems.DATA.length - 1;
+
+    while (items.length < 3) {
+      const pos: number = Math.floor(this.random(0, len));
+      const item: PreparedPortfolio = PreparedPortfoliosItems.DATA[pos];
+      if (items.indexOf(item) <= -1) {
+        items.push(item);
+      }
+    }
+
+    return items;
+  }
+
+  private random(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+  }
+
+  private onPreparedPortfolioClick(item: PreparedPortfolio): void {
+    this.setState({preparedHistoryData: true});
+    this.analyticsManager.trackEvent('button', 'click', 'setup-to-next');
+    const {history} = this.props;
+
+    this.portfolioManager.setupTokens(item.coins)
+      .then(() => {
+        this.portfolioManager.setRebalanceDiffPercent(item.diffPercent);
+        history.push('/calculator');
+      })
+      .catch((reason: Error) => {
+        this.analyticsManager.trackException(reason);
+        console.error(reason);
+        alert('something went wrong');
+        this.setState({preparedHistoryData: false});
+      });
   }
 
   private onSyncTokens(tokens: Map<string, string>) {
@@ -138,7 +193,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({isTokenLoading: true});
+    this.setState({preparedHistoryData: true});
     const {history} = this.props;
 
     this.state.selectedTokenNames.sort();
@@ -151,7 +206,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         this.analyticsManager.trackException(reason);
         console.error(reason);
         alert('something went wrong');
-        this.setState({isTokenLoading: false});
+        this.setState({preparedHistoryData: false});
       });
   }
 

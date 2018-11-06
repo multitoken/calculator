@@ -1,0 +1,67 @@
+@import '../../../res/styles/Colors';
+
+.PreparedPortfolio__content {
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: 0;
+  color: @text-color-light;
+  border-radius: 5px;
+  background-color: @content-color;
+  border: solid 1px @border;
+  padding: 10px;
+  margin: 5px;
+  text-align: center;
+}
+
+.PreparedPortfolio__icon {
+  margin-bottom: 10px;
+}
+
+.PreparedPortfolio__type-block {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.PreparedPortfolio__type-block__key {
+  text-align: left;
+  margin-right: 10px;
+  font-size: 16px;
+  color: @text-color-dark;
+}
+
+.PreparedPortfolio__coins-block__key {
+  .PreparedPortfolio__type-block__key;
+}
+
+.PreparedPortfolio__type-block__value {
+  font-size: 16px;
+  color: @text-color-light;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.PreparedPortfolio__coins-block {
+  .PreparedPortfolio__type-block;
+}
+
+.PreparedPortfolio__coins-block__value {
+  .PreparedPortfolio__type-block__value;
+}
+
+.PreparedPortfolio__content__btn {
+  padding: 10px 10px 0 10px;
+}
+
+@media screen and (max-width: 1023px) {
+
+}
+
+@media screen and (max-width: 767px) {
+
+  .TokenNameHolder__content {
+    padding: 0 0 0 5px;
+  }
+
+}

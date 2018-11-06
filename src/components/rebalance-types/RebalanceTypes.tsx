@@ -44,10 +44,10 @@ export class RebalanceTypes extends React.Component<Props, State> {
         <img
           className="RebalanceTypes__content__item__icon"
           alt="img"
-          src={item.icon}
+          src={item.getIcon()}
         />
         <div className="RebalanceTypes__content__item__desc">
-          {item.desc}
+          {item.getReadableType()}
         </div>
       </div>
     );

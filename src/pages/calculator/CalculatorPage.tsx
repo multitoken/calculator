@@ -37,13 +37,6 @@ import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 
 import IcoProfMode from '../../res/icons/ico_professional_mode.svg';
-import IcoRebalanceAuto from '../../res/icons/rebalance-types/ico_auto.svg';
-import IcoRebalanceAutoDynamic from '../../res/icons/rebalance-types/ico_auto_dynamic.svg';
-import IcoRebalanceDiff from '../../res/icons/rebalance-types/ico_diff.svg';
-import IcoRebalanceFix from '../../res/icons/rebalance-types/ico_fix.svg';
-import IcoRebalanceManual from '../../res/icons/rebalance-types/ico_manual.svg';
-
-import IcoRebalancePediod from '../../res/icons/rebalance-types/ico_period.svg';
 import { ScreenSizes, ScreenUtils } from '../../utils/ScreenUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
 import './CalculatorPage.less';
@@ -77,12 +70,12 @@ interface State {
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
 
   private static readonly REBALANCE_TYPES: RebalanceTypeItem[] = [
-    new RebalanceTypeItem(TokenType.PERIOD_REBALANCE, 'Period', IcoRebalancePediod),
-    new RebalanceTypeItem(TokenType.DIFF_PERCENT_REBALANCE, 'Diff percent', IcoRebalanceDiff),
-    new RebalanceTypeItem(TokenType.AUTO_REBALANCE, 'Auto', IcoRebalanceAuto),
-    new RebalanceTypeItem(TokenType.ADAPTIVE_PERCENT_EXCHANGER, 'Auto with dynamic exchange', IcoRebalanceAutoDynamic),
-    new RebalanceTypeItem(TokenType.FIX_PROPORTIONS, 'Fix proportions', IcoRebalanceFix),
-    new RebalanceTypeItem(TokenType.MANUAL_REBALANCE, 'Manual', IcoRebalanceManual)
+    new RebalanceTypeItem(TokenType.PERIOD_REBALANCE),
+    new RebalanceTypeItem(TokenType.DIFF_PERCENT_REBALANCE),
+    new RebalanceTypeItem(TokenType.AUTO_REBALANCE),
+    new RebalanceTypeItem(TokenType.ADAPTIVE_PERCENT_EXCHANGER),
+    new RebalanceTypeItem(TokenType.FIX_PROPORTIONS),
+    new RebalanceTypeItem(TokenType.MANUAL_REBALANCE)
   ];
 
   @lazyInject(Services.PORTFOLIO_MANAGER as string)

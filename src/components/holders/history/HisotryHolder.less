@@ -16,18 +16,32 @@
   margin: 5px;
 }
 
+.HistoryHolder__content__param {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.HistoryHolder__content__param-name {
+  margin-right: 10px;
+  font-size: 16px;
+  color: @text-color-dark;
+}
+
 .HistoryHolder__content__title {
   margin-bottom: 5px;
 }
 
 .HistoryHolder__content__param-name {
-  font-size: 16px;
-  color: @text-color-dark;
 }
 
 .HistoryHolder__content__param-value {
   font-size: 16px;
   color: @text-color-light;
+  float: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
 }
 
 .HistoryHolder__content__btn {
