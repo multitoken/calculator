@@ -1,4 +1,4 @@
-import { Button, Layout } from 'antd';
+import { Button, Layout, Modal } from 'antd';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import BlockContent from '../../components/block-content/BlockContent';
@@ -9,6 +9,7 @@ import { CoinItemEntity } from '../../entities/CoinItemEntity';
 import { lazyInject, Services } from '../../Injections';
 import { AnalyticsManager } from '../../manager/analytics/AnalyticsManager';
 import { PortfolioManager } from '../../manager/multitoken/PortfolioManager';
+import { RebalanceHistory } from '../../repository/models/RebalanceHistory';
 import './SetupTokenPage.less';
 
 interface Props extends RouteComponentProps<{}> {
@@ -17,6 +18,7 @@ interface Props extends RouteComponentProps<{}> {
 interface State {
   availableTokenNames: CoinItemEntity[];
   selectedTokenNames: string[];
+  showMessageDialog: boolean;
   isTokenLoading: boolean;
 }
 
@@ -36,6 +38,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
       availableTokenNames: [],
       isTokenLoading: false,
       selectedTokenNames: this.portfolioManager.getTokens(),
+      showMessageDialog: false,
     };
   }
 
@@ -67,7 +70,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
         <div className="SetupTokenPage">
 
           <div className="SetupTokenPage__header">
-            Select coins to calculate multiToken (at least two)
+            Select coins for create `{RebalanceHistory.MULTITOKEN_NAME_REBALANCE}` (at least two)
           </div>
 
           <BlockContent className="SetupTokenPage__coins">
@@ -85,7 +88,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               className="SetupTokenPage__buttons__next"
               type="primary"
               onClick={() => this.onNextClick()}
-              disabled={!this.checkActiveNext()}
               loading={this.state.isTokenLoading}
             >
               Next
@@ -120,7 +122,22 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.analyticsManager.trackEvent('checkbox', checked ? 'check' : 'uncheck', name);
   }
 
+  private messageInfo(): void {
+    Modal.info({
+      content: <p style={{fontSize: '16px', color: 'white'}}><b>Please select at least two coins</b></p>,
+      title: <p style={{fontSize: '25px', color: 'white'}}>Backtest</p>,
+      onOk() {
+        // close
+      },
+    });
+  }
+
   private onNextClick() {
+    if (this.state.selectedTokenNames.length <= 1) {
+      this.messageInfo();
+      return;
+    }
+
     this.setState({isTokenLoading: true});
     const {history} = this.props;
 
@@ -144,10 +161,6 @@ export default class SetupTokenPage extends React.Component<Props, State> {
     this.analyticsManager.trackEvent('button', 'click', 'to-history');
 
     history.push('history');
-  }
-
-  private checkActiveNext(): boolean {
-    return this.state.selectedTokenNames.length > 1;
   }
 
 }
