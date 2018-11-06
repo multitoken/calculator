@@ -1,3 +1,4 @@
+import Button from 'antd/lib/button/button';
 import * as React from 'react';
 import { ExecutorType } from '../../../manager/multitoken/executors/TimeLineExecutor';
 import { TokenType } from '../../../manager/multitoken/PortfolioManagerImpl';
@@ -14,41 +15,41 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
 
   public bindModel(model: Portfolio): object {
     return (
-      <div className="HistoryHolder__content" onClick={() => this.props.onChangePortfolio(model)}>
-        <div className="HistoryHolder__content_title">{this.getTitleOfType(model.type)}</div>
+      <div className="HistoryHolder__content">
+        <div className="HistoryHolder__content__title">{this.getTitleOfType(model.type)}</div>
 
-        <div className="HistoryHolder__content_param">
-          <span className="HistoryHolder__content_param_name">
+        <div className="HistoryHolder__content__param">
+          <span className="HistoryHolder__content__param-name">
             Rebalance cap:
           </span>
-          <span className="HistoryHolder__content_param_value">
+          <span className="HistoryHolder__content__param-value">
           ~$ {model.capWith.toLocaleString()}
           </span>
         </div>
 
-        <div className="HistoryHolder__content_param">
-          <span className="HistoryHolder__content_param_name">
+        <div className="HistoryHolder__content__param">
+          <span className="HistoryHolder__content__param-name">
             Origin cap:
           </span>
-          <span className="HistoryHolder__content_param_value">
+          <span className="HistoryHolder__content__param-value">
           $ {model.capWithout.toLocaleString()}
           </span>
         </div>
 
-        <div className="HistoryHolder__content_param">
-          <span className="HistoryHolder__content_param_name">
+        <div className="HistoryHolder__content__param">
+          <span className="HistoryHolder__content__param-name">
             BTC cap:
           </span>
-          <span className="HistoryHolder__content_param_value">
+          <span className="HistoryHolder__content__param-value">
           $ {model.capBtc.toLocaleString()}
           </span>
         </div>
 
-        <div className="HistoryHolder__content_param">
-          <span className="HistoryHolder__content_param_name">
+        <div className="HistoryHolder__content__param">
+          <span className="HistoryHolder__content__param-name">
             Amount:
           </span>
-          <span className="HistoryHolder__content_param_value">
+          <span className="HistoryHolder__content__param-value">
           $ {model.amount.toLocaleString()}
           </span>
         </div>
@@ -58,6 +59,16 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
         {this.getExchangeAmount(model.executors, model.options.exchangeAmount)}
         {this.getCommissionPercent(model.executors, model.options.commissionPercents)}
         {this.getTokensProportions(model.options.proportions)}
+
+        <div className="HistoryHolder__content__btn">
+          <Button
+            className="HistoryHolder__content__btn-load"
+            type="primary"
+            onClick={() => this.props.onChangePortfolio(model)}
+          >
+            Load
+          </Button>
+        </div>
       </div>
     );
   }
@@ -92,11 +103,11 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     if (this.diffPercentPercentsRebalanceVisibility(executors)) {
       return (
         <div>
-          <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
+          <div className="HistoryHolder__content__param">
+        <span className="HistoryHolder__content__param-name">
         Rebalance diff:
         </span>
-            <span className="HistoryHolder__content_param_value">
+            <span className="HistoryHolder__content__param-value">
         {value}%
         </span>
           </div>
@@ -111,11 +122,11 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     if (this.rebalancePeriodVisibility(executors)) {
       return (
         <div>
-          <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
+          <div className="HistoryHolder__content__param">
+        <span className="HistoryHolder__content__param-name">
         Rebalance period:
         </span>
-            <span className="HistoryHolder__content_param_value">
+            <span className="HistoryHolder__content__param-value">
         {this.getRebalanceByPeriod(value)}
         </span>
           </div>
@@ -147,11 +158,11 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     if (this.exchangeAmountVisibility(executors)) {
       return (
         <div>
-          <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
+          <div className="HistoryHolder__content__param">
+        <span className="HistoryHolder__content__param-name">
         Exchange amount:
         </span>
-            <span className="HistoryHolder__content_param_value">
+            <span className="HistoryHolder__content__param-value">
         $ {value}
         </span>
           </div>
@@ -166,11 +177,11 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     if (this.commissionPercentsVisibility(executors)) {
       return (
         <div>
-          <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
+          <div className="HistoryHolder__content__param">
+        <span className="HistoryHolder__content__param-name">
         Commission percent:
         </span>
-            <span className="HistoryHolder__content_param_value">
+            <span className="HistoryHolder__content__param-value">
         {value}%
         </span>
           </div>
@@ -185,11 +196,11 @@ export class HistoryHolder extends AbstractHolder<Properties, {}, Portfolio> {
     return proportions.map(value => {
       return (
         <div key={value.name}>
-          <div className="HistoryHolder__content_param">
-        <span className="HistoryHolder__content_param_name">
+          <div className="HistoryHolder__content__param">
+        <span className="HistoryHolder__content__param-name">
         {value.name} weight:
         </span>
-            <span className="HistoryHolder__content_param_value">
+            <span className="HistoryHolder__content__param-value">
         {value.weight}
         </span>
           </div>
