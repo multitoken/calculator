@@ -1103,10 +1103,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
   private rebalaningInfoDialog(): void {
     Modal.info({
-      className: 'test',
+      className: 'CalculatorPage__content__rebalance-info__dialog',
       content: this.getRebalanceDesc(),
-      iconClassName: 'test2',
-      iconType: 'test1',
+      iconClassName: '',
+      iconType: 'some-undefined-icon',
       title: <span className="CalculatorPage__content__rebalance-info__title">Balancing modes:</span>,
       onOk() {
         // close
