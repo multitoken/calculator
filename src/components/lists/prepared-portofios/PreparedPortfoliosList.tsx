@@ -28,6 +28,7 @@ export class PreparedPortfoliosList extends React.Component<Properties, {}> {
     return (
       <PreparedPortfolioHolder
         model={dataItem}
+        position={position}
         key={position}
         onItemClick={(model) => this.props.onPortfolioClick(model)}
       />

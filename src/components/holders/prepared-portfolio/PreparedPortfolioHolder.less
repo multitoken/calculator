@@ -10,44 +10,44 @@
   padding: 10px;
   margin: 5px;
   text-align: center;
-}
-
-.PreparedPortfolio__icon {
-  margin-bottom: 10px;
-}
-
-.PreparedPortfolio__type-block {
-  margin-top: 10px;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-rows: 20px 20px 121px 90px;
 }
 
-.PreparedPortfolio__type-block__key {
-  text-align: left;
-  margin-right: 10px;
+.PreparedPortfolio__title {
+  font-size: 20px;
+}
+
+.PreparedPortfolio__sub-title {
+  margin-top: 10px;
   font-size: 16px;
-  color: @text-color-dark;
+  color: #90a8bc;
 }
 
-.PreparedPortfolio__coins-block__key {
-  .PreparedPortfolio__type-block__key;
+.PreparedPortfolio__img__block {
+  position: relative;
+  margin: 20px auto;
 }
 
-.PreparedPortfolio__type-block__value {
-  font-size: 16px;
-  color: @text-color-light;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: right;
+.PreparedPortfolio__img__block__icon {
+  position: absolute;
+  left: 33px;
+  top: 33px;
 }
 
 .PreparedPortfolio__coins-block {
-  .PreparedPortfolio__type-block;
+  text-align: center;
+}
+
+.PreparedPortfolio__coins-block__key {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: white;
 }
 
 .PreparedPortfolio__coins-block__value {
-  .PreparedPortfolio__type-block__value;
+  font-size: 16px;
+  color: #90a8bc;
 }
 
 .PreparedPortfolio__content__btn {

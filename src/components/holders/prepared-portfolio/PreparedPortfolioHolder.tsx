@@ -1,11 +1,14 @@
 import Button from 'antd/lib/button/button';
 import * as React from 'react';
 import { PreparedPortfolio } from '../../../entities/PreparedPortfolio';
+import Background from '../../../res/icons/portfolio-blue.svg';
 import { TokensHelper } from '../../../utils/TokensHelper';
 import AbstractHolder, { AbstractProperties } from '../AbstractHolder';
 import './PreparedPortfolioHolder.less';
 
 export interface Properties extends AbstractProperties<PreparedPortfolio> {
+  position: number;
+
   onItemClick(model: PreparedPortfolio): void;
 }
 
@@ -16,26 +19,32 @@ export class PreparedPortfolioHolder extends AbstractHolder<Properties, {}, Prep
       <div
         className={`PreparedPortfolio__content`}
       >
-        <img className="PreparedPortfolio__icon" src={model.getIcon()}/>
 
-        <div className={'PreparedPortfolio__type-block'}>
-          <span className="PreparedPortfolio__type-block__key">Type:</span>
-          <span className="PreparedPortfolio__type-block__value">{model.getReadableType()}</span>
+        <div className="PreparedPortfolio__title">
+          Portfolio #{this.props.position + 1}
         </div>
+
+        <div className="PreparedPortfolio__sub-title">
+          {model.getReadableType()}
+        </div>
+
+        <div className="PreparedPortfolio__img__block">
+          <img className="PreparedPortfolio__img__block__background" src={Background}/>
+          <img className="PreparedPortfolio__img__block__icon" src={model.getIcon()}/>
+        </div>
+
         <div className={'PreparedPortfolio__coins-block'}>
-          <span className="PreparedPortfolio__coins-block__key">Coins:</span>
-          <span
-            className="PreparedPortfolio__coins-block__value"
-          >
-              {model.coins.map(coin => TokensHelper.getSymbol(coin)).join(',')}
-            </span>
+          <div className="PreparedPortfolio__coins-block__key">Coins:</div>
+          <div className="PreparedPortfolio__coins-block__value">
+            {model.coins.map(coin => TokensHelper.getSymbol(coin)).join(', ')}
+          </div>
         </div>
         <div className="PreparedPortfolio__content__btn">
           <Button
             type="primary"
             onClick={() => this.props.onItemClick(model)}
           >
-            Load
+            Select
           </Button>
         </div>
       </div>
