@@ -1,5 +1,6 @@
-import { Button, Col, DatePicker, Input, Layout, Popover, Row } from 'antd';
+import { Button, DatePicker, Input, Layout, Popover, Tooltip } from 'antd';
 import { SliderValue } from 'antd/es/slider';
+import Modal from 'antd/lib/modal/Modal';
 import * as moment from 'moment';
 import * as QueryString from 'querystring';
 import * as React from 'react';
@@ -15,6 +16,7 @@ import { LoadingDialog } from '../../components/dialogs/LoadingDialog';
 import { MessageDialog } from '../../components/dialogs/MessageDialog';
 import { ProgressDialog } from '../../components/dialogs/ProgressDialog';
 import { TokenWeightDialog } from '../../components/dialogs/TokenWeightDialog';
+import { TokenWeightSimpleList } from '../../components/lists/weight-simple/TokenWeightSimpleList';
 import { TokenWeightList } from '../../components/lists/weight/TokenWeightList';
 import PageHeader from '../../components/page-header/PageHeader';
 import { RebalanceTypes } from '../../components/rebalance-types/RebalanceTypes';
@@ -36,6 +38,7 @@ import { TokenPriceHistory } from '../../repository/models/TokenPriceHistory';
 import { TokenProportion } from '../../repository/models/TokenProportion';
 import { TokenWeight } from '../../repository/models/TokenWeight';
 
+import IcoInfo from '../../res/icons/ico_info.svg';
 import IcoProfMode from '../../res/icons/ico_professional_mode.svg';
 import { ScreenSizes, ScreenUtils } from '../../utils/ScreenUtils';
 import { TokensHelper } from '../../utils/TokensHelper';
@@ -70,12 +73,21 @@ interface State {
 export default class CalculatorPage extends React.Component<Props, State> implements ProgressListener {
 
   private static readonly REBALANCE_TYPES: RebalanceTypeItem[] = [
-    new RebalanceTypeItem(TokenType.PERIOD_REBALANCE),
-    new RebalanceTypeItem(TokenType.DIFF_PERCENT_REBALANCE),
-    new RebalanceTypeItem(TokenType.AUTO_REBALANCE),
-    new RebalanceTypeItem(TokenType.ADAPTIVE_PERCENT_EXCHANGER),
-    new RebalanceTypeItem(TokenType.FIX_PROPORTIONS),
-    new RebalanceTypeItem(TokenType.MANUAL_REBALANCE)
+    new RebalanceTypeItem(
+      TokenType.PERIOD_REBALANCE,
+      'Change the proportion of assets by time period after creating a multitoken.'
+    ),
+    new RebalanceTypeItem(TokenType.DIFF_PERCENT_REBALANCE, 'Change the proportion of assets by diff percent'),
+    new RebalanceTypeItem(TokenType.AUTO_REBALANCE, 'Keeps the specified ratio of portfolio proportions.'),
+    new RebalanceTypeItem(
+      TokenType.ADAPTIVE_PERCENT_EXCHANGER,
+      'Keeps the specified ratio of portfolio proportions. With adaptive exchange proportions'
+    ),
+    new RebalanceTypeItem(TokenType.FIX_PROPORTIONS, 'The number of tokens in the portfolio will be constant.'),
+    new RebalanceTypeItem(
+      TokenType.MANUAL_REBALANCE,
+      'Change the proportion of assets manually after creating a multitoken.'
+    )
   ];
 
   @lazyInject(Services.PORTFOLIO_MANAGER as string)
@@ -177,6 +189,11 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <div className="CalculatorPage__content_right">
               <div className="CalculatorPage__content_right-top">
                 <StatisticItem
+                  helperItem={(
+                    <Tooltip title={this.getTooltipInfo()}>
+                      <img src={IcoInfo} alt={'i'} className="CalculatorPage__content-info"/>
+                    </Tooltip>
+                  )}
                   name={RebalanceHistory.MULTITOKEN_NAME_REBALANCE}
                   compareCap={hasRebalance ? rebalanceResult.capBtc() : '0'}
                   cap={hasRebalance ? rebalanceResult.capWithRebalance() : '0'}
@@ -193,12 +210,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
               </div>
             </div>
           </div>
-          <Row>
-            <Col span={8}>
-              <div className="CalculatorPage__content__title">Portfolio:</div>
-            </Col>
+          <div className="CalculatorPage__content-second">
+            <div className="CalculatorPage__content__title-portfolio">Portfolio:</div>
             {this.prepareChangeButtons()}
-          </Row>
+          </div>
           <div>
             <CoinsProportions
               coins={this.getCoins()}
@@ -340,14 +355,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
     return (
       <span className="CalculatorPage__content__edit">
-      <Col span={16} className="CalculatorPage__content__edit__button-change__block">
+      <div className="CalculatorPage__content__edit__button-change__block">
         <span
           className="CalculatorPage__content__edit__button-change"
           onClick={() => this.onChangeCoinsClick()}
         >
           Change coins
         </span>
-      </Col>
+      </div>
       </span>
     );
   }
@@ -468,8 +483,13 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     return (
       <div>
         <BlockContent className="CalculatorPage__content__prof-mode__method">
-          <div className="CalculatorPage__content__prof-mode__method__title">
-            Balancing method:
+          <div className="CalculatorPage__content__prof-mode__method__block">
+            <div className="CalculatorPage__content__prof-mode__method__title">
+              Balancing method:
+            </div>
+            <div className="CalculatorPage__content__prof-mode__method__helper">
+              <img src={IcoInfo} alt={'i'} onClick={() => this.rebalaningInfoDialog()}/>
+            </div>
           </div>
           <div className="CalculatorPage__content__prof-mode__method__items">
             <RebalanceTypes
@@ -885,6 +905,229 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     const reg: RegExp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 
     return reg.test(String(email).toLowerCase());
+  }
+
+  private getTooltipInfo(): React.ReactNode {
+    return (
+      <div className="CalculatorPage__tooltip">
+        <div className="CalculatorPage__tooltip_title">{this.getTitleOfType()}</div>
+        <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        Amount of money:
+        </span>
+          <span className="CalculatorPage__tooltip_param_value">
+        $ {this.portfolioManager.getAmount().toLocaleString()}
+        </span>
+        </div>
+        {this.getRebalancePeriod()}
+        {this.getRebalanceDiffPercent()}
+        {this.getExchangeAmount()}
+        {this.getCommissionPercent()}
+        {this.getTokensProportions()}
+        {this.getManualRebalanceList()}
+      </div>
+    );
+  }
+
+  private getTitleOfType(): string {
+    const tokenType: TokenType = this.portfolioManager.getTokenType();
+
+    switch (tokenType) {
+      case TokenType.AUTO_REBALANCE:
+        return 'Auto rebalance:';
+
+      case TokenType.MANUAL_REBALANCE:
+        return 'Manual rebalance:';
+
+      case TokenType.FIX_PROPORTIONS:
+        return 'Fix proportions:';
+
+      case TokenType.PERIOD_REBALANCE:
+        return 'Rebalance by period:';
+
+      case TokenType.DIFF_PERCENT_REBALANCE:
+        return 'Price rebalancing:';
+
+      case TokenType.ADAPTIVE_PERCENT_EXCHANGER:
+        return '10% exchanges of balance:';
+
+      default:
+        return 'unknown';
+    }
+  }
+
+  private getCommissionPercent(): React.ReactNode {
+    const manager: PortfolioManager = this.portfolioManager;
+
+    if (this.toolTipCommissionVisibility()) {
+      return (
+        <div>
+          <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        Commission percent:
+        </span>
+            <span className="CalculatorPage__tooltip_param_value">
+        {manager.getCommission().toLocaleString()}%
+        </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private toolTipCommissionVisibility(): boolean {
+    const executors: string[] = this.portfolioManager.getExecutorsByTokenType();
+
+    return executors.indexOf(ExecutorType.EXCHANGER) > -1 || executors.indexOf(ExecutorType.ARBITRAGEUR) > -1;
+  }
+
+  private getExchangeAmount(): React.ReactNode {
+    if (this.toolTipExchangeAmountVisibility()) {
+      return (
+        <div>
+          <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        Exchange amount:
+        </span>
+            <span className="CalculatorPage__tooltip_param_value">
+        $ {this.portfolioManager.getExchangeAmount().toLocaleString()}
+        </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private toolTipExchangeAmountVisibility(): boolean {
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.EXCHANGER) > -1;
+  }
+
+  private getRebalancePeriod(): React.ReactNode {
+    if (this.toolTipRebalancePeriodVisibility()) {
+      return (
+        <div>
+          <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        Rebalance period:
+        </span>
+            <span className="CalculatorPage__tooltip_param_value">
+        {this.getRebalanceByPeriod(this.portfolioManager.getRebalancePeriod())}
+        </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private toolTipRebalancePeriodVisibility(): boolean {
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.PERIOD_REBALANCER) > -1;
+  }
+
+  private getRebalanceDiffPercent(): React.ReactNode {
+    if (this.toolTipRebalanceDiffPercentVisibility()) {
+      return (
+        <div>
+          <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        Rebalance diff:
+        </span>
+            <span className="CalculatorPage__tooltip_param_value">
+        {this.portfolioManager.getRebalanceDiffPercent()}%
+        </span>
+          </div>
+        </div>
+      );
+    }
+
+    return '';
+  }
+
+  private toolTipRebalanceDiffPercentVisibility(): boolean {
+    return this.portfolioManager
+      .getExecutorsByTokenType()
+      .indexOf(ExecutorType.DIFF_PERCENT_REBALANCER) > -1;
+  }
+
+  private getRebalanceByPeriod(seconds: number): string {
+    if (seconds === 3600) {
+      return 'HOUR';
+
+    } else if (seconds === 86400) {
+      return 'DAY';
+
+    } else if (seconds === 604800) {
+      return 'WEEK';
+
+    } else if (seconds === 2592000) {
+      return 'MONTH';
+    }
+
+    return 'SOME_CUSTOM';
+  }
+
+  private getTokensProportions(): React.ReactNode {
+    return this.portfolioManager.getProportions().map(value => {
+      return (
+        <div key={value.name}>
+          <div className="CalculatorPage__tooltip_param">
+        <span className="CalculatorPage__tooltip_param_name">
+        {value.name} weight:
+        </span>
+            <span className="CalculatorPage__tooltip_param_value">
+        {value.weight}
+        </span>
+          </div>
+        </div>
+      );
+    });
+  }
+
+  private getManualRebalanceList(): React.ReactNode {
+    if (this.portfolioManager.getTokenType() === TokenType.MANUAL_REBALANCE) {
+      return <TokenWeightSimpleList
+        data={this.portfolioManager.getRebalanceWeights()}
+      />;
+    }
+    return '';
+  }
+
+  private rebalaningInfoDialog(): void {
+    Modal.info({
+      className: 'test',
+      content: this.getRebalanceDesc(),
+      iconClassName: 'test2',
+      iconType: 'test1',
+      title: <span className="CalculatorPage__content__rebalance-info__title">Balancing modes:</span>,
+      onOk() {
+        // close
+      },
+    });
+  }
+
+  private getRebalanceDesc(): React.ReactNode {
+    return CalculatorPage.REBALANCE_TYPES.map(item => {
+      return (
+        <div key={item.getReadableType()} className="CalculatorPage__content__rebalance-info">
+          <img className="CalculatorPage__content__rebalance-info__icon" src={item.getIcon()}/>
+          <div className="CalculatorPage__content__rebalance-info__title">
+            {item.getReadableType()}
+          </div>
+          <div className="CalculatorPage__content__rebalance-info__desc">
+            {item.desc}
+          </div>
+        </div>
+      );
+    });
   }
 
 }
