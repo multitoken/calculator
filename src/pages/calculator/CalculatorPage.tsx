@@ -487,8 +487,14 @@ export default class CalculatorPage extends React.Component<Props, State> implem
             <div className="CalculatorPage__content__prof-mode__method__title">
               Balancing method:
             </div>
-            <div className="CalculatorPage__content__prof-mode__method__helper">
-              <img src={IcoInfo} alt={'i'} onClick={() => this.rebalaningInfoDialog()}/>
+            <div
+              className="CalculatorPage__content__prof-mode__method__helper"
+              onClick={() => this.rebalaningInfoDialog()}
+            >
+              <img
+                className="CalculatorPage__content__prof-mode__method__helper__icon"
+                src={IcoInfo} alt={'i'}
+              />
             </div>
           </div>
           <div className="CalculatorPage__content__prof-mode__method__items">
