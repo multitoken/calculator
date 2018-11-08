@@ -18,11 +18,15 @@ export default class Config {
     return ArgumentUtils.getValue('REACT_APP_INTERCOM_APP_ID');
   }
 
-  public static getGoogleAnalyticsTrackId() {
+  public static getHotjarAppId(): string {
+    return ArgumentUtils.getValue('REACT_APP_HOTJAR_APP_ID');
+  }
+
+  public static getGoogleAnalyticsTrackId(): string {
     return ArgumentUtils.getValue('REACT_APP_GOOGLE_ANALYTICS_TRACK_ID');
   }
 
-  public static isDebug() {
+  public static isDebug(): boolean {
     return !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
   }
 

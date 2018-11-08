@@ -9,6 +9,7 @@ import CalculatorPage from './pages/calculator/CalculatorPage';
 import HistoryPage from './pages/history/HistoryPage';
 import SetupTokenPage from './pages/setup/SetupTokenPage';
 import './res/styles/Theme.less';
+import { Hotjar } from './utils/Hotjar';
 import { Intercom } from './utils/Intercom';
 
 // const GH_PAGES_PREFIX_URL = 'calculator';
@@ -22,6 +23,7 @@ ReactDOM.render(
       <Route exact={true} path="/calculator" component={CalculatorPage}/>
       <Route exact={true} path="/history" component={HistoryPage}/>
       <Intercom appId={Config.getIntercomAppId()}/>
+      <Hotjar appId={Config.getHotjarAppId()}/>
     </div>
   </Router>,
   document.getElementById('root') as HTMLElement
