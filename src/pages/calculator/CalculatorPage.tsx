@@ -384,7 +384,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         <Button
           className="CalculatorPage__content__prof-mode-desc__button"
           type="primary"
-          onClick={() => this.setState({professionalMode: true})}
+          onClick={() => {
+            this.analyticsManager.trackEvent('button', 'click', 'activate-prof-mode');
+            this.setState({professionalMode: true});
+          }}
         >
           Activate
         </Button>
@@ -473,6 +476,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   private onChangeCoinsClick(): void {
     const {history} = this.props;
     history.push('/');
+    this.analyticsManager.trackEvent('button', 'click', 'change-coins');
   }
 
   private prepareConfiguration(): React.ReactNode {
