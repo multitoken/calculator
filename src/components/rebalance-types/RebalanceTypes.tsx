@@ -38,6 +38,7 @@ export class RebalanceTypes extends React.Component<Props, State> {
   private prepareItem(item: RebalanceTypeItem): React.ReactNode {
     return (
       <div
+        key={item.getReadableType()}
         className={`RebalanceTypes__content__item${this.state.selected === item ? '_selected' : ''}`}
         onClick={() => this.onItemClick(item)}
       >
