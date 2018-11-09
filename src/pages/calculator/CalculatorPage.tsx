@@ -216,7 +216,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           </div>
           <div>
             <CoinsProportions
-              coins={this.getCoins()}
+              coins={this.state.coins}
               disabled={this.state.tokensWeightList.length > 0}
               isEditMode={this.state.isEditMode}
               maxWeight={10}
@@ -306,6 +306,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         tokensHistory: this.portfolioManager.getPriceHistory(),
         tokensWeightList: this.portfolioManager.getRebalanceWeights(),
       });
+      this.setState({coins: this.getCoins()});
+
     } catch (error) {
       console.error(error);
       this.analyticsManager.trackException(error);
@@ -318,7 +320,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     const result: TokenProportion[] = this.state.proportionList.slice(0, this.state.proportionList.length);
     result[position].weight = value;
     this.portfolioManager.changeProportions(result);
-    this.setState({proportionList: result});
+    this.setState({proportionList: result, coins: this.getCoins()});
     this.analyticsManager.trackEvent('slider', 'change-proportion', name);
   }
 
@@ -866,6 +868,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
 
         this.analyticsManager.trackPage('/calculator/result');
         this.setState({
+          coins: this.getCoins(),
           isEditMode: false,
           showCalculationProgress: false,
         });
