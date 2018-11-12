@@ -146,7 +146,8 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       return;
 
     } else if (this.portfolioManager.getMaxCalculationIndex() <= 0) {
-      this.onChangeCoinsClick();
+      const {history} = this.props;
+      history.push('/');
       return;
     }
 
@@ -474,9 +475,11 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onChangeCoinsClick(): void {
-    const {history} = this.props;
-    history.push('/');
-    this.analyticsManager.trackEvent('button', 'click', 'change-coins');
+    this.toMainSiteDialog(() => {
+      const {history} = this.props;
+      history.push('/');
+      this.analyticsManager.trackEvent('button', 'click', 'change-coins');
+    });
   }
 
   private prepareConfiguration(): React.ReactNode {
@@ -856,8 +859,10 @@ export default class CalculatorPage extends React.Component<Props, State> implem
   }
 
   private onEditClick(): void {
-    this.setState({isEditMode: true});
-    this.analyticsManager.trackPage('/calculator/configurator');
+    this.toMainSiteDialog(() => {
+      this.setState({isEditMode: true});
+      this.analyticsManager.trackPage('/calculator/configurator');
+    });
   }
 
   private onCalculateClick(): void {
@@ -1140,6 +1145,27 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           </div>
         </div>
       );
+    });
+  }
+
+  private toMainSiteDialog(callbackOnCancel: () => void): void {
+    Modal.confirm({
+      className: 'CalculatorPage__content__to-site__dialog',
+      content: (
+        <div className="CalculatorPage__content__to-site__dialog__content">
+          <div>We have already prepared popular portfolios for you.</div>
+          <div>Would you like to see?</div>
+        </div>
+      ),
+      iconClassName: '',
+      iconType: 'some-undefined-icon',
+      onOk: () => {
+        this.analyticsManager.trackEvent('button', 'click', 'redirect-to-multitoken.io');
+        window.open('https://www.multitoken.io/', '_blank');
+      },
+      onCancel() {
+        callbackOnCancel();
+      },
     });
   }
 
