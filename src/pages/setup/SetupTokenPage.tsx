@@ -80,15 +80,31 @@ export default class SetupTokenPage extends React.Component<Props, State> {
             />
           </div>
 
-          <div className="SetupTokenPage__sub-header">
-            Or
-          </div>
+          {this.prepareBlockWithCoins()}
+        </div>
+        <PageFooter/>
+        <LoadingDialog
+          openDialog={this.state.preparedHistoryData}
+          message={'Please wait. We prepare historical data of coins'}
+        />
+      </Layout>
+    );
+  }
 
-          <div className="SetupTokenPage__header">
-            Select coins for create `{RebalanceHistory.MULTITOKEN_NAME_REBALANCE}` (at least two)
-          </div>
+  private prepareBlockWithCoins(): React.ReactNode {
+    return null;
 
-          <BlockContent className="SetupTokenPage__coins">
+    return (
+      <span>
+        <div className="SetupTokenPage__sub-header">
+          Or
+        </div>
+
+        <div className="SetupTokenPage__header">
+          Select coins for create `{RebalanceHistory.MULTITOKEN_NAME_REBALANCE}` (at least two)
+        </div>
+
+        <BlockContent className="SetupTokenPage__coins">
             <TokensNamesList
               data={this.state.availableTokenNames}
               checked={this.state.selectedTokenNames}
@@ -113,13 +129,7 @@ export default class SetupTokenPage extends React.Component<Props, State> {
               History
             </span>
           </div>
-        </div>
-        <PageFooter/>
-        <LoadingDialog
-          openDialog={this.state.preparedHistoryData}
-          message={'Please wait. We prepare historical data of coins'}
-        />
-      </Layout>
+      </span>
     );
   }
 
