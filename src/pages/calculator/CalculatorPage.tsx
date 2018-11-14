@@ -283,7 +283,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       console.error(error);
       this.analyticsManager.trackException(error);
       alert('Something went wrong!');
-      window.location.replace('/tokens');
+      window.location.replace('/');
     }
   }
 
@@ -855,6 +855,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
         console.error(reason);
         this.analyticsManager.trackException(reason);
         alert('Something went wrong!');
+        window.location.replace('/');
       });
   }
 
@@ -874,7 +875,6 @@ export default class CalculatorPage extends React.Component<Props, State> implem
     this.portfolioManager.calculateInitialAmounts();
     this.portfolioManager.calculate()
       .then((result) => {
-
         this.analyticsManager.trackPage('/calculator/result');
         this.setState({
           coins: this.getCoins(),
@@ -882,7 +882,11 @@ export default class CalculatorPage extends React.Component<Props, State> implem
           showCalculationProgress: false,
         });
         window.scrollTo(0, 0);
-      }).catch(error => this.analyticsManager.trackException(error));
+      }).catch(error => {
+      this.analyticsManager.trackException(error);
+      alert('Something went wrong!');
+      window.location.replace('/');
+    });
   }
 
   private prepareContentSaveResult(): React.ReactNode {
@@ -1161,7 +1165,7 @@ export default class CalculatorPage extends React.Component<Props, State> implem
       iconType: 'some-undefined-icon',
       onOk: () => {
         this.analyticsManager.trackEvent('button', 'click', 'redirect-to-multitoken.io');
-        window.open('https://www.multitoken.io/', '_blank');
+        window.location.replace('https://www.multitoken.io/');
       },
       onCancel() {
         callbackOnCancel();
